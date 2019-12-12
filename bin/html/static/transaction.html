@@ -17,72 +17,72 @@
         <div class="col-md-12 column">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">
+                    <h3 class="panel-title" data-localize="search">
                         Search
                     </h3>
                 </div>
                 <div class="panel-body">
                     <div class="input-group">
-                        <span class="input-group-addon">Chain:</span>
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
                         <input type="number" min="1" class="form-control" id="search_chain" value="1">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Transaction Key:</span>
+                        <span class="input-group-addon" data-localize="key">Transaction Key:</span>
                         <input type="text" class="form-control" id="search_key">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" id="btn_key">Go!</button>
+                            <button class="btn btn-default" type="button" id="btn_key" data-localize="go">Go!</button>
                         </span>
                     </div>
                 </div>
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">
+                    <h3 class="panel-title" data-localize="trans_info">
                         Transaction Info
                     </h3>
                 </div>
                 <div class="panel-body">
                     <div class="input-group">
-                        <span class="input-group-addon">Chain:</span>
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
                         <span class="form-control" id="chain"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Key:</span>
+                        <span class="input-group-addon" data-localize="key">Key:</span>
                         <span class="form-control" id="key"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Time:</span>
+                        <span class="input-group-addon" data-localize="time">Time:</span>
                         <span class="form-control" id="time"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">User:</span>
+                        <span class="input-group-addon" data-localize="user">User:</span>
                         <span class="form-control" id="user"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Cost:</span>
+                        <span class="input-group-addon" data-localize="cost">Cost:</span>
                         <span class="form-control" id="cost"></span>
                         <span class="input-group-addon" id="base_cost"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Energy:</span>
+                        <span class="input-group-addon" data-localize="energy">Energy:</span>
                         <span class="form-control" id="energy"></span>
                         <span class="input-group-addon" id="base_energy"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">BlockID:</span>
+                        <span class="input-group-addon" data-localize="block_id">BlockID:</span>
                         <span class="form-control" id="bid"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Ops:</span>
+                        <span class="input-group-addon" data-localize="ops">Ops:</span>
                         <span class="form-control" id="ops"></span>
                     </div>
                     <br>
@@ -119,7 +119,8 @@
     <script src="js/jquery-3.3.1.min.js"></script>
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/load.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
 
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);

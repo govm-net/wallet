@@ -15,43 +15,44 @@
         <div id="navbar"></div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">
+                <h3 class="panel-title" data-localize="move">
                     Move
                 </h3>
             </div>
             <div class="panel-body">
                 <form class="bs-example bs-example-form" role="form">
                     <div class="input-group">
-                        <span class="input-group-addon">Description:</span>
-                        <span class="form-control label-info"><b>Move coin to other chain</b></span>
+                        <span class="input-group-addon"  data-localize="description">Description:</span>
+                        <span class="form-control label-info"><b data-localize="desc_info">
+                            Move coin to other chain,need wait 10min after BlockID not equal 0.</b></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Source Chain:</span>
+                        <span class="input-group-addon"  data-localize="source">Source Chain:</span>
                         <input type="number" min="1" class="form-control" name="src_chain" value="1">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Target Chain:</span>
+                        <span class="input-group-addon" data-localize="target">Target Chain:</span>
                         <input type="number" min="1" class="form-control" name="dst_chain" value="2">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Amount</span>
+                        <span class="input-group-addon"  data-localize="amount">Amount</span>
                         <input type="number" class="form-control" placeholder="100" name="cost">
                         <span class="input-group-addon" id="base_cost"></span>
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Energy</span>
+                        <span class="input-group-addon"  data-localize="energy">Energy</span>
                         <input type="number" class="form-control" name="energy" value="0.1">
                         <span class="input-group-addon" id="base_energy"></span>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-success pull-right" id="submit">Submit</button>
+                    <button type="button" class="btn btn-success pull-right" id="submit"  data-localize="submit">Submit</button>
                     <br>
                 </form>
                 <div>
@@ -69,7 +70,8 @@
     <!-- 包括所有已编译的插件 -->
     <script src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
-    <script src="js/load.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
 
     <script type="application/javascript">
         $("#base_cost").html(gCostBase);

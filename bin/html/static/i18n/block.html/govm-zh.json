@@ -1,0 +1,14 @@
+{
+    "search":"查询",
+    "chain":"链",
+    "index":"序号",
+    "key":"哈希值",
+    "block_info":"区块信息",
+    "time":"时间",
+    "previous":"前一个",
+    "parent":"父链区块",
+    "left_child":"左子链区块",
+    "right_child":"右子链区块",
+    "producer":"矿工",
+    "go":"查询"
+}

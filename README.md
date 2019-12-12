@@ -10,3 +10,7 @@ govm wallet(cmd,web assembly,html)
     * cd bin/wasm
     * ./build.sh
     * [how to use](https://github.com/golang/go/wiki/WebAssembly)
+3. local web wallet:
+    * cd bin/html
+    * ./build.sh
+    * ./html

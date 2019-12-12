@@ -15,39 +15,39 @@
         <div id="navbar"></div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">
+                <h3 class="panel-title" data-localize="transfer">
                     Transfer
                 </h3>
             </div>
             <div class="panel-body">
                 <form class="bs-example bs-example-form" role="form">
                     <div class="input-group">
-                        <span class="input-group-addon">Chain:</span>
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
                         <input type="number" min="1" class="form-control" name="chain" value="1">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Peer:</span>
+                        <span class="input-group-addon" data-localize="peer">Peer:</span>
                         <input type="text" class="form-control" placeholder="024ce13ac6040fd15f25b0996425df63a5ee75ced74ba2ff"
                             name="peer">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Amount</span>
+                        <span class="input-group-addon" data-localize="amount">Amount</span>
                         <input type="number" class="form-control" placeholder="100" name="cost">
                         <span class="input-group-addon" id="base_cost"></span>
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Energy</span>
+                        <span class="input-group-addon" data-localize="energy">Energy</span>
                         <input type="number" class="form-control" name="energy" value="0.01">
                         <span class="input-group-addon" id="base_energy"></span>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-success pull-right" id="submit">Submit</button>
+                    <button type="button" class="btn btn-success pull-right" id="submit" data-localize="submit">Submit</button>
                     <br>
                 </form>
                 <div>
@@ -65,7 +65,8 @@
     <!-- 包括所有已编译的插件 -->
     <script src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
-    <script src="js/load.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
 
     <script type="application/javascript">
         $("#base_cost").html(gCostBase);

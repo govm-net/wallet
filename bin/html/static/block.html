@@ -17,29 +17,29 @@
         <div class="col-md-12 column">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">
+                    <h3 class="panel-title" data-localize="search">
                         Search
                     </h3>
                 </div>
                 <div class="panel-body">
                     <div class="input-group">
-                        <span class="input-group-addon">Chain:</span>
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
                         <input type="number" min="1" class="form-control" id="search_chain"  value="1">
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Index:</span>
+                        <span class="input-group-addon" data-localize="index">Index:</span>
                         <input type="number" class="form-control" id="search_id" value="0">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" id="btn_id">Go!</button>
+                            <button class="btn btn-default" type="button" id="btn_id" data-localize="go">Go!</button>
                         </span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Block Key:</span>
+                        <span class="input-group-addon" data-localize="key">Block Key:</span>
                         <input type="text" class="form-control" id="search_key">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" id="btn_key">Go!</button>
+                            <button class="btn btn-default" type="button" id="btn_key" data-localize="go">Go!</button>
                         </span>
                     </div>
                 </div>
@@ -50,53 +50,53 @@
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">
+                    <h3 class="panel-title" data-localize="block_info">
                         Block Info
                     </h3>
                 </div>
                 <div class="panel-body">
                     <div class="input-group">
-                        <span class="input-group-addon">Chain:</span>
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
                         <span class="form-control" id="chain"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Key:</span>
+                        <span class="input-group-addon" data-localize="key">Key:</span>
                         <span class="form-control" id="key"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Time:</span>
+                        <span class="input-group-addon" data-localize="time">Time:</span>
                         <span class="form-control" id="time"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Previous:</span>
+                        <span class="input-group-addon" data-localize="previous">Previous:</span>
                         <span class="form-control" id="previous"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Parent:</span>
+                        <span class="input-group-addon" data-localize="parent">Parent:</span>
                         <span class="form-control" id="parent"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">LeftChild:</span>
+                        <span class="input-group-addon" data-localize="left_child">LeftChild:</span>
                         <span class="form-control" id="left_child"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">RightChild:</span>
+                        <span class="input-group-addon" data-localize="right_child">RightChild:</span>
                         <span class="form-control" id="right_child"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Producer:</span>
+                        <span class="input-group-addon" data-localize="producer">Producer:</span>
                         <span class="form-control" id="producer"></span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Index:</span>
+                        <span class="input-group-addon" data-localize="index">Index:</span>
                         <span class="form-control" id="index"></span>
                     </div>
                 </div>
@@ -109,7 +109,8 @@
     <script src="js/jquery-3.3.1.min.js"></script>
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/load.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
 
     <script type="text/javascript">
         function getBlock(chain, index,key) {

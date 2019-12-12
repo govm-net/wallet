@@ -1,0 +1,8 @@
+{
+    "transfer":"转账",
+    "chain":"链",
+    "peer":"对方地址",
+    "amount":"金额",
+    "energy":"手续费",
+    "submit":"提交"
+}

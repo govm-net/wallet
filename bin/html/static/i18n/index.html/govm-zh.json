@@ -1,0 +1,10 @@
+{
+    "info":"信息",
+    "chain":"链",
+    "wallet_addr":"钱包地址",
+    "blance":"账户余额",
+    "send_history":"转出记录",
+    "receive_history":"转入记录",
+    "next":"下一页",
+    "transaction":"交易"
+}

@@ -16,53 +16,51 @@
         <div id="navbar"></div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">
+                <h3 class="panel-title"  data-localize="run_app">
                     Run APP
                 </h3>
             </div>
             <div class="panel-body">
                 <form class="bs-example bs-example-form" role="form">
                     <div class="input-group">
-                        <span class="input-group-addon">Chain:</span>
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
                         <input type="number" min="1" class="form-control" name="chain" value="1">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">APP Name</span>
+                        <span class="input-group-addon" data-localize="app_name">APP Name</span>
                         <input type="text" class="form-control" name="app_name" placeholder="e4a05b2b8a4de21d9e6f26e9d7992f7f33e89689f3015f3fc8a3a3278815e28c">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Data Type</span>
-                        <select class="form-control"  name="param_type">
-                            <option>hex</option>
-                            <option>json</option>
-                            <option>string</option>
-                          </select>
-                    </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon">Data</span>
-                        <input type="text" class="form-control" placeholder="a70c23aef9e" name="param">
-                    </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon">Cost</span>
-                        <input type="number" class="form-control" value="10" name="cost">
+                        <span class="input-group-addon" data-localize="cost">Cost</span>
+                        <input type="number" class="form-control" value="0" name="cost">
                         <span class="input-group-addon" id="base_cost"></span>
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon">Energy</span>
+                        <span class="input-group-addon" data-localize="energy">Energy</span>
                         <input type="number" class="form-control" name="energy" value="1">
                         <span class="input-group-addon" id="base_energy"></span>
                     </div>
-
                     <br>
-                    <button type="button" class="btn btn-success pull-right" id="submit">Submit</button>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="data_type">Data Type</span>
+                        <select class="form-control"  name="param_type">
+                            <option data-localize="data_string">string</option>
+                            <option data-localize="data_hex">hex</option>
+                          </select>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="data">Data</span>
+                        <input type="text" class="form-control" placeholder="a70c23aef9e" name="param">
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-success pull-right" id="submit" data-localize="submit">Submit</button>
                     <br>
                 </form>
                 <div>
@@ -79,7 +77,8 @@
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
-    <script src="js/load.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
 
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);

@@ -1,5 +1,6 @@
 var gChainID
 var gCostBase
+var gLanguage
 gChainID = getCookie("chain_id")
 if (gChainID == "") {
     gChainID = "1"
@@ -10,8 +11,9 @@ if (gCostBase == "") {
     gCostBase = "t9"
     setCookie("cost_base", gCostBase)
 }
+gLanguage = getCookie("language")
 
-$.get("navbar.page", function (data) {
+$.get("navbar.page?v=2", function (data) {
     $("#navbar").html(data);
     var url = window.location.pathname;
     if (url == "/") {
@@ -21,8 +23,20 @@ $.get("navbar.page", function (data) {
     $('ul.nav a').filter(function () {
         return this.href.pathname == url;
     }).parent().addClass('active');
+    loadLanguage();
 });
 
+function loadLanguage() {
+    var fn = window.location.pathname;
+    if (fn == "/") {
+        fn = "/index.html";
+    }
+    if (gLanguage != "") {
+        $("[data-localize]").localize("i18n" + fn + "/govm", { language: gLanguage }).localize("i18n/navbar/govm", { language: gLanguage })
+    } else {
+        $("[data-localize]").localize("i18n" + fn + "/govm").localize("i18n/navbar/govm")
+    }
+}
 
 function bytes2Str(arr) {
     var str = "";
@@ -94,6 +108,6 @@ function getBaseByName(name) {
     return 1
 }
 
-function getValueWithBase(v,name){
-    return Math.floor((v/getBaseByName(name))*100)/100
+function getValueWithBase(v, name) {
+    return Math.floor((v / getBaseByName(name)) * 100) / 100
 }
