@@ -1,0 +1,17 @@
+{
+    "setting":"设置(setting)",
+    "def_chain":"默认的链",
+    "change":"修改<span class='caret'></span>",
+    "unit":"代币单位",
+    "language":"语言(Language)",
+    "zh":"中文",
+    "en":"English",
+    "local":"当地语言",
+    "version":"软件版本",
+    "build_time":"编译时间",
+    "git_head":"源码的git信息",
+    "message":"提示",
+    "describe":"发送一个事件关闭程序",
+    "close":"关闭",
+    "lg_set":"中文"
+}

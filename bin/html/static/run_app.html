@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"  data-localize="run_app">
+                    Run APP
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form class="bs-example bs-example-form" role="form">
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
+                        <input type="number" min="1" class="form-control" name="chain" value="1">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="app_name">APP Name</span>
+                        <input type="text" class="form-control" name="app_name" placeholder="e4a05b2b8a4de21d9e6f26e9d7992f7f33e89689f3015f3fc8a3a3278815e28c">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="cost">Cost</span>
+                        <input type="number" class="form-control" value="0" name="cost">
+                        <span class="input-group-addon" id="base_cost"></span>
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="energy">Energy</span>
+                        <input type="number" class="form-control" name="energy" value="1">
+                        <span class="input-group-addon" id="base_energy"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="data_type">Data Type</span>
+                        <select class="form-control"  name="param_type">
+                            <option data-localize="data_string">string</option>
+                            <option data-localize="data_hex">hex</option>
+                          </select>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="data">Data</span>
+                        <input type="text" class="form-control" placeholder="a70c23aef9e" name="param">
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-success pull-right" id="submit" data-localize="submit">Submit</button>
+                    <br>
+                </form>
+                <div>
+                    <h3 id="result">
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
+
+    <script type="text/javascript">
+        $("#base_cost").html(gCostBase);
+        $("#base_energy").html(gCostBase);
+        $("input[name='chain']").val(gChainID);
+        $('#submit').on('click', function () {
+            $("#result").html("");
+            var data = $('form').serializeJSON()
+            base = getBaseByName(gCostBase)
+            data.cost = parseInt(data.cost*base)
+            data.energy = parseInt(data.energy*base)
+            if (data.save_result == "on"){
+                data.save_result = true
+            }
+            var chain = data.chain
+            data = JSON.stringify(data)
+            //alert(data)
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/" + chain + "/transaction/app/run",
+                data: data,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data);
+                    $("#result").html("<span class=\"label label-success\">transaction:<a href=\"transaction.html?key=" 
+                        + data.key + "\">" + data.key + "</a></span>");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    console.log(XMLHttpRequest.responseText);
+                    // 错误信息   
+                    console.log(textStatus);
+                    //alert(XMLHttpRequest.responseText)
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

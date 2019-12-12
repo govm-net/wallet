@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 引入 Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+
+    <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
+    <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
+    <!--[if lt IE 9]>
+         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+         <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+      <![endif]-->
+</head>
+
+<body>
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="col-md-12 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" data-localize="setting">Setting</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="def_chain">Default Chain:</span>
+                        <input class="form-control" id="chain">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-success" onclick="changeDfChain()" data-localize="change">Change
+                            </button></div>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="unit">Currency Unit:</span>
+                        <span class="form-control" id="cost_base"></span>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default 
+                                dropdown-toggle" data-toggle="dropdown" data-localize="change">Change
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a onclick="changeBase('t0')">t0</a>
+                                </li>
+                                <li>
+                                    <a onclick="changeBase('t3')">t3=1000*t0</a>
+                                </li>
+                                <li>
+                                    <a onclick="changeBase('t6')">t6=1000*t3</a>
+                                </li>
+                                <li>
+                                    <a onclick="changeBase('t9')">t9=1000*t6</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="language">Language:</span>
+                        <span class="form-control" id="language" data-localize="lg_set">English</span>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default 
+                                dropdown-toggle" data-toggle="dropdown" data-localize="change">Change
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a onclick="changeLang('zh')" data-localize="zh">中文</a>
+                                </li>
+                                <li>
+                                    <a onclick="changeLang('en')" data-localize="en">English</a>
+                                </li>
+                                <li>
+                                    <a onclick="changeLang('')" data-localize="local">LocalLanguage</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
+
+    <script type="text/javascript">
+        $("#cost_base").html(gCostBase);
+        $("#chain").val(gChainID);
+        
+        function changeBase(name) {
+            gCostBase = name;
+            setCookie("cost_base", gCostBase);
+            $("#cost_base").html(name);
+        }
+        function changeDfChain() {
+            nc = parseInt($("#chain").val())
+            gChainID = nc;
+            setCookie("chain_id", gChainID)
+        }
+
+        $.get("/api/v1/version", function (data, status) {
+            if (status != "success") {
+                alert("Data: " + data + "\nStatus: " + status);
+            } else {
+                $("#version").html("<b>" + data.Version + "</b>");
+                $("#build_time").html("<b>" + data.BuildTime + "</b>");
+                $("#git_head").html("<b>" + data.GitHead + "</b>");
+            }
+        });
+
+        function closeGOVM() {
+            $.ajax({
+                type: "DELETE", url: "/api/v1/os/exit",
+                success: function (data) {
+                    alert("success to close govm.");
+                    window.opener = null;
+                    window.location.href="about:blank";
+                    window.open('', '_self');
+                    window.close()
+                }
+            });
+        }
+
+        function changeLang(lg){
+            gLanguage = lg;
+            setCookie("language", lg);
+            window.location.reload()
+        }
+    </script>
+
+</body>
+
+</html>

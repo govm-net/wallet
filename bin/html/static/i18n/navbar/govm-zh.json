@@ -1,0 +1,20 @@
+{
+    "navbar":{
+        "govm":"孚衍(GOVM)",
+        "home":"主页",
+        "transfer":"转账",
+        "move":"跨链转账",
+        "run_app":"执行合约",
+        "new_app":"创建合约",
+        "block":"区块",
+        "transaction":"交易信息",
+        "miner":"矿工",
+        "mine":"挖矿",
+        "chain":"链",
+        "node":"节点",
+        "setting":"设置",
+        "docs":"文档"
+    },
+    "submit":"提交",
+    "energy":"手续费"
+}

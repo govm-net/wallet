@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -10,6 +11,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
+	"runtime"
 	"time"
 )
 
@@ -34,6 +37,7 @@ type Conf struct {
 	RunApp struct {
 		AppName string `json:"app_name"`
 		Data    string `json:"data"`
+		IsHex   bool   `json:"is_hex"`
 	} `json:"run_app"`
 	UpdateLife struct {
 		AppName string `json:"app_name"`
@@ -64,7 +68,7 @@ func main() {
 		conf.WalletFile = "wallet.key"
 		conf.TransFile = "transaction.data"
 		conf.Chain = 1
-		conf.Server = "http://govm.net:9090"
+		conf.Server = "http://govm.net"
 		conf.Energy = 10000000
 		conf.Operation = opsNewWallet
 		conf.Descript = "operation:wallet/show/transaction/sendTrans"
@@ -90,6 +94,22 @@ func main() {
 			time.Sleep(time.Second)
 		}()
 	}
+
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", "http://govm.net")
+	case "darwin":
+		cmd = exec.Command("open", "http://govm.net")
+	case "linux":
+		cmd = exec.Command("xdg-open", "http://govm.net")
+	}
+	err := cmd.Start()
+	if err != nil {
+		fmt.Println("fail to open baidu.com. ", err)
+		return
+	}
+
 	switch conf.Operation {
 	case opsNewWallet:
 		createWallet()
@@ -170,7 +190,15 @@ func newTransaction() {
 		t.CreateMove(conf.Move.DstChain, conf.Cost, conf.Energy)
 	case trans.OpsRunApp:
 		in := conf.RunApp
-		err = t.RunApp(in.AppName, conf.Cost, conf.Energy, in.Data)
+		var d = []byte(in.Data)
+		if in.IsHex{
+			d,err = hex.DecodeString(in.Data)
+			if err != nil{
+				fmt.Println("error hex data:",err)
+				return
+			}
+		}
+		err = t.RunApp(in.AppName, conf.Cost, conf.Energy, d)
 		if err != nil {
 			fmt.Println("fail to RunApp:", err)
 			return

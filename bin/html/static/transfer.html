@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="transfer">
+                    Transfer
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form class="bs-example bs-example-form" role="form">
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
+                        <input type="number" min="1" class="form-control" name="chain" value="1">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="peer">Peer:</span>
+                        <input type="text" class="form-control" placeholder="024ce13ac6040fd15f25b0996425df63a5ee75ced74ba2ff"
+                            name="peer">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="amount">Amount</span>
+                        <input type="number" class="form-control" placeholder="100" name="cost">
+                        <span class="input-group-addon" id="base_cost"></span>
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="energy">Energy</span>
+                        <input type="number" class="form-control" name="energy" value="0.01">
+                        <span class="input-group-addon" id="base_energy"></span>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-success pull-right" id="submit" data-localize="submit">Submit</button>
+                    <br>
+                </form>
+                <div>
+                    <h3 id="result">
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=1"></script>
+
+    <script type="application/javascript">
+        $("#base_cost").html(gCostBase);
+        $("#base_energy").html(gCostBase);
+        $("#search_chain").val(gChainID);
+        $("input[name='chain']").val(gChainID);
+        //发送表单ajax请求
+        $('#submit').on('click', function () {
+            var data = $('form').serializeJSON()
+            base = getBaseByName(gCostBase);
+            data.cost = parseInt(data.cost*base)
+            data.energy = parseInt(data.energy*base)
+            var chain = data.chain
+            data = JSON.stringify(data)
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/"+chain+"/transaction/tranfer",
+                data: data,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?chain="+chain+"&key=" 
+                        + data.trans_key + "\">" + data.trans_key + "</a></span>");
+                    console.log(data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    console.log(XMLHttpRequest.responseText);
+                    // 错误信息   
+                    console.log(textStatus);
+                    //alert(XMLHttpRequest.responseText)
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
