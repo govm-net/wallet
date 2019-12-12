@@ -1,0 +1,26 @@
+{
+    "wallet_file": "wallet.key",
+    "operation": "show",
+    "descript": "operation:wallet/show/transaction/sendTrans",
+    "server": "http://govm.net:9090",
+    "chain": 1,
+    "energy": 10000000,
+    "cost": 1000000000,
+    "trans_ops": 0,
+    "trans_file": "transaction.data",
+    "transfer": {
+      "peer": "01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709",
+      "msg": ""
+    },
+    "move": {
+      "dst_chain": 0
+    },
+    "run_app": {
+      "app_name": "",
+      "data": ""
+    },
+    "update_life": {
+      "app_name": "",
+      "life": 0
+    }
+  }

@@ -1,0 +1,18 @@
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand">GOVM</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/transfer.html">Transfer</a></li>
+                <li><a href="/move.html">Move</a></li>
+                <li><a href="/run_app.html">Run APP</a></li>
+                <li><a href="/block.html">Block</a></li>
+                <li><a href="/transaction.html">Transaction</a></li>
+                <li><a href="/setting.html">Setting</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

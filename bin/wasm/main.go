@@ -41,7 +41,7 @@ func main() {
 			if len(args) != 2 {
 				return "error parament,need old and new password"
 			}
-			if w.ChangePwd(args[0].String(),args[1].String()){
+			if w.ChangePwd(args[0].String(), args[1].String()) {
 				return "ok"
 			}
 			return "error:password"
@@ -123,7 +123,6 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 		appStr := args[2].String()
 		cost := uint64(args[3].Float())
 		var data string
-		data = args[3].String()
 		if len(args) > 4 {
 			data = args[4].String()
 		}
@@ -131,7 +130,7 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 		if len(args) > 5 {
 			energy = uint64(args[5].Float())
 		}
-		err := t.RunApp(appStr, cost, energy, data)
+		err := t.RunApp(appStr, cost, energy, []byte(data))
 		if err != nil {
 			fmt.Println("error:", err)
 			return fmt.Sprintf("error:%s", err)

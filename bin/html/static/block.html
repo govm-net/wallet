@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="col-md-12 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Search
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">Chain:</span>
+                        <input type="number" min="1" class="form-control" id="search_chain"  value="1">
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Index:</span>
+                        <input type="number" class="form-control" id="search_id" value="0">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btn_id">Go!</button>
+                        </span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Block Key:</span>
+                        <input type="text" class="form-control" id="search_key">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btn_key">Go!</button>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <h3 id="result">
+                    </h3>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Block Info
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">Chain:</span>
+                        <span class="form-control" id="chain"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Key:</span>
+                        <span class="form-control" id="key"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Time:</span>
+                        <span class="form-control" id="time"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Previous:</span>
+                        <span class="form-control" id="previous"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Parent:</span>
+                        <span class="form-control" id="parent"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">LeftChild:</span>
+                        <span class="form-control" id="left_child"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">RightChild:</span>
+                        <span class="form-control" id="right_child"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Producer:</span>
+                        <span class="form-control" id="producer"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Index:</span>
+                        <span class="form-control" id="index"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/load.js"></script>
+
+    <script type="text/javascript">
+        function getBlock(chain, index,key) {
+            $("#chain").html("")
+            $("#key").html("")
+            $("#time").html("")
+            $("#previous").html("")
+            $("#parent").html("")
+            $("#left_child").html("")
+            $("#right_child").html("")
+            $("#producer").html("")
+            $("#index").html("")
+            $("#result").html("")
+            var query =""
+            if (index != ""){
+                query += "?index=" + index
+            }else if (key != ""){
+                query += "?key=" + key
+            }
+            $.get("/api/v1/" + chain + "/block/info" + query, function (data, status) {
+                console.log(data)
+                $("#chain").html("<b>" + data.Chain + "</b>");
+                $("#key").html("<b>" + bytes2Str(data.Key) + "</b>");
+                var myDate=new Date()
+                myDate.setTime(data.Time)
+                $("#time").html("<b>" + myDate.toString() + "</b>");
+                $("#previous").html("<b>"+ getLinkString("",data.Chain,data.Previous) + "</b>");
+                $("#parent").html("<b>" + getLinkString("",Math.floor(data.Chain/2),data.Parent) + "</b>");
+                $("#left_child").html("<b>" + getLinkString("",data.Chain*2,data.LeftChild) + "</b>");
+                $("#right_child").html("<b>" + getLinkString("",data.Chain*2+1,data.RightChild) + "</b>");
+                $("#producer").html("<b>" + bytes2Str(data.Producer) + "</b>");
+                $("#index").html("<b>" + data.Index + "</b>");
+                //console.log(data);
+            }).fail(function () {
+                $("#result").html("not found");
+            });
+        }
+
+        $("#btn_id").click(function () {
+            getBlock($("#search_chain").val(), $("#search_id").val(),"")
+        });
+        $("#btn_key").click(function () {
+            getBlock($("#search_chain").val(), "",$("#search_key").val())
+        });
+        $("#search_chain").val(gChainID)
+        var chain = getUrlParam('chain');
+        var key = getUrlParam('key');
+        var index = getUrlParam('index');
+        if (chain < 1){
+            chain = gChainID;
+        }
+        getBlock(chain, index,key)
+    </script>
+</body>
+
+</html>

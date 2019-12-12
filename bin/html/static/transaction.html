@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="col-md-12 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Search
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">Chain:</span>
+                        <input type="number" min="1" class="form-control" id="search_chain" value="1">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Transaction Key:</span>
+                        <input type="text" class="form-control" id="search_key">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btn_key">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Transaction Info
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">Chain:</span>
+                        <span class="form-control" id="chain"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Key:</span>
+                        <span class="form-control" id="key"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Time:</span>
+                        <span class="form-control" id="time"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">User:</span>
+                        <span class="form-control" id="user"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Cost:</span>
+                        <span class="form-control" id="cost"></span>
+                        <span class="input-group-addon" id="base_cost"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Energy:</span>
+                        <span class="form-control" id="energy"></span>
+                        <span class="input-group-addon" id="base_energy"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">BlockID:</span>
+                        <span class="form-control" id="bid"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">Ops:</span>
+                        <span class="form-control" id="ops"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="name1"></span>
+                        <span class="form-control" id="value1"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="name2"></span>
+                        <span class="form-control" id="value2"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="name3"></span>
+                        <span class="form-control" id="value3"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="name4"></span>
+                        <span class="form-control" id="value4"></span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 id="result">
+                </h3>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/load.js"></script>
+
+    <script type="text/javascript">
+        $("#base_cost").html(gCostBase);
+        $("#base_energy").html(gCostBase);
+        $("#search_chain").val(gChainID);
+        function getTrans(chain, key) {
+            $("#chain").html("")
+            $("#key").html("")
+            $("#user").html("")
+            $("#time").html("")
+            $("#cost").html("")
+            $("#energy").html("")
+            $("#bid").html("")
+            $("#ops").html("")
+            $("#name1").html("")
+            $("#value1").html("")
+            $("#name2").html("")
+            $("#value2").html("")
+            $("#name3").html("")
+            $("#value3").html("")
+            $("#name4").html("")
+            $("#value4").html("")
+            var query =""
+            if (key != ""){
+                query += "?key=" + key
+            }
+            $.get("/api/v1/" + chain + "/transaction/info" + query, function (data, status) {
+                //console.log(data)
+                $("#chain").html("<b>" + data.Chain + "</b>");
+                $("#key").html("<b>" + key + "</b>");
+                $("#user").html("<b>" + bytes2Str(data.User) + "</b>");
+                var myDate = new Date()
+                myDate.setTime(data.Time)
+                $("#time").html("<b>" + myDate.toString() + "</b>");
+                $("#cost").html("<b><p title='" + fmoney(data.Cost) + "'>" + getValueWithBase(data.Cost,gCostBase) + "</p></b>");
+                $("#energy").html("<b><p title='" + fmoney(data.Energy) + "'>" + getValueWithBase(data.Energy,gCostBase) + "</p></b>");
+                $("#bid").html("<b>" + data.Others.BlockID + "</b>");
+                switch (data.Ops) {
+                    case 0:
+                        $("#ops").html("<b>transfer</b>");
+                        $("#name1").html("peer");
+                        $("#value1").html("<b>" + bytes2Str(data.Others.peer) + "</b>");
+                        break;
+                    case 1:
+                        $("#ops").html("<b>move</b>");
+                        $("#name1").html("target chain");
+                        $("#value1").html("<b>" + data.Others.peer + "</b>");
+                        break;
+                    case 2:
+                        $("#ops").html("<b>new chain</b>");
+                        $("#name1").html("peer");
+                        $("#value1").html("<b>" + data.Others.peer + "</b>");
+                        break;
+                    case 3:
+                        $("#ops").html("<b>new app</b>");
+                        $("#name1").html("enable run");
+                        $("#value1").html("<b>"+data.Others.enable_run+"</b>");
+                        $("#name2").html("enable import");
+                        $("#value2").html("<b>" + data.Others.enable_import + "</b>");
+                        $("#name3").html("is public");
+                        $("#value3").html("<b>" + data.Others.is_public + "</b>");
+                        $("#name4").html("app name");
+                        $("#value4").html("<b>" + data.Others.app_name + "</b>");
+                        break;
+                    case 4:
+                        $("#ops").html("<b>run app</b>");
+                        $("#name1").html("app name");
+                        $("#value1").html("<b>" + bytes2Str(data.Others.name) + "</b>");
+                        $("#name2").html("paramete");
+                        $("#value2").html("<b>" + data.Others.data + "</b>");
+                        break;
+                    case 5:
+                        $("#ops").html("<b>update app life</b>");
+                        $("#name1").html("app name");
+                        $("#value1").html("<b>" + bytes2Str(data.Others.name) + "</b>");
+                        $("#name1").html("life");
+                        $("#value1").html("<b>" + data.Others.life + "</b>");
+                        break;
+                    case 6:
+                        $("#ops").html("<b>I Hate You</b>");
+                        $("#name1").html("peer");
+                        $("#value1").html("<b>" + bytes2Str(data.Others.peer) + "</b>");
+                        break;
+                    case 7:
+                        $("#ops").html("<b>register miner</b>");
+                        $("#name1").html("index");
+                        $("#value1").html("<b>" + data.Others.index + "</b>");
+                        break;
+
+                }
+                $("#result").html("");
+                // console.log(data);
+            }).fail(function () {
+                $("#result").html("not found");
+            });
+        }
+
+        $('#btn_key').on('click', function () {
+            var chain = $("#search_chain").val()
+            var key = $("#search_key").val()
+            getTrans(chain, key)
+        });
+        var chain = getUrlParam('chain');
+        var key = getUrlParam('key');
+        if (chain < 1){
+            chain = gChainID;
+        }
+        if (key != ""){
+            getTrans(chain, key);
+        }
+        
+    </script>
+</body>
+
+</html>

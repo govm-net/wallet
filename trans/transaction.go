@@ -173,7 +173,7 @@ func (t *StTrans) CreateMove(dstChain, value, energy uint64) {
 }
 
 // RunApp run app
-func (t *StTrans) RunApp(app string, cost, energy uint64, data string) error {
+func (t *StTrans) RunApp(app string, cost, energy uint64, data []byte) error {
 	p, err := hex.DecodeString(app)
 	if err != nil {
 		fmt.Println("error app hash:", app)
@@ -186,13 +186,8 @@ func (t *StTrans) RunApp(app string, cost, energy uint64, data string) error {
 	t.Cost = cost
 	t.Ops = OpsRunApp
 	t.Data = p
-	if data != "" {
-		p, err = hex.DecodeString(data)
-		if err != nil {
-			fmt.Println("error app data:", data)
-			return err
-		}
-		t.Data = append(t.Data, p...)
+	if len(data) != 0 {
+		t.Data = append(t.Data, data...)
 	}
 	t.Energy = 20*uint64(len(t.Data)) + 10000
 	if energy > t.Energy {
