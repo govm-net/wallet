@@ -8,65 +8,127 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/x-ico" href="logo.ico" />
     <link rel="shortcut icon" href="logo.ico">
-
 </head>
 
 <body ng-app="">
     <div class="container">
         <div id="navbar"></div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"  data-localize="run_app">
-                    Run APP
-                </h3>
-            </div>
-            <div class="panel-body">
-                <form class="bs-example bs-example-form" role="form">
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="chain">Chain:</span>
-                        <input type="number" min="1" class="form-control" name="chain" value="1">
-                        <span class="input-group-addon label-success">*</span>
+        <ul class="nav nav-tabs">
+            <li><a href="#tab_default" data-toggle="tab" data-localize="tab_default">Default</a></li>
+            <li class="active"><a href="#tab_alias" data-toggle="tab" data-localize="tab_alias">Alias</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" id="tab_default">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" data-localize="run_app">
+                            Run APP
+                        </h3>
                     </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="app_name">APP Name</span>
-                        <input type="text" class="form-control" name="app_name" placeholder="e4a05b2b8a4de21d9e6f26e9d7992f7f33e89689f3015f3fc8a3a3278815e28c">
-                        <span class="input-group-addon label-success">*</span>
+                    <div class="panel-body">
+                        <form class="bs-example bs-example-form" role="form" id="run_form">
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="chain">Chain:</span>
+                                <input type="number" min="1" class="form-control" name="chain" value="1">
+                                <span class="input-group-addon label-success">*</span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="app_name">APP Name</span>
+                                <input type="text" class="form-control" name="app_name"
+                                    placeholder="e4a05b2b8a4de21d9e6f26e9d7992f7f33e89689f3015f3fc8a3a3278815e28c">
+                                <span class="input-group-addon label-success">*</span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="cost">Cost</span>
+                                <input type="number" class="form-control" value="0" name="cost">
+                                <span class="input-group-addon" id="base_cost"></span>
+                                <span class="input-group-addon label-success">*</span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="energy">Energy</span>
+                                <input type="number" class="form-control" name="energy" value="1">
+                                <span class="input-group-addon" id="base_energy"></span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="data_type">Data Type</span>
+                                <select class="form-control" name="param_type">
+                                    <option data-localize="data_string">string</option>
+                                    <option data-localize="data_hex">hex</option>
+                                </select>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="data">Data</span>
+                                <input type="text" class="form-control" placeholder="a70c23aef9e" name="param">
+                            </div>
+                            <br>
+                            <button type="button" class="btn btn-success pull-right" id="submit"
+                                data-localize="submit">Submit</button>
+                            <br>
+                        </form>
                     </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="cost">Cost</span>
-                        <input type="number" class="form-control" value="0" name="cost">
-                        <span class="input-group-addon" id="base_cost"></span>
-                        <span class="input-group-addon label-success">*</span>
-                    </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="energy">Energy</span>
-                        <input type="number" class="form-control" name="energy" value="1">
-                        <span class="input-group-addon" id="base_energy"></span>
-                    </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="data_type">Data Type</span>
-                        <select class="form-control"  name="param_type">
-                            <option data-localize="data_string">string</option>
-                            <option data-localize="data_hex">hex</option>
-                          </select>
-                    </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="data">Data</span>
-                        <input type="text" class="form-control" placeholder="a70c23aef9e" name="param">
-                    </div>
-                    <br>
-                    <button type="button" class="btn btn-success pull-right" id="submit" data-localize="submit">Submit</button>
-                    <br>
-                </form>
-                <div>
-                    <h3 id="result">
-                    </h3>
                 </div>
+            </div>
+            <div class="tab-pane active" id="tab_alias">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="chain">Chain:</span>
+                            <input type="number" min="1" class="form-control" id="sch_chain" value="1">
+                            <span class="input-group-addon label-success">*</span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="alias">APP Alias</span>
+                            <input type="text" class="form-control" id="sch_alias" placeholder="Alias">
+                            <span class="input-group-addon label-success">*</span>
+                        </div>
+                        <br>
+                        <button type="button" class="btn btn-success pull-right" id="alias_search"
+                            data-localize="search">Search</button>
+                        <br>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" data-localize="alias_details">
+                            Alias Details
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="alias">APP Alias</span>
+                            <span type="text" class="form-control" id="rst_alias"></span>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="app">APP</span>
+                            <span type="text" class="form-control" id="rst_app"></span>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="description">Description</span>
+                            <span type="text" class="form-control" id="rst_desc"></span>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="creator">Creator</span>
+                            <span type="text" class="form-control" id="creator"></span>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="time">Time</span>
+                            <span type="text" class="form-control" id="time"></span>
+                        </div>
+                        <br>
+                        <div id="alias_app">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 id="result">
+                </h3>
             </div>
         </div>
     </div>
@@ -79,18 +141,21 @@
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
     <script src="js/load.js?v=1"></script>
+    <script src="js/dync_ui.js?v=2"></script>
+    <script src="js/encode.js?v=2"></script>
 
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);
         $("#base_energy").html(gCostBase);
         $("input[name='chain']").val(gChainID);
+        $("#sch_chain").val(gChainID);
         $('#submit').on('click', function () {
             $("#result").html("");
-            var data = $('form').serializeJSON()
+            var data = $('#run_form').serializeJSON()
             base = getBaseByName(gCostBase)
-            data.cost = parseInt(data.cost*base)
-            data.energy = parseInt(data.energy*base)
-            if (data.save_result == "on"){
+            data.cost = parseInt(data.cost * base)
+            data.energy = parseInt(data.energy * base)
+            if (data.save_result == "on") {
                 data.save_result = true
             }
             var chain = data.chain
@@ -104,7 +169,7 @@
                 contentType: "application/json",
                 success: function (data) {
                     console.log(data);
-                    $("#result").html("<span class=\"label label-success\">transaction:<a href=\"transaction.html?key=" 
+                    $("#result").html("<span class=\"label label-success\">transaction:<a href=\"transaction.html?key="
                         + data.key + "\">" + data.key + "</a></span>");
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -121,6 +186,79 @@
                 }
             });
         });
+
+        $('#alias_search').on('click', function () {
+            $("#result").html("");
+            var chain = $("#sch_chain").val()
+            var alias = dataEncode($("#sch_alias").val(), "str2hex")
+            if (alias == "") {
+                alert("alias is empty")
+                return
+            }
+            $.ajax({
+                type: "GET",
+                // url: "test_data/uis3.json",
+                url: "/api/v1/1/data",
+                data: {
+                    "app_name": "c514cb497286b0ff206c6fae74634f6f546f43fab823fd87bf6fcb1616ce9665",
+                    "struct_name": "aliasInfo", "is_db_data": "true", "key": alias
+                },
+                dataType: "json",
+                success: function (rst) {
+                    if(rst.value === undefined || rst.value == ""){
+                        $("#result").html("not found");
+                        return
+                    }
+                    rst = dataEncode(rst.value, "hex2json")
+                    console.log(rst)
+                    $('#rst_alias').html(rst.alias)
+                    $('#rst_app').html(dataEncode(rst.app, "bytes2hex"))
+                    $('#rst_desc').html(rst.desc)
+                    $('#creator').html(dataEncode(rst.creator, "bytes2hex"))
+                    $('#time').html(dataEncode(rst.time, "time2str"))
+                    rst["list"] = [];
+                    $('#alias_app').html("downloading View_UI and Run_UI")
+                    downloadUI(chain, rst.alias, 0, rst)
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest.responseText);
+                    console.log(textStatus);
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+
+        function downloadUI(chain, alias, index, uis) {
+            var key = dataEncode(alias + ".", "str2hex")
+            key += dataEncode(index.toString(), "int82hex")
+            $.ajax({
+                type: "GET",
+                // url: "test_data/uis3.json",
+                url: "/api/v1/1/data",
+                data: {
+                    "app_name": "c514cb497286b0ff206c6fae74634f6f546f43fab823fd87bf6fcb1616ce9665",
+                    "struct_name": "uiInfo", "is_db_data": "true", "key": key
+                },
+                dataType: "json",
+                success: function (rst) {
+                    if (rst.value === undefined || rst.value == "") {
+                        dynamic_load(chain, "alias_app", uis)
+                        return
+                    }
+                    ui = dataEncode(rst.value, "hex2json")
+                    console.log("ui info", ui)
+                    uis.list.push(ui);
+                    downloadUI(chain, alias, index + 1, uis)
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest.responseText, textStatus);
+                    console.log("not next ui:", chain, alias, index);
+                    dynamic_load(chain, "alias_app", uis);
+                }
+            });
+
+        }
     </script>
 </body>
 

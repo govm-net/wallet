@@ -118,19 +118,6 @@
             }
         });
 
-        function closeGOVM() {
-            $.ajax({
-                type: "DELETE", url: "/api/v1/os/exit",
-                success: function (data) {
-                    alert("success to close govm.");
-                    window.opener = null;
-                    window.location.href="about:blank";
-                    window.open('', '_self');
-                    window.close()
-                }
-            });
-        }
-
         function changeLang(lg){
             gLanguage = lg;
             setCookie("language", lg);

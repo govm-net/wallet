@@ -51,7 +51,7 @@ func loadConfig() error {
 		conf.WalletFile = "wallet.key"
 	}
 	if conf.Password == "" {
-		conf.Password = "govm_pwd_2019"
+		conf.Password = "govm_pwd@2019"
 	}
 	if conf.APIServer == "" {
 		conf.APIServer = "http://govm.net"

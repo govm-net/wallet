@@ -10,5 +10,6 @@
     "left_child":"左子链区块",
     "right_child":"右子链区块",
     "producer":"矿工",
-    "go":"查询"
+    "go":"查询",
+    "trans_num":"交易数"
 }

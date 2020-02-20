@@ -70,7 +70,15 @@ function fmoney(s) {
 
 function getLinkString(path, chain, key) {
     var out = ""
-    var k = bytes2Str(key)
+    var k = ""
+    if (key === undefined){
+        return "NULL"
+    }
+    if (typeof key === "string"){
+        k = key;
+    }else{
+        k = bytes2Str(key);
+    }
     if (k == "0000000000000000000000000000000000000000000000000000000000000000") {
         return "NULL"
     }

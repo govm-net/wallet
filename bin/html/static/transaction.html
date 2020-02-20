@@ -189,8 +189,12 @@
                         $("#ops").html("<b>run app</b>");
                         $("#name1").html("app name");
                         $("#value1").html("<b>" + bytes2Str(data.Others.name) + "</b>");
-                        $("#name2").html("paramete");
-                        $("#value2").html("<b>" + data.Others.data + "</b>");
+                        $("#name2").html("parament");
+                        if (data.Others.data.length > 40){
+                            $("#value2").html("<b>" + data.Others.data.substr(0,40) + "...</b>");
+                        }else{
+                            $("#value2").html("<b>" + data.Others.data + "</b>");
+                        }
                         break;
                     case 5:
                         $("#ops").html("<b>update app life</b>");
@@ -200,16 +204,10 @@
                         $("#value1").html("<b>" + data.Others.life + "</b>");
                         break;
                     case 6:
-                        $("#ops").html("<b>I Hate You</b>");
-                        $("#name1").html("peer");
-                        $("#value1").html("<b>" + bytes2Str(data.Others.peer) + "</b>");
-                        break;
-                    case 7:
                         $("#ops").html("<b>register miner</b>");
                         $("#name1").html("index");
                         $("#value1").html("<b>" + data.Others.index + "</b>");
                         break;
-
                 }
                 $("#result").html("");
                 // console.log(data);
