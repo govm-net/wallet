@@ -177,7 +177,7 @@ func (t *StTrans) RunApp(app string, cost, energy uint64, data []byte) error {
 	p, err := hex.DecodeString(app)
 	if err != nil {
 		fmt.Println("error app hash:", app)
-		return err
+		return fmt.Errorf("error app hash:%s,err:%s", app, err)
 	}
 	if len(p) != HashLen {
 		fmt.Println("error app length:", app)
