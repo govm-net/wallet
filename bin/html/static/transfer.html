@@ -73,6 +73,7 @@
         $("#base_energy").html(gCostBase);
         $("#search_chain").val(gChainID);
         $("input[name='chain']").val(gChainID);
+        var lastSubmit = "";
         //发送表单ajax请求
         $('#submit').on('click', function () {
             var data = $('form').serializeJSON()
@@ -81,9 +82,14 @@
             data.energy = parseInt(data.energy*base)
             var chain = data.chain
             data = JSON.stringify(data)
+            if (lastSubmit == data){
+                alert("Submit twice!!! Refuse")
+                return 
+            }
+            lastSubmit = data
             $.ajax({
                 type: "POST",
-                url: "/api/v1/"+chain+"/transaction/tranfer",
+                url: "/api/v1/"+chain+"/transaction/transfer",
                 data: data,
                 dataType: "json",
                 contentType: "application/json",

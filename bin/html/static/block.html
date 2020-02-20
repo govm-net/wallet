@@ -24,7 +24,7 @@
                 <div class="panel-body">
                     <div class="input-group">
                         <span class="input-group-addon" data-localize="chain">Chain:</span>
-                        <input type="number" min="1" class="form-control" id="search_chain"  value="1">
+                        <input type="number" min="1" class="form-control" id="search_chain" value="1">
                     </div>
                     <br>
                     <div class="input-group">
@@ -99,21 +99,25 @@
                         <span class="input-group-addon" data-localize="index">Index:</span>
                         <span class="form-control" id="index"></span>
                     </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="trans_num">Transaction Number:</span>
+                        <span class="form-control" id="trans_num"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
     <script src="js/jquery-3.3.1.min.js"></script>
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=1"></script>
+    <script src="js/load.js?v=2"></script>
 
     <script type="text/javascript">
-        function getBlock(chain, index,key) {
+        function getBlock(chain, index, key) {
             $("#chain").html("")
             $("#key").html("")
             $("#time").html("")
@@ -123,26 +127,33 @@
             $("#right_child").html("")
             $("#producer").html("")
             $("#index").html("")
+            $("#trans_num").html("")
             $("#result").html("")
-            var query =""
-            if (index != ""){
+            var query = ""
+            if (index != "") {
                 query += "?index=" + index
-            }else if (key != ""){
+            } else if (key != "") {
                 query += "?key=" + key
             }
             $.get("/api/v1/" + chain + "/block/info" + query, function (data, status) {
                 console.log(data)
-                $("#chain").html("<b>" + data.Chain + "</b>");
-                $("#key").html("<b>" + bytes2Str(data.Key) + "</b>");
-                var myDate=new Date()
-                myDate.setTime(data.Time)
+                $("#chain").html("<b>" + data.chain + "</b>");
+                $("#key").html("<b>" + data.key + "</b>");
+                var myDate = new Date()
+                myDate.setTime(data.time)
                 $("#time").html("<b>" + myDate.toString() + "</b>");
-                $("#previous").html("<b>"+ getLinkString("",data.Chain,data.Previous) + "</b>");
-                $("#parent").html("<b>" + getLinkString("",Math.floor(data.Chain/2),data.Parent) + "</b>");
-                $("#left_child").html("<b>" + getLinkString("",data.Chain*2,data.LeftChild) + "</b>");
-                $("#right_child").html("<b>" + getLinkString("",data.Chain*2+1,data.RightChild) + "</b>");
-                $("#producer").html("<b>" + bytes2Str(data.Producer) + "</b>");
-                $("#index").html("<b>" + data.Index + "</b>");
+                $("#previous").html("<b>" + getLinkString("", data.chain, data.previous) + "</b>");
+                $("#parent").html("<b>" + getLinkString("", Math.floor(data.chain / 2), data.parent) + "</b>");
+                $("#left_child").html("<b>" + getLinkString("", data.chain * 2, data.left_child) + "</b>");
+                $("#right_child").html("<b>" + getLinkString("", data.chain * 2 + 1, data.right_child) + "</b>");
+                $("#producer").html("<b>" + data.producer + "</b>");
+                $("#index").html("<b>" + data.index + "</b>");
+                if (data.trans_list === undefined || data.trans_list == null) {
+                    $("#trans_num").html("<b>0</b>");
+                } else {
+                    $("#trans_num").html("<b>" + data.trans_list.length + "</b>");
+                }
+
                 //console.log(data);
             }).fail(function () {
                 $("#result").html("not found");
@@ -150,19 +161,19 @@
         }
 
         $("#btn_id").click(function () {
-            getBlock($("#search_chain").val(), $("#search_id").val(),"")
+            getBlock($("#search_chain").val(), $("#search_id").val(), "")
         });
         $("#btn_key").click(function () {
-            getBlock($("#search_chain").val(), "",$("#search_key").val())
+            getBlock($("#search_chain").val(), "", $("#search_key").val())
         });
         $("#search_chain").val(gChainID)
         var chain = getUrlParam('chain');
         var key = getUrlParam('key');
         var index = getUrlParam('index');
-        if (chain < 1){
+        if (chain < 1) {
             chain = gChainID;
         }
-        getBlock(chain, index,key)
+        getBlock(chain, index, key)
     </script>
 </body>
 
