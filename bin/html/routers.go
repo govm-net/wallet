@@ -67,10 +67,10 @@ var routes = Routes{
 	},
 
 	Route{
-		"TransactionTranferPost",
+		"TransactionTransferPost",
 		strings.ToUpper("Post"),
-		"/api/v1/{chain}/transaction/tranfer",
-		TransactionTranferPost,
+		"/api/v1/{chain}/transaction/transfer",
+		TransactionTransferPost,
 	},
 
 	Route{
