@@ -114,16 +114,16 @@ func TransactionMovePost(w http.ResponseWriter, r *http.Request) {
 	enc.Encode(info)
 }
 
-// TranferInfo tranfer info
-type TranferInfo struct {
+// TransferInfo transfer info
+type TransferInfo struct {
 	Peer     string `json:"peer,omitempty"`
 	Cost     uint64 `json:"cost,omitempty"`
 	Energy   uint64 `json:"energy,omitempty"`
 	TransKey string `json:"trans_key,omitempty"`
 }
 
-// TransactionTranferPost tranfer
-func TransactionTranferPost(w http.ResponseWriter, r *http.Request) {
+// TransactionTransferPost transfer
+func TransactionTransferPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	chainStr := vars["chain"]
 	data, err := ioutil.ReadAll(r.Body)
@@ -138,7 +138,7 @@ func TransactionTranferPost(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("error chain"))
 		return
 	}
-	info := TranferInfo{}
+	info := TransferInfo{}
 	err = json.Unmarshal(data, &info)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -218,7 +218,17 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 	var param []byte
 	switch info.ParamType {
 	case "json":
-		param, _ = json.Marshal(info.JSONParam)
+		if len(info.Param) > 0 {
+			prefix, err := hex.DecodeString(info.Param)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				fmt.Fprintln(w, "error param, hope hex string,", err)
+				return
+			}
+			param = prefix
+		}
+		jData, _ := json.Marshal(info.JSONParam)
+		param = append(param, jData...)
 	case "string":
 		param = []byte(info.Param)
 	default:
@@ -233,7 +243,12 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	trans := trans.NewTransaction(chain, conf.Address)
-	trans.RunApp(info.AppName, info.Cost, info.Energy, param)
+	err = trans.RunApp(info.AppName, info.Cost, info.Energy, param)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error:%s", err)
+		return
+	}
 
 	td := trans.GetSignData()
 	sign := conf.Wallet.Sign(td)
