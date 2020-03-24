@@ -120,7 +120,7 @@
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=1"></script>
+    <script src="js/load.js?v=3"></script>
 
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);
@@ -205,8 +205,11 @@
                         break;
                     case 6:
                         $("#ops").html("<b>register miner</b>");
-                        $("#name1").html("index");
-                        $("#value1").html("<b>" + data.Others.index + "</b>");
+                        $("#name1").html("Block index");
+                        var link = $('<b>').append(
+                            $('<a href="block.html?index=' + data.Others.index + '&chain=' + chain + '">').append(data.Others.index)
+                        )
+                        $("#value1").html(link);
                         break;
                 }
                 $("#result").html("");

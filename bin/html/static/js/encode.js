@@ -136,15 +136,15 @@ function dataEncode(input, type) {
             var myDate = new Date()
             myDate.setTime(input)
             return myDate.toString()
-        case "cost2int":
+        case "cost2num":
             if (input === undefined || input == "" || input == "0" || typeof arr !== 'string') {
                 return 0;
             }
             
             var split = input.split("t")
-            var num = parseInt(split[0])
+            var num = parseFloat(split[0])
             if(split.length > 1){
-                var tn = parseInt(split[1])
+                var tn = parseInt(split[1],16)
                 for(i=0;i<tn;i++){
                     num=num*10
                 }

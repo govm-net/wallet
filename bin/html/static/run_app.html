@@ -140,9 +140,9 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=1"></script>
-    <script src="js/dync_ui.js?v=2"></script>
-    <script src="js/encode.js?v=2"></script>
+    <script src="js/load.js?v=3"></script>
+    <script src="js/dync_ui.js?v=3"></script>
+    <script src="js/encode.js?v=3"></script>
 
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);
@@ -155,9 +155,6 @@
             base = getBaseByName(gCostBase)
             data.cost = parseInt(data.cost * base)
             data.energy = parseInt(data.energy * base)
-            if (data.save_result == "on") {
-                data.save_result = true
-            }
             var chain = data.chain
             data = JSON.stringify(data)
             //alert(data)

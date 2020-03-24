@@ -43,9 +43,7 @@
                         </span>
                     </div>
                 </div>
-                <div>
-                    <h3 id="result">
-                    </h3>
+                <div id="result">
                 </div>
             </div>
             <div class="panel panel-default">
@@ -114,7 +112,7 @@
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=2"></script>
+    <script src="js/load.js?v=3"></script>
 
     <script type="text/javascript">
         function getBlock(chain, index, key) {
@@ -153,10 +151,9 @@
                 } else {
                     $("#trans_num").html("<b>" + data.trans_list.length + "</b>");
                 }
-
                 //console.log(data);
             }).fail(function () {
-                $("#result").html("not found");
+                $("#result").html($("<h3>").append("not found"));
             });
         }
 

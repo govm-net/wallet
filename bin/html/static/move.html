@@ -22,11 +22,10 @@
             <div class="panel-body">
                 <form class="bs-example bs-example-form" role="form">
                     <div class="input-group">
-                        <span class="input-group-addon"  data-localize="description">Description:</span>
-                        <span class="form-control label-info"><b data-localize="desc_info">
-                            Move coin to other chain,need wait 10min after BlockID not equal 0.</b></span>
+                        <label class="label label-info" data-localize="description">Description:</label>
+                        <label class="label label-primary" data-localize="desc_info">
+                            Move coin to other chain,need wait 10min after BlockID not equal 0.</label>
                     </div>
-                    <br>
                     <div class="input-group">
                         <span class="input-group-addon"  data-localize="source">Source Chain:</span>
                         <input type="number" min="1" class="form-control" name="src_chain" value="1">
@@ -71,7 +70,7 @@
     <script src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=1"></script>
+    <script src="js/load.js?v=3"></script>
 
     <script type="application/javascript">
         $("#base_cost").html(gCostBase);
