@@ -2,10 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/lengzhao/wallet/trans"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"syscall"
+	"time"
+
+	"github.com/lengzhao/wallet/trans"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // TConfig config of app
@@ -28,7 +33,8 @@ var (
 func init() {
 	err := loadConfig()
 	if err != nil {
-		log.Println("fail to read file,conf.json,", err)
+		log.Println("fail to load config,", err)
+		time.Sleep(time.Second * 3)
 		os.Exit(2)
 	}
 }
@@ -43,22 +49,27 @@ func loadConfig() error {
 			return err
 		}
 	} else {
-		log.Println("fail to read file,conf.json")
+		// log.Println("fail to read file,conf.json")
 		writeConf = true
 	}
 
 	if conf.WalletFile == "" {
 		conf.WalletFile = "wallet.key"
 	}
+
 	if conf.Password == "" {
-		conf.Password = "govm_pwd@2019"
+		fmt.Println("please enter the password of wallet:(default is govm_pwd@2019)")
+		password, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return err
+		}
+		conf.Password = string(password)
+		if conf.Password == "" {
+			return fmt.Errorf("need password")
+		}
 	}
 	if conf.APIServer == "" {
 		conf.APIServer = "http://govm.net"
-	}
-	if writeConf {
-		data, _ = json.MarshalIndent(conf, "", "  ")
-		ioutil.WriteFile("conf.json", data, 666)
 	}
 	if _, err := os.Stat(conf.WalletFile); os.IsNotExist(err) {
 		conf.Wallet.New(conf.Password)
@@ -75,6 +86,11 @@ func loadConfig() error {
 			log.Println("fail to load wallet.", err)
 			return err
 		}
+	}
+	if writeConf {
+		conf.Password = ""
+		data, _ = json.MarshalIndent(conf, "", "  ")
+		ioutil.WriteFile(conf.WalletFile, data, 666)
 	}
 	return nil
 }

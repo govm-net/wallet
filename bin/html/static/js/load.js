@@ -38,8 +38,21 @@ function loadLanguage() {
     }
 }
 
+function base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes;
+}
+
 function bytes2Str(arr) {
     var str = "";
+    if (typeof arr === 'string') {
+        arr = base64ToArrayBuffer(arr);
+    }
     for (var i = 0; i < arr.length; i++) {
         var tmp = arr[i].toString(16);
         if (tmp.length == 1) {
