@@ -8,12 +8,12 @@ if (gChainID == "") {
 }
 gCostBase = getCookie("cost_base")
 if (gCostBase == "") {
-    gCostBase = "t9"
+    gCostBase = "tc"
     setCookie("cost_base", gCostBase)
 }
 gLanguage = getCookie("language")
 
-$.get("navbar.page?v=2", function (data) {
+$.get("navbar.page?v=3", function (data) {
     $("#navbar").html(data);
     var url = window.location.pathname;
     if (url == "/") {
@@ -38,8 +38,21 @@ function loadLanguage() {
     }
 }
 
+function base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes;
+}
+
 function bytes2Str(arr) {
     var str = "";
+    if (typeof arr === 'string') {
+        arr = base64ToArrayBuffer(arr);
+    }
     for (var i = 0; i < arr.length; i++) {
         var tmp = arr[i].toString(16);
         if (tmp.length == 1) {
@@ -71,12 +84,12 @@ function fmoney(s) {
 function getLinkString(path, chain, key) {
     var out = ""
     var k = ""
-    if (key === undefined){
+    if (key === undefined) {
         return "NULL"
     }
-    if (typeof key === "string"){
+    if (typeof key === "string") {
         k = key;
-    }else{
+    } else {
         k = bytes2Str(key);
     }
     if (k == "0000000000000000000000000000000000000000000000000000000000000000") {
@@ -105,17 +118,15 @@ function getCookie(cname) {
 }
 
 function getBaseByName(name) {
-    switch (name) {
-        case "t3":
-            return 1000;
-        case "t6":
-            return 1000000;
-        case "t9":
-            return 1000000000;
+    var num = 1;
+    var split = name.split("t")
+    var tn = parseInt(split[1],16)
+    for (i = 0; i < tn; i++) {
+        num = num * 10
     }
-    return 1
+    return num
 }
 
 function getValueWithBase(v, name) {
-    return Math.floor((v / getBaseByName(name)) * 100) / 100
+    return Math.floor((v / getBaseByName(name)) * 1000) / 1000
 }

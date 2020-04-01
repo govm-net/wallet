@@ -5,23 +5,24 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/lengzhao/wallet/trans"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/lengzhao/wallet/trans"
 )
 
 func proxyHTTP(w http.ResponseWriter, r *http.Request) {
 	remote, err := url.Parse(conf.APIServer)
 	if err != nil {
-		fmt.Println("fail to proxy:", err)
+		log.Println("fail to proxy:", err)
 		return
 	}
-	fmt.Println("proxy:", r.URL.String())
+	// log.Println("proxy:", r.URL.String())
 	proxy := httputil.NewSingleHostReverseProxy(remote)
 	proxy.ServeHTTP(w, r)
 }
@@ -31,17 +32,17 @@ func postTrans(chain uint64, data []byte) error {
 	urlStr := fmt.Sprintf("%s/api/v1/%d/transaction/new", conf.APIServer, chain)
 	req, err := http.NewRequest(http.MethodPost, urlStr, buf)
 	if err != nil {
-		fmt.Println("fail to new http request:", urlStr, err)
+		log.Println("fail to new http request:", urlStr, err)
 		return err
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("fail to do request:", urlStr, err)
+		log.Println("fail to do request:", urlStr, err)
 		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("error status:", resp.Status)
+		log.Println("error status:", resp.Status)
 		data, _ := ioutil.ReadAll(resp.Body)
 		return fmt.Errorf("error response status:%s,msg:%s", resp.Status, data)
 	}
@@ -88,7 +89,6 @@ func TransactionMovePost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
 		return
 	}
-
 	trans := trans.NewTransaction(chain, conf.Address)
 	trans.CreateMove(info.DstChain, info.Cost, info.Energy)
 
@@ -187,8 +187,8 @@ type RunApp struct {
 
 // RespOfNewTrans the response of New Transaction
 type RespOfNewTrans struct {
-	Chain uint64 `json:"chain,omitempty"`
-	Key   string `json:"key,omitempty"`
+	Chain    uint64 `json:"chain,omitempty"`
+	TransKey string `json:"trans_key,omitempty"`
 }
 
 // TransactionRunAppPost run app
@@ -271,9 +271,10 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 
 // AppLife app life
 type AppLife struct {
-	Energy  uint64 `json:"energy,omitempty"`
-	AppName string `json:"app_name,omitempty"`
-	Life    uint64 `json:"life,omitempty"`
+	Energy   uint64 `json:"energy,omitempty"`
+	AppName  string `json:"app_name,omitempty"`
+	Life     uint64 `json:"life,omitempty"`
+	TransKey string `json:"trans_key,omitempty"`
 }
 
 // TransactionAppLifePost update app life

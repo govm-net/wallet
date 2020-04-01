@@ -22,28 +22,32 @@
             <div class="panel-body">
                 <form class="bs-example bs-example-form" role="form">
                     <div class="input-group">
+                        <label class="label label-info" data-localize="description">Description:</label>
+                        <label class="label label-primary" data-localize="desc_info">
+                            After the transfer, wait until the block index of the transaction is not 0 to be considered a success. Normally less than 2 minutes.</label>
+                    </div>
+                    <div class="input-group">
                         <span class="input-group-addon" data-localize="chain">Chain:</span>
-                        <input type="number" min="1" class="form-control" name="chain" value="1">
+                        <input type="number" min="1" class="form-control" name="chain">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
                         <span class="input-group-addon" data-localize="peer">Peer:</span>
-                        <input type="text" class="form-control" placeholder="024ce13ac6040fd15f25b0996425df63a5ee75ced74ba2ff"
-                            name="peer">
+                        <input type="text" class="form-control" name="peer">
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
                         <span class="input-group-addon" data-localize="amount">Amount</span>
-                        <input type="number" class="form-control" placeholder="100" name="cost">
+                        <input type="number" class="form-control" name="cost">
                         <span class="input-group-addon" id="base_cost"></span>
                         <span class="input-group-addon label-success">*</span>
                     </div>
                     <br>
                     <div class="input-group">
                         <span class="input-group-addon" data-localize="energy">Energy</span>
-                        <input type="number" class="form-control" name="energy" value="0.01">
+                        <input type="number" class="form-control" name="energy">
                         <span class="input-group-addon" id="base_energy"></span>
                     </div>
                     <br>
@@ -66,7 +70,7 @@
     <script src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=1"></script>
+    <script src="js/load.js?v=3"></script>
 
     <script type="application/javascript">
         $("#base_cost").html(gCostBase);
@@ -76,6 +80,7 @@
         var lastSubmit = "";
         //发送表单ajax请求
         $('#submit').on('click', function () {
+            $("#result").html("")
             var data = $('form').serializeJSON()
             base = getBaseByName(gCostBase);
             data.cost = parseInt(data.cost*base)

@@ -27,19 +27,28 @@
                 </div>
                 <div class="panel-body">
                     <div class="input-group">
-                        <span class="input-group-addon" data-localize="chain">Chain:</span>
-                        <span class="form-control" id="chain"></span>
-                    </div>
-                    <br>
-                    <div class="input-group">
                         <span class="input-group-addon" data-localize="wallet_addr">Wallet Address:</span>
                         <span class="form-control" id="address"></span>
                     </div>
                     <br>
                     <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
+                        <span class="form-control" id="chain0"></span>
+                    </div>
+                    <div class="input-group">
                         <span class="input-group-addon" data-localize="blance">Balance:</span>
-                        <span class="form-control" id="balance"></span>
-                        <span class="input-group-addon" id="base_cost"></span>
+                        <span class="form-control" id="balance0"></span>
+                        <span class="input-group-addon" id="base_cost0"></span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
+                        <span class="form-control" id="chain1"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="blance">Balance:</span>
+                        <span class="form-control" id="balance1"></span>
+                        <span class="input-group-addon" id="base_cost1"></span>
                     </div>
                 </div>
             </div>
@@ -52,22 +61,29 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=1"></script>
+    <script src="js/load.js?v=3"></script>
 
     <script type="text/javascript">
         var last_send = ""
         var last_receive = ""
-        $("#base_cost").html(gCostBase);
+        $("#base_cost0").html(gCostBase);
+        $("#base_cost1").html(gCostBase);
+        gChainID = parseInt(gChainID);
 
-        $.get("/api/v1/"+gChainID+"/account", function (data, status) {
-            if (status != "success") {
-                alert("Data: " + data + "\nStatus: " + status);
-            } else {
-                $("#chain").html("<b>" + data.chain + "</b>");
-                $("#address").html("<b>" + data.address + "</b>");
-                $("#balance").html("<b><p title='" + fmoney(data.cost) + "'>" + getValueWithBase(data.cost,gCostBase) + "</p></b>");
-            }
-        });
+        function getAccount(chain, id) {
+            $.get("/api/v1/" + chain + "/account", function (data, status) {
+                if (status != "success") {
+                    alert("Chain:" + chain + ". Data: " + data + "\nStatus: " + status);
+                } else {
+                    $("#address").html("<b>" + data.address + "</b>");
+                    $("#chain" + id).html("<b>" + data.chain + "</b>");
+                    $("#balance" + id).html("<b><p title='" + fmoney(data.cost) + "'>" + getValueWithBase(data.cost, gCostBase) + "</p></b>");
+                }
+            });
+        }
+
+        getAccount(gChainID, 0);
+        getAccount(gChainID + 1, 1);
     </script>
 
 </body>

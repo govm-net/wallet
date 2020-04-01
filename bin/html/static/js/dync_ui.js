@@ -27,13 +27,13 @@ function dynamic_load(chain, ui_id, rst) {
             it = $('<div class="tab-pane" id="uis_id_' + i + '">')
         }
         var desc = $('<div class="input-group">').append(
-            $('<span class="input-group-addon">Description</span>')
+            $('<span class="input-group-addon" data-localize="description">Description</span>')
         )
         if (item.info.is_view_ui == true) {
-            desc.append($('<span class="form-control">').append(
+            desc.append($('<span class="form-control" data-localize="rui_desc">').append(
                 '(Free)View UI,only read and show data.'))
         } else {
-            desc.append($('<span class="form-control">').append(
+            desc.append($('<span class="form-control" data-localize="wui_desc">').append(
                 'Run UI,set paramete to run app'))
         }
         form.append(desc)
@@ -42,20 +42,20 @@ function dynamic_load(chain, ui_id, rst) {
                 item.info.cost = 0
             }
             form.append($('<div class="input-group">').append(
-                $('<span class="input-group-addon">Energy</span>')
+                $('<span class="input-group-addon" data-localize="energy">Energy</span>')
             ).append(
                 $('<input type="number" class="form-control" name="energy" value="1">')
             ).append(
                 $('<span class="input-group-addon">t9</span>')
             ));
             form.append($('<div class="input-group">').append(
-                $('<span class="input-group-addon">Cost</span>')
+                $('<span class="input-group-addon" data-localize="cost">Cost</span>')
             ).append(
                 $('<input type="text" class="form-control" name="cost" value="' + item.info.cost + '">')
             ));
             if (item.info.value_type == "string") {
                 form.append($('<div class="input-group">').append(
-                    $('<span class="input-group-addon">Paramete</span>')
+                    $('<span class="input-group-addon" data-localize="paramete">Paramete</span>')
                 ).append(
                     $('<input type="text" class="form-control" name="paramete">')
                 ));
@@ -115,6 +115,7 @@ function dynamic_load(chain, ui_id, rst) {
         var rstEle = $('<div>')
         var preKey = ""
         form.append(rstEle)
+        loadLanguage()
         btn.on('click', function () {
             console.log("click item:", i)
             if (item.info.is_view_ui == true) {
@@ -130,7 +131,7 @@ function dynamic_load(chain, ui_id, rst) {
                     key, item.info.value_type, rstEle, item.view_items)
             } else {
                 var data = $(this).parent().parent("form").serializeJSON()
-                var cost = dataEncode(data.cost, "cost2int");
+                var cost = dataEncode(data.cost, "cost2num");
                 var energy = parseInt(1000000000 * data.energy);
                 var prifix = "";
                 delete data.energy;

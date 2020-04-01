@@ -1,5 +1,7 @@
 {
     "transfer":"转账",
+    "description":"说明",
+    "desc_info":"转账后，等到交易信息的区块序号不为0后才算成功，正常小于2分钟",
     "chain":"链",
     "peer":"对方地址",
     "amount":"金额",
