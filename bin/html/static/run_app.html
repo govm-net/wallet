@@ -195,7 +195,7 @@
             $.ajax({
                 type: "GET",
                 // url: "test_data/uis3.json",
-                url: "/api/v1/1/data",
+                url: "/api/v1/"+chain+"/data",
                 data: {
                     "app_name": "c514cb497286b0ff206c6fae74634f6f546f43fab823fd87bf6fcb1616ce9665",
                     "struct_name": "aliasInfo", "is_db_data": "true", "key": alias
@@ -232,7 +232,7 @@
             $.ajax({
                 type: "GET",
                 // url: "test_data/uis3.json",
-                url: "/api/v1/1/data",
+                url: "/api/v1/"+chain+"/data",
                 data: {
                     "app_name": "c514cb497286b0ff206c6fae74634f6f546f43fab823fd87bf6fcb1616ce9665",
                     "struct_name": "uiInfo", "is_db_data": "true", "key": key

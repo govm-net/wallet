@@ -1,0 +1,6 @@
+{
+  "APIServer": "http://govm.net",
+  "Langure": "en",
+  "Unit": "tc",
+  "WalletFile": "wallet.key"
+}
