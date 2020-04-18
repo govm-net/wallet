@@ -11,12 +11,12 @@ import (
 
 func main() {
 	res.LoadLanguage()
-	a := app.NewWithID("govm.net")
-	a.SetIcon(res.GetResource("resource/img/govm.png"))
-	a.Settings().SetTheme(theme.LightTheme())
+	a := app.NewWithID("net.govm")
+	a.SetIcon(res.GetResourceW("govm.png", theme.CancelIcon()))
+	// a.Settings().SetTheme(theme.LightTheme())
+	a.Settings().SetTheme(screens.NewCustomTheme())
 
 	event.Send(event.ELogin)
 	// screens.Login(a)
 	screens.Master(a)
-	a.Run()
 }

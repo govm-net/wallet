@@ -48,6 +48,7 @@ func SettingScreen(win fyne.Window) fyne.CanvasObject {
 	form.Append(res.GetLocalString("setting.server"), apiServer)
 	form.Append(res.GetLocalString("Version"), version)
 	form.Append(res.GetLocalString("Website"), website)
+	// form.Append(res.GetLocalString("Window Scale"), itemScale)
 
-	return form
+	return widget.NewVBox(form, layout.NewSpacer())
 }

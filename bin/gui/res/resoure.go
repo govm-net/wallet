@@ -3,12 +3,12 @@ package res
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"strconv"
 
 	"fyne.io/fyne"
-	"fyne.io/fyne/theme"
 	"github.com/lengzhao/wallet/bin/gui/conf"
 )
 
@@ -26,51 +26,65 @@ var i18n = map[string]string{
 	"setting.unit":     "Coin Unit:",
 	"setting.language": "Language:",
 	"setting.server":   "API Server",
+	"opCode.0":         "Transfer",
+	"opCode.1":         "Move coins to other chain",
+	"opCode.2":         "New Chain",
+	"opCode.3":         "New App",
+	"opCode.4":         "Run App",
+	"opCode.5":         "Update App Life",
+	"opCode.6":         "Register Miner",
 	"setting.desc":     "Restart after setting",
+}
+
+var readFile func(fn string) ([]byte, error)
+
+func assetRead(fn string) []byte {
+	bytes, err := ioutil.ReadFile(path.Join("assets", fn))
+	if err != nil {
+		return nil
+	}
+	return bytes
 }
 
 // LoadLanguage load language
 func LoadLanguage() error {
 	lang := conf.Get(conf.Langure)
-	dir := path.Join("resource", "i18n", lang)
-	data, err := ioutil.ReadFile(path.Join(dir, "local.json"))
+	data := assetRead(lang + ".json")
+	if len(data) == 0 {
+		return nil
+	}
+	err := json.Unmarshal(data, &localI18n)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(data, &localI18n)
-	if err != nil {
-		return err
-	}
-	ttf := path.Join(dir, "font.ttf")
-	if _, err := os.Stat(ttf); !os.IsNotExist(err) {
-		os.Setenv("FYNE_FONT", ttf)
-		// fmt.Println("set FYNE_FONT:", ttf)
+	scal := conf.Get(conf.FyneScale)
+	if scal != "" {
+		val, _ := strconv.ParseFloat(scal, 64)
+		if val > 0.5 && val < 2.0 {
+			os.Setenv(conf.FyneScale, scal)
+		}
 	}
 
 	return nil
 }
 
 // GetResource returns a resource by name
-func GetResource(path string) fyne.Resource {
-	out, err := fyne.LoadResourceFromPath(path)
-	if err != nil {
-		log.Println("fail to load resource.", path, err)
-		return theme.CancelIcon()
+func GetResource(fn string) fyne.Resource {
+	bytes := assetRead(fn)
+	if len(bytes) == 0 {
+		return nil
 	}
-	return out
+	name := filepath.Base(fn)
+	return fyne.NewStaticResource(name, bytes)
 }
 
-var pointIconRes = &fyne.StaticResource{
-	StaticName:    "point.svg",
-	StaticContent: []byte("<svg><circle r='1'/></svg>")}
-
-// GetStaticResource get static resource
-func GetStaticResource(id string) fyne.Resource {
-	switch id {
-	case "point":
-		return pointIconRes
+// GetResourceW get resource
+func GetResourceW(fn string, fallback fyne.Resource) fyne.Resource {
+	out := GetResource(fn)
+	if out == nil {
+		return fallback
 	}
-	return theme.CancelIcon()
+	return out
 }
 
 // GetLocalString get local string

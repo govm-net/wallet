@@ -5,8 +5,9 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"github.com/lengzhao/govm/wallet"
 	"time"
+
+	"github.com/lengzhao/govm/wallet"
 )
 
 const (
@@ -64,7 +65,7 @@ const (
 	TimeMonth       = TimeYear / 12
 )
 
-// StTrans 交易的结构体
+// StTrans transaction define
 type StTrans struct {
 	TransactionHead
 	Sign []byte
@@ -72,7 +73,7 @@ type StTrans struct {
 	Key  []byte
 }
 
-// Encode 将interface{}转成字符流，不支持可变长度类型
+// Encode binary encode
 func Encode(in interface{}) []byte {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.BigEndian, in)
@@ -84,7 +85,7 @@ func Encode(in interface{}) []byte {
 	return buf.Bytes()
 }
 
-// Decode 将字符流填充到指定结构体
+// Decode binary decode
 func Decode(in []byte, out interface{}) int {
 	buf := bytes.NewReader(in)
 	err := binary.Read(buf, binary.BigEndian, out)
@@ -112,20 +113,20 @@ func NewTransaction(chain uint64, user []byte) *StTrans {
 	return &out
 }
 
-// GetSignData 提取数据用于签名
+// GetSignData get data of sign
 func (t *StTrans) GetSignData() []byte {
 	data := Encode(t.TransactionHead)
 	data = append(data, t.Data...)
 	return data
 }
 
-// SetSign 设置签名信息
-func (t *StTrans) SetSign(in []byte) error {
+// SetTheSign set the sign
+func (t *StTrans) SetTheSign(in []byte) error {
 	t.Sign = in
 	return nil
 }
 
-// Output 输出数据，可以发布
+// Output output the data, the full data of transaction
 func (t *StTrans) Output() []byte {
 	out := make([]byte, 1, 1000)
 	out[0] = uint8(len(t.Sign))
@@ -136,7 +137,7 @@ func (t *StTrans) Output() []byte {
 	return out
 }
 
-// CreateTransfer 创建转账交易
+// CreateTransfer transfer
 func (t *StTrans) CreateTransfer(payee, msg string, value, energy uint64) error {
 	p, err := hex.DecodeString(payee)
 	if err != nil {
@@ -162,7 +163,7 @@ func (t *StTrans) CreateTransfer(payee, msg string, value, energy uint64) error 
 	return nil
 }
 
-// CreateMove 转出货币到其他相邻链
+// CreateMove move coin to other chain
 func (t *StTrans) CreateMove(dstChain, value, energy uint64) {
 	t.Cost = value
 	t.Ops = OpsMove

@@ -4,9 +4,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/lengzhao/govm/encrypt"
 	"github.com/lengzhao/govm/wallet"
-	"time"
 )
 
 // Wallet wallet
@@ -30,6 +31,17 @@ func (w *Wallet) New(pwd string) error {
 	priv = append(priv, []byte(pwd)...)
 	priv = wallet.GetHash(priv)
 
+	pubK := wallet.GetPublicKey(priv)
+	w.Address = wallet.PublicKeyToAddress(pubK, EAddrTypeDefault)
+	w.Key = priv
+	w.pwd = pwd
+	w.AddressStr = hex.EncodeToString(w.Address)
+	return nil
+}
+
+// NewByMnemonic new wallet by Mnemonic
+func (w *Wallet) NewByMnemonic(pwd string, priv []byte) error {
+	priv = wallet.GetHash(priv)
 	pubK := wallet.GetPublicKey(priv)
 	w.Address = wallet.PublicKeyToAddress(pubK, EAddrTypeDefault)
 	w.Key = priv
@@ -72,7 +84,7 @@ func (w *Wallet) Load(pwd, data string) error {
 const (
 	// EAddrTypeDefault the type of default public address
 	EAddrTypeDefault = byte(iota + 1)
-	// EAddrTypeIBS identity-based signature 基于身份的签名，不同时间，使用不同私钥签名(签名时间是消息的前8个字节)
+	// EAddrTypeIBS identity-based signature
 	EAddrTypeIBS
 )
 
