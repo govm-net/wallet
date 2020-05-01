@@ -155,11 +155,7 @@ func TransactionTransferPost(w http.ResponseWriter, r *http.Request) {
 	trans.CreateTransfer(info.Peer, "", info.Cost, info.Energy)
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
-<<<<<<< HEAD
 	trans.SetTheSign(sign)
-=======
-	trans.SetSign(sign)
->>>>>>> master
 	td = trans.Output()
 	key := trans.Key[:]
 
@@ -256,11 +252,7 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
-<<<<<<< HEAD
 	trans.SetTheSign(sign)
-=======
-	trans.SetSign(sign)
->>>>>>> master
 	td = trans.Output()
 
 	err = postTrans(chain, td)
@@ -314,11 +306,7 @@ func TransactionAppLifePost(w http.ResponseWriter, r *http.Request) {
 
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
-<<<<<<< HEAD
 	trans.SetTheSign(sign)
-=======
-	trans.SetSign(sign)
->>>>>>> master
 	td = trans.Output()
 
 	err = postTrans(chain, td)
