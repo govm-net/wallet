@@ -53,7 +53,7 @@ func postTrans(chain uint64, data []byte) error {
 func AccountGet(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	q := r.URL.Query()
-	q.Set("address", conf.AddressStr)
+	q.Set("address", wallet.AddressStr)
 	r.URL.RawQuery = q.Encode()
 	proxyHTTP(w, r)
 }
@@ -89,11 +89,11 @@ func TransactionMovePost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
 		return
 	}
-	trans := trans.NewTransaction(chain, conf.Address)
+	trans := trans.NewTransaction(chain, wallet.Address)
 	trans.CreateMove(info.DstChain, info.Cost, info.Energy)
 
 	td := trans.GetSignData()
-	sign := conf.Wallet.Sign(td)
+	sign := wallet.Sign(td)
 	trans.SetTheSign(sign)
 	td = trans.Output()
 	key := trans.Key[:]
@@ -151,10 +151,10 @@ func TransactionTransferPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trans := trans.NewTransaction(chain, conf.Address)
+	trans := trans.NewTransaction(chain, wallet.Address)
 	trans.CreateTransfer(info.Peer, "", info.Cost, info.Energy)
 	td := trans.GetSignData()
-	sign := conf.Wallet.Sign(td)
+	sign := wallet.Sign(td)
 	trans.SetTheSign(sign)
 	td = trans.Output()
 	key := trans.Key[:]
@@ -242,7 +242,7 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	trans := trans.NewTransaction(chain, conf.Address)
+	trans := trans.NewTransaction(chain, wallet.Address)
 	err = trans.RunApp(info.AppName, info.Cost, info.Energy, param)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -251,7 +251,7 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	td := trans.GetSignData()
-	sign := conf.Wallet.Sign(td)
+	sign := wallet.Sign(td)
 	trans.SetTheSign(sign)
 	td = trans.Output()
 
@@ -301,11 +301,11 @@ func TransactionAppLifePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trans := trans.NewTransaction(chain, conf.Address)
+	trans := trans.NewTransaction(chain, wallet.Address)
 	trans.UpdateAppLife(info.AppName, info.Life, info.Energy)
 
 	td := trans.GetSignData()
-	sign := conf.Wallet.Sign(td)
+	sign := wallet.Sign(td)
 	trans.SetTheSign(sign)
 	td = trans.Output()
 

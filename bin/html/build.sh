@@ -7,6 +7,7 @@ folder=govm_html_wallet
 # echo $folder "$folder"
 rm $folder -rf
 mkdir $folder
+copy conf.json $folder
 mv html_wallet_windows.exe $folder
 mv html_wallet_linux $folder
 mv html_wallet_mac $folder

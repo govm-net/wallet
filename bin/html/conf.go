@@ -15,19 +15,21 @@ import (
 
 // TConfig config of app
 type TConfig struct {
-	trans.Wallet
-	Password   string `json:"password,omitempty"`
-	WalletFile string `json:"wallet_file,omitempty"`
-	APIServer  string `json:"api_server,omitempty"`
+	Password    string `json:"password,omitempty"`
+	WalletFile  string `json:"wallet_file,omitempty"`
+	APIServer   string `json:"api_server,omitempty"`
+	StaticFiles string `json:"static_files,omitempty"`
 }
 
 // DebugMod debug mode
 const (
 	CreateFristTrans = false
+	confFile         = "./conf.json"
 )
 
 var (
-	conf TConfig
+	conf   TConfig
+	wallet trans.Wallet
 )
 
 func init() {
@@ -41,7 +43,7 @@ func init() {
 
 func loadConfig() error {
 	writeConf := false
-	data, err := ioutil.ReadFile("conf.json")
+	data, err := ioutil.ReadFile(confFile)
 	if err == nil {
 		err = json.Unmarshal(data, &conf)
 		if err != nil {
@@ -71,9 +73,12 @@ func loadConfig() error {
 	if conf.APIServer == "" {
 		conf.APIServer = "http://govm.net"
 	}
+	if conf.StaticFiles == "" {
+		conf.StaticFiles = "./static"
+	}
 	if _, err := os.Stat(conf.WalletFile); os.IsNotExist(err) {
-		conf.Wallet.New(conf.Password)
-		out := conf.Wallet.String()
+		wallet.New(conf.Password)
+		out := wallet.String()
 		ioutil.WriteFile(conf.WalletFile, []byte(out), 666)
 	} else {
 		data, err = ioutil.ReadFile(conf.WalletFile)
@@ -81,7 +86,7 @@ func loadConfig() error {
 			log.Println("fail to read wallet file:", conf.WalletFile, err)
 			return err
 		}
-		err = conf.Wallet.Load(conf.Password, string(data))
+		err = wallet.Load(conf.Password, string(data))
 		if err != nil {
 			log.Println("fail to load wallet.", err)
 			return err
@@ -90,7 +95,7 @@ func loadConfig() error {
 	if writeConf {
 		conf.Password = ""
 		data, _ = json.MarshalIndent(conf, "", "  ")
-		ioutil.WriteFile(conf.WalletFile, data, 666)
+		ioutil.WriteFile(confFile, data, 666)
 	}
 	return nil
 }
