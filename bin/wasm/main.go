@@ -159,7 +159,7 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 		return fmt.Sprintf("error:not support %d", ops)
 	}
 	signData := t.GetSignData()
-	t.SetSign(w.Sign(signData))
+	t.SetTheSign(w.Sign(signData))
 	tBytes := t.Output()
 	return hex.EncodeToString(tBytes)
 }
