@@ -157,7 +157,7 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	srcChain := widget.NewSelect([]string{"1", "2"}, nil)
 	srcChain.SetSelected("1")
 	srcKey := widget.NewEntry()
-	srcKey.SetText("0c64e484f3b329fea41a03be2677161eaac92741105cb0548b6ec4a5529efc71")
+	// srcKey.SetText("0c64e484f3b329fea41a03be2677161eaac92741105cb0548b6ec4a5529efc71")
 
 	eChain := widget.NewEntry()
 	eChain.Disable()
@@ -222,7 +222,8 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 		eCost.SetText(fmt.Sprintf("%.3f", float64(info.Cost)/float64(base)))
 		eEnergy.SetText(fmt.Sprintf("%.3f", float64(info.Energy)/float64(base)))
 		eBlockID.SetText(fmt.Sprintf("%v", info.Others["BlockID"]))
-		eOpcode.SetText(fmt.Sprintf("%d", info.Ops))
+		opCode := fmt.Sprintf("opCode.%d", info.Ops)
+		eOpcode.SetText(res.GetLocalString(opCode))
 		switch info.Ops {
 		case 0:
 			var peer []byte

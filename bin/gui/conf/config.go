@@ -5,12 +5,14 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/Xuanwo/go-locale"
 	"github.com/lengzhao/wallet/trans"
 )
 
 // Vserion version of wallet
-const Vserion = "v0.1.0"
+const Vserion = "v0.1.1"
 
 var (
 	conf       map[string]string
@@ -20,16 +22,24 @@ var (
 
 // Public key of config
 const (
-	APIServer  = "APIServer"
-	WalletFile = "WalletFile"
-	Langure    = "Langure"
-	CoinUnit   = "Unit"
+	APIServer   = "APIServer"
+	WalletFile  = "WalletFile"
+	Langure     = "Langure"
+	CoinUnit    = "Unit"
+	FyneScale   = "FYNE_SCALE"
+	LangureList = "langure_list"
+
+	confFile = "conf.json"
 )
+
+// Languages languages
+var Languages []string
 
 func init() {
 	writeConf := false
 	var c map[string]string
-	data, err := ioutil.ReadFile("conf.json")
+
+	data, err := ioutil.ReadFile(confFile)
 	if err == nil {
 		err = json.Unmarshal(data, &c)
 		if err != nil {
@@ -41,17 +51,21 @@ func init() {
 		c = make(map[string]string)
 	}
 
-	if c["WalletFile"] == "" {
-		c["WalletFile"] = "wallet.key"
+	if c[WalletFile] == "" {
+		c[WalletFile] = "wallet.key"
 	}
 
-	if c["APIServer"] == "" {
-		c["APIServer"] = "http://govm.net"
+	if c[APIServer] == "" {
+		c[APIServer] = "http://govm.net"
+	}
+	if c[LangureList] == "" {
+		c[LangureList] = "en,zh"
 	}
 	if writeConf {
 		data, _ = json.MarshalIndent(c, "", "  ")
-		ioutil.WriteFile("conf.json", data, 666)
+		ioutil.WriteFile(confFile, data, 666)
 	}
+	Languages = strings.Split(c[LangureList], ",")
 	conf = c
 }
 
@@ -95,7 +109,19 @@ func Get(key string) string {
 	if !ok {
 		switch key {
 		case Langure:
-			out = "en"
+			tag, err := locale.Detect()
+			if err != nil {
+				log.Println("fail to get lang")
+				return "en"
+			}
+			lang := tag.String()
+			out = Languages[0]
+			for _, it := range Languages {
+				if strings.HasPrefix(lang, it) {
+					out = it
+				}
+			}
+			log.Println("lang", lang)
 		case APIServer:
 			out = "http://govm.net"
 		case CoinUnit:
@@ -109,7 +135,7 @@ func Get(key string) string {
 func Set(key, value string) {
 	conf[key] = value
 	data, _ := json.MarshalIndent(conf, "", "  ")
-	ioutil.WriteFile("conf.json", data, 666)
+	ioutil.WriteFile(confFile, data, 666)
 }
 
 // GetWallet get wallet

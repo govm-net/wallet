@@ -43,7 +43,6 @@ func postTrans(chain uint64, data []byte) error {
 }
 
 func makeTransferTab(w fyne.Window) fyne.Widget {
-	desc := widget.NewLabel(res.GetLocalString("transfer.desc"))
 	chain := widget.NewSelect([]string{"1", "2"}, nil)
 	chain.SetSelected("1")
 	peer := widget.NewEntry()
@@ -113,7 +112,7 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 				td := trans.GetSignData()
 				myWlt := conf.GetWallet()
 				sign := myWlt.Sign(td)
-				trans.SetSign(sign)
+				trans.SetTheSign(sign)
 				td = trans.Output()
 				key := trans.Key[:]
 
@@ -132,7 +131,6 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 			event.Send(event.ERequsetPwd, rid)
 		},
 	}
-	form.Append(res.GetLocalString("Description"), desc)
 	form.Append(res.GetLocalString("Chain"), chain)
 	form.Append(res.GetLocalString("transfer.peer"), peer)
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)
@@ -142,7 +140,6 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 }
 
 func makeMoveTransTab(w fyne.Window) fyne.Widget {
-	desc := widget.NewLabel(res.GetLocalString("move.desc"))
 	srcChain := widget.NewSelect([]string{"1", "2"}, nil)
 	srcChain.SetSelected("1")
 	dstChain := widget.NewSelect([]string{"1", "2"}, nil)
@@ -218,7 +215,7 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 				td := trans.GetSignData()
 				myWlt := conf.GetWallet()
 				sign := myWlt.Sign(td)
-				trans.SetSign(sign)
+				trans.SetTheSign(sign)
 				td = trans.Output()
 				key := trans.Key[:]
 
@@ -236,7 +233,6 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 			event.Send(event.ERequsetPwd, rid)
 		},
 	}
-	form.Append(res.GetLocalString("Description"), desc)
 	form.Append(res.GetLocalString("move.from_chain"), srcChain)
 	form.Append(res.GetLocalString("move.to_chain"), dstChain)
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)

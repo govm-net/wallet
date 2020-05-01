@@ -14,3 +14,9 @@ govm wallet(cmd,web assembly,html)
     * cd bin/html
     * ./build.sh
     * ./html
+4. gui:
+    * cd bin/gui
+    * fyne.exe package -os windows -name govm.net -icon ./assets/govm.png
+5. android library:
+    * cd trans
+    * gomobile bind -target=android

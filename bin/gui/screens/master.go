@@ -20,16 +20,18 @@ func Master(a fyne.App) fyne.Window {
 	w.SetMaster()
 
 	tabs := widget.NewTabContainer(
-		widget.NewTabItemWithIcon(res.GetLocalString("Home"), theme.HomeIcon(), widget.NewScrollContainer(AccountScreen(w))),
-		widget.NewTabItemWithIcon(res.GetLocalString("Transaction"), theme.MailSendIcon(), widget.NewScrollContainer(TransactionScreen(w))),
-		widget.NewTabItemWithIcon(res.GetLocalString("Search"), theme.SearchIcon(), widget.NewScrollContainer(SearchScreen(w))),
-		widget.NewTabItemWithIcon(res.GetLocalString("Setting"), theme.SettingsIcon(), widget.NewScrollContainer(SettingScreen(w))))
+		widget.NewTabItemWithIcon(res.GetLocalString("Home"), theme.HomeIcon(), AccountScreen(w)),
+		widget.NewTabItemWithIcon(res.GetLocalString("Transaction"), theme.MailSendIcon(), TransactionScreen(w)),
+		widget.NewTabItemWithIcon(res.GetLocalString("Search"), theme.SearchIcon(), SearchScreen(w)),
+		widget.NewTabItemWithIcon(res.GetLocalString("History"), theme.ContentPasteIcon(), HistoryScreen(w)),
+		widget.NewTabItemWithIcon(res.GetLocalString("Setting"), theme.SettingsIcon(), SettingScreen(w)))
 	tabs.SetTabLocation(widget.TabLocationLeading)
 
-	logo := canvas.NewImageFromResource(res.GetStaticResource("point"))
-	logo.SetMinSize(fyne.NewSize(300, 5))
+	widthLimit := canvas.NewImageFromResource(res.GetResource("point.svg"))
+	widthLimit.SetMinSize(fyne.NewSize(300, 1))
+	logo := canvas.NewImageFromResource(res.GetResource("govm.png"))
+	logo.SetMinSize(fyne.NewSize(100, 100))
 	pwd := widget.NewPasswordEntry()
-	// pwd.SetText("govm_pwd@2019")
 
 	btn := widget.NewButton("Ok", func() {
 		if pwd.Text == "" {
@@ -42,36 +44,23 @@ func Master(a fyne.App) fyne.Window {
 			return
 		}
 		w.SetContent(tabs)
-		min := w.Content().MinSize()
-		sizeW := a.Preferences().Int("size_w")
-		sizeH := a.Preferences().Int("size_h")
-		if sizeW > min.Width && sizeH > min.Height {
-			w.Resize(fyne.NewSize(sizeW, sizeH))
-		} else {
-			w.Resize(min)
-		}
 		w.CenterOnScreen()
 		event.Send(event.EShowHome, w)
-		w.SetOnClosed(func() {
-			size := w.Canvas().Size()
-			a.Preferences().SetInt("size_w", size.Width)
-			a.Preferences().SetInt("size_h", size.Height)
-		})
 	})
 	login := widget.NewVBox(
-		logo,
+		widthLimit,
+		widget.NewHBox(layout.NewSpacer(), logo, layout.NewSpacer()),
 		widget.NewLabel(res.GetLocalString("login.msg")),
 		pwd,
 		widget.NewHBox(layout.NewSpacer(), btn, layout.NewSpacer()),
 	)
 
 	w.SetContent(login)
-
-	w.Show()
+	w.CenterOnScreen()
 
 	event.RegisterConsumer(event.ERequsetPwd, func(e string, param ...interface{}) error {
 		// var pwd string
-		logo := canvas.NewImageFromResource(res.GetResource("resource/img/point.svg"))
+		logo := canvas.NewImageFromResource(res.GetResource("point.svg"))
 		logo.SetMinSize(fyne.NewSize(300, 5))
 		content := widget.NewPasswordEntry()
 		var p interface{}
@@ -91,6 +80,8 @@ func Master(a fyne.App) fyne.Window {
 		)
 		return nil
 	})
+
+	w.ShowAndRun()
 
 	return w
 }

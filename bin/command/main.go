@@ -1,19 +1,20 @@
 package main
 
 import (
-	"encoding/hex"
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/howeyc/gopass"
-	"github.com/lengzhao/wallet/trans"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
 	"time"
+
+	"github.com/howeyc/gopass"
+	"github.com/lengzhao/wallet/trans"
 )
 
 // Conf configure
@@ -191,10 +192,10 @@ func newTransaction() {
 	case trans.OpsRunApp:
 		in := conf.RunApp
 		var d = []byte(in.Data)
-		if in.IsHex{
-			d,err = hex.DecodeString(in.Data)
-			if err != nil{
-				fmt.Println("error hex data:",err)
+		if in.IsHex {
+			d, err = hex.DecodeString(in.Data)
+			if err != nil {
+				fmt.Println("error hex data:", err)
 				return
 			}
 		}
@@ -214,7 +215,7 @@ func newTransaction() {
 		fmt.Println("error:not support,", conf.TransOps)
 	}
 	signData := t.GetSignData()
-	t.SetSign(w.Sign(signData))
+	t.SetTheSign(w.Sign(signData))
 	tBytes := t.Output()
 	ioutil.WriteFile(conf.TransFile, tBytes, 0666)
 }
