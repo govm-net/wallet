@@ -1,0 +1,6 @@
+{
+  "password": "",
+  "static_files":"./static",
+  "wallet_file": "./wallet.key",
+  "api_server": "http://govm.net:9090"
+}

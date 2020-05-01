@@ -11,7 +11,7 @@ import (
 
 func main() {
 	mux := NewRouter()
-	mux.Handle("/", http.FileServer(http.Dir("static")))
+	mux.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))
 	srv := http.Server{}
 	srv.Handler = mux
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
