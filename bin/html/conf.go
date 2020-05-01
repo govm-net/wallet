@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -15,24 +17,35 @@ import (
 
 // TConfig config of app
 type TConfig struct {
-	Password    string `json:"password,omitempty"`
-	WalletFile  string `json:"wallet_file,omitempty"`
-	APIServer   string `json:"api_server,omitempty"`
-	StaticFiles string `json:"static_files,omitempty"`
+	Password    string `json:"password"`
+	WalletFile  string `json:"wallet_file"`
+	APIServer   string `json:"api_server"`
+	StaticFiles string `json:"static_files"`
 }
 
 // DebugMod debug mode
 const (
 	CreateFristTrans = false
-	confFile         = "./conf.json"
 )
 
 var (
-	conf   TConfig
-	wallet trans.Wallet
+	confFile = "conf.json"
+	conf     TConfig
+	wallet   trans.Wallet
 )
 
+func getWorkDir() string {
+	fullexecpath, err := os.Executable()
+	if err != nil {
+		return "."
+	}
+
+	dir, _ := filepath.Split(fullexecpath)
+	return dir
+}
+
 func init() {
+	confFile = path.Join(getWorkDir(), "conf.json")
 	err := loadConfig()
 	if err != nil {
 		log.Println("fail to load config,", err)
@@ -51,12 +64,12 @@ func loadConfig() error {
 			return err
 		}
 	} else {
-		// log.Println("fail to read file,conf.json")
+		log.Println("not found config file,", confFile)
 		writeConf = true
 	}
 
 	if conf.WalletFile == "" {
-		conf.WalletFile = "wallet.key"
+		conf.WalletFile = path.Join(getWorkDir(), "wallet.key")
 	}
 
 	if conf.Password == "" {
@@ -74,7 +87,7 @@ func loadConfig() error {
 		conf.APIServer = "http://govm.net"
 	}
 	if conf.StaticFiles == "" {
-		conf.StaticFiles = "./static"
+		conf.StaticFiles = path.Join(getWorkDir(), "static")
 	}
 	if _, err := os.Stat(conf.WalletFile); os.IsNotExist(err) {
 		wallet.New(conf.Password)
