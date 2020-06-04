@@ -1,0 +1,16 @@
+{
+    "vote":"投票",
+    "description":"说明",
+    "desc_info":"投票管理员，每张票的费用为1govm，撤销投票后，可以返还。",
+    "chain":"链",
+    "admin":"管理员",
+    "votes":"票数",
+    "energy":"手续费",
+    "submit":"提交",
+    "admins":"管理员列表",
+    "admin_info":"管理员信息（包括候选人）",
+    "address":"管理员账户",
+    "deposit":"押金",
+    "unvote":"撤销投票",
+    "next":"下一个"
+}

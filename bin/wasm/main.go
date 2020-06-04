@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/lengzhao/wallet/trans"
 	"syscall/js"
+
+	"github.com/lengzhao/wallet/trans"
 )
 
 var w trans.Wallet
@@ -75,7 +76,8 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 		return "error:privateKey"
 	}
 	chain := uint64(args[1].Float())
-	t := trans.NewTransaction(chain, w.Address)
+	cost := uint64(args[2].Float())
+	t := trans.NewTransaction(chain, w.Address, cost)
 	ops := args[0].Int()
 	switch uint8(ops) {
 	// OpsTransfer pTransfer
@@ -84,8 +86,7 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 			fmt.Println("OpsTransfer,peerAddress and cost")
 			return "error:need paramement"
 		}
-		peerStr := args[2].String()
-		cost := uint64(args[3].Float())
+		peerStr := args[3].String()
 		var energy uint64
 		if len(args) > 4 {
 			energy = uint64(args[4].Float())
@@ -94,11 +95,12 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 		if len(args) > 5 {
 			msg = args[5].String()
 		}
-		err := t.CreateTransfer(peerStr, msg, cost, energy)
+		err := t.CreateTransfer(peerStr, msg, cost)
 		if err != nil {
 			fmt.Println("error:", err)
 			return fmt.Sprintf("error:%s", err)
 		}
+		t.SetEnergy(energy)
 		fmt.Printf("transfer. to:%s,cost:%d,energy:%d", peerStr, cost, energy)
 		// OpsMove Move out of coin, move from this chain to adjacent chains
 	case trans.OpsMove:
@@ -106,13 +108,13 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 			fmt.Println("OpsMove,dstChain and cost")
 			return "error:need paramement"
 		}
-		dstChain := uint64(args[2].Float())
-		cost := uint64(args[3].Float())
+		dstChain := uint64(args[3].Float())
 		var energy uint64
 		if len(args) > 4 {
 			energy = uint64(args[4].Float())
 		}
-		t.CreateMove(dstChain, cost, energy)
+		t.CreateMove(dstChain)
+		t.SetEnergy(energy)
 		fmt.Printf("move. to:%d,cost:%d,energy:%d", dstChain, cost, energy)
 		// OpsRunApp run app
 	case trans.OpsRunApp:
@@ -120,8 +122,7 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 			fmt.Println("OpsRunApp,dstChain and cost")
 			return "error:need paramement"
 		}
-		appStr := args[2].String()
-		cost := uint64(args[3].Float())
+		appStr := args[3].String()
 		var data string
 		if len(args) > 4 {
 			data = args[4].String()
@@ -130,7 +131,8 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 		if len(args) > 5 {
 			energy = uint64(args[5].Float())
 		}
-		err := t.RunApp(appStr, cost, energy, []byte(data))
+		err := t.RunApp(appStr, []byte(data))
+		t.SetEnergy(energy)
 		if err != nil {
 			fmt.Println("error:", err)
 			return fmt.Sprintf("error:%s", err)
@@ -142,13 +144,13 @@ func newTransaction(this js.Value, args []js.Value) interface{} {
 			fmt.Println("OpsUpdateAppLife,peerAddress and cost")
 			return "error:need paramement"
 		}
-		appStr := args[2].String()
-		life := uint64(args[3].Float())
+		appStr := args[4].String()
+		life := uint64(args[5].Float())
 		var energy uint64
-		if len(args) > 4 {
-			energy = uint64(args[4].Float())
+		if len(args) > 5 {
+			energy = uint64(args[6].Float())
 		}
-		err := t.UpdateAppLife(appStr, life, energy)
+		err := t.UpdateAppLife(appStr, life)
 		if err != nil {
 			fmt.Println("error:", err)
 			return fmt.Sprintf("error:%s", err)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -15,6 +16,8 @@ const (
 	HashLen = 32
 	// AddressLen the byte length of Address
 	AddressLen = 24
+	// AdminNum admin number
+	AdminNum = 23
 )
 
 // Hash The KEY of the block of transaction
@@ -22,6 +25,60 @@ type Hash [HashLen]byte
 
 // Address the wallet address
 type Address [AddressLen]byte
+
+// Empty Check whether Hash is empty
+func (h Hash) Empty() bool {
+	return h == (Hash{})
+}
+
+// MarshalJSON marshal by base64
+func (h Hash) MarshalJSON() ([]byte, error) {
+	if h.Empty() {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(h[:])
+}
+
+// UnmarshalJSON UnmarshalJSON
+func (h *Hash) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+	var v []byte
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		return err
+	}
+	copy(h[:], v)
+	return nil
+}
+
+// Empty Check where Address is empty
+func (a Address) Empty() bool {
+	return a == (Address{})
+}
+
+// MarshalJSON marshal by base64
+func (a Address) MarshalJSON() ([]byte, error) {
+	if a.Empty() {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(a[:])
+}
+
+// UnmarshalJSON UnmarshalJSON
+func (a *Address) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+	var v []byte
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		return err
+	}
+	copy(a[:], v)
+	return nil
+}
 
 // TransactionHead transaction = sign + head + data
 type TransactionHead struct {
@@ -50,8 +107,14 @@ const (
 	OpsUpdateAppLife
 	// OpsRegisterMiner Registered as a miner
 	OpsRegisterMiner
-	// OpsDisableAdmin disable admin
-	OpsDisableAdmin
+	// OpsRegisterAdmin Registered as a admin
+	OpsRegisterAdmin
+	// OpsVote vote admin
+	OpsVote
+	// OpsUnvote unvote
+	OpsUnvote
+	// OpsReportError error block
+	OpsReportError
 )
 
 // time
@@ -104,12 +167,13 @@ func Decode(in []byte, out interface{}) int {
    5. SetSign
    6. Output
 */
-func NewTransaction(chain uint64, user []byte) *StTrans {
+func NewTransaction(chain uint64, user []byte, cost uint64) *StTrans {
 	out := StTrans{}
 	out.Chain = chain
 	Decode(user, &out.User)
-	out.Time = uint64(time.Now().Add(-time.Hour).Unix()) * 1000
-	out.Energy = 10000000
+	out.Time = uint64(time.Now().Unix()) * 1000
+	out.Cost = cost
+	out.Energy = 1000000
 	return &out
 }
 
@@ -137,8 +201,17 @@ func (t *StTrans) Output() []byte {
 	return out
 }
 
+// SetEnergy set energy
+func (t *StTrans) SetEnergy(energy uint64) bool {
+	if energy > t.Energy {
+		t.Energy = energy
+		return true
+	}
+	return false
+}
+
 // CreateTransfer transfer
-func (t *StTrans) CreateTransfer(payee, msg string, value, energy uint64) error {
+func (t *StTrans) CreateTransfer(payee, msg string) error {
 	p, err := hex.DecodeString(payee)
 	if err != nil {
 		fmt.Println("error peer address:", payee)
@@ -151,12 +224,8 @@ func (t *StTrans) CreateTransfer(payee, msg string, value, energy uint64) error 
 	if len(msg) > 100 {
 		return fmt.Errorf("data too long:%d", len(msg))
 	}
-	t.Cost = value
 	t.Ops = OpsTransfer
 	t.Data = p
-	if energy > t.Energy {
-		t.Energy = energy
-	}
 	if msg != "" {
 		t.Data = append(t.Data, []byte(msg)...)
 	}
@@ -164,17 +233,13 @@ func (t *StTrans) CreateTransfer(payee, msg string, value, energy uint64) error 
 }
 
 // CreateMove move coin to other chain
-func (t *StTrans) CreateMove(dstChain, value, energy uint64) {
-	t.Cost = value
+func (t *StTrans) CreateMove(dstChain uint64) {
 	t.Ops = OpsMove
 	t.Data = Encode(dstChain)
-	if energy > t.Energy {
-		t.Energy = energy
-	}
 }
 
 // RunApp run app
-func (t *StTrans) RunApp(app string, cost, energy uint64, data []byte) error {
+func (t *StTrans) RunApp(app string, data []byte) error {
 	p, err := hex.DecodeString(app)
 	if err != nil {
 		fmt.Println("error app hash:", app)
@@ -184,13 +249,12 @@ func (t *StTrans) RunApp(app string, cost, energy uint64, data []byte) error {
 		fmt.Println("error app length:", app)
 		return fmt.Errorf("error app:%d", len(p))
 	}
-	t.Cost = cost
 	t.Ops = OpsRunApp
 	t.Data = p
 	if len(data) != 0 {
 		t.Data = append(t.Data, data...)
 	}
-	t.Energy = 20*uint64(len(t.Data)) + 10000
+	energy := 20*uint64(len(t.Data)) + 10000
 	if energy > t.Energy {
 		t.Energy = energy
 	}
@@ -204,7 +268,7 @@ type UpdateInfo struct {
 }
 
 // UpdateAppLife update app life
-func (t *StTrans) UpdateAppLife(app string, life, energy uint64) error {
+func (t *StTrans) UpdateAppLife(app string, life uint64) error {
 	p, err := hex.DecodeString(app)
 	if err != nil {
 		fmt.Println("error app hash:", app)
@@ -219,8 +283,44 @@ func (t *StTrans) UpdateAppLife(app string, life, energy uint64) error {
 	}
 	info.Life = life
 	t.Data = Encode(info)
-	if energy > t.Energy {
-		t.Energy = energy
-	}
 	return nil
+}
+
+// CreateVote vote
+func (t *StTrans) CreateVote(payee string) error {
+	p, err := hex.DecodeString(payee)
+	if err != nil {
+		fmt.Println("error peer address:", payee)
+		return err
+	}
+	if len(p) != AddressLen {
+		fmt.Println("error peer address length:", payee)
+		return fmt.Errorf("error address length:%d", len(p))
+	}
+	if t.Cost%1000000000 != 0 {
+		fmt.Println("error vote.", t.Cost)
+		return fmt.Errorf("error vote")
+	}
+	t.Ops = OpsVote
+	t.Data = p
+	return nil
+}
+
+// Unvote cancel vote
+func (t *StTrans) Unvote() error {
+	t.Ops = OpsUnvote
+	return nil
+}
+
+// RegisterMiner RegisterMiner
+func (t *StTrans) RegisterMiner(chain, cost uint64, peer []byte) {
+	t.Cost = cost
+	t.Ops = OpsRegisterMiner
+	if chain != 0 && chain != t.Chain {
+		t.Data = Encode(chain)
+	}
+	if len(peer) > 0 {
+		t.Data = Encode(chain)
+		t.Data = append(t.Data, peer...)
+	}
 }

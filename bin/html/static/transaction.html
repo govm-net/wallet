@@ -78,16 +78,6 @@
                         <span class="input-group-addon" id="base_energy"></span>
                     </div>
                     <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="block_id">BlockID:</span>
-                        <span class="form-control" id="bid"></span>
-                    </div>
-                    <br>
-                    <div class="input-group">
-                        <span class="input-group-addon" data-localize="ops">Ops:</span>
-                        <span class="form-control" id="ops"></span>
-                    </div>
-                    <br>
                     <div id="others"></div>
                 </div>
             </div>
@@ -100,8 +90,9 @@
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=9"></script>
-
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);
         $("#base_energy").html(gCostBase);
@@ -113,8 +104,6 @@
             $("#time").html("")
             $("#cost").html("")
             $("#energy").html("")
-            $("#bid").html("")
-            $("#ops").html("")
             $("#others").html("");
             $("#result").html("");
             var query = ""
@@ -131,103 +120,15 @@
                 $("#time").html("<b>" + myDate.toString() + "</b>");
                 $("#cost").html("<b><p title='" + fmoney(data.Cost) + "'>" + getValueWithBase(data.Cost, gCostBase) + "</p></b>");
                 $("#energy").html("<b><p title='" + fmoney(data.Energy) + "'>" + getValueWithBase(data.Energy, gCostBase) + "</p></b>");
-                $("#bid").html("<b>" + data.Others.BlockID + "</b>");
-                switch (data.Ops) {
-                    case 0:
-                        $("#ops").html("<b>transfer</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("Peer")
-                        ).append(
-                            $("<span class='form-control'>").append(bytes2Str(data.Others.peer))
-                        ));
-                        break;
-                    case 1:
-                        $("#ops").html("<b>move</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("Target Chain")
-                        ).append(
-                            $("<span class='form-control'>").append(data.Others.peer)
-                        ));
-                        break;
-                    case 2:
-                        $("#ops").html("<b>new chain</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("ID")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                data.Others.peer
-                            )
-                        ));
-                        break;
-                    case 3:
-                        $("#ops").html("<b>new app</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("enable run")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                data.Others.enable_run || "false"
-                            )
-                        ));
-                        $("#others").append($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("enable import")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                data.Others.enable_import || "false"
-                            )
-                        ));
-                        $("#others").append($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("is public")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                data.Others.is_public || "false"
-                            )
-                        ));
-                        $("#others").append($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("app name")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                data.Others.app_name
-                            )
-                        ));
-                        break;
-                    case 4:
-                        $("#ops").html("<b>run app</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("app name")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                bytes2Str(data.Others.name)
-                            )
-                        ));
-                        break;
-                    case 5:
-                        $("#ops").html("<b>update app life</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("app name")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                bytes2Str(data.Others.name)
-                            )
-                        ));
-                        $("#others").append($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("life")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                data.Others.life
-                            )
-                        ));
-                        break;
-                    case 6:
-                        $("#ops").html("<b>register miner</b>");
-                        $("#others").html($("<div class='input-group'>").append(
-                            $("<span class='input-group-addon'>").append("Block index")
-                        ).append(
-                            $("<span class='form-control'>").append(
-                                $('<a href="block.html?index=' + data.Others.index + '&chain=' + chain + '">').append(data.Others.index)
-                            )
-                        ));
-                        break;
+                $("#others").html("");
+                for ( k in data.Others){
+                    $("#others").append($("<div class='input-group'>").append(
+                        $("<span class='input-group-addon'>").append(k)
+                    ).append(
+                        $("<span class='form-control'>").append(data.Others[k])
+                    ))
                 }
+                
             }).fail(function () {
                 $("#result").html("<h3>not found</h3>");
             });

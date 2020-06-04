@@ -11,10 +11,45 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/lengzhao/wallet/trans"
 )
+
+// Blance Blance
+type Blance struct {
+	updateTime int64
+	value      map[uint64]uint64
+	mu         sync.Mutex
+}
+
+func (b *Blance) get(chain uint64) uint64 {
+	now := time.Now().Unix()
+	if b.updateTime+10 > now {
+		b.mu.Lock()
+		defer b.mu.Unlock()
+		return b.value[chain]
+	}
+	data := getDataFromServer(chain, "", "dbCoin", wallet.AddressStr)
+	b.updateTime = now + 10
+	if len(data) == 0 {
+		return 0
+	}
+	var cost uint64
+	trans.Decode(data, &cost)
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.value[chain] = cost
+	return cost
+}
+
+var balance Blance
+
+func init() {
+	balance.value = make(map[uint64]uint64)
+}
 
 func proxyHTTP(w http.ResponseWriter, r *http.Request) {
 	remote, err := url.Parse(conf.APIServer)
@@ -53,8 +88,11 @@ func postTrans(chain uint64, data []byte) error {
 func AccountGet(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	q := r.URL.Query()
-	q.Set("address", wallet.AddressStr)
-	r.URL.RawQuery = q.Encode()
+	if q.Get("address") == "" {
+		q.Set("address", wallet.AddressStr)
+		r.URL.RawQuery = q.Encode()
+	}
+
 	proxyHTTP(w, r)
 }
 
@@ -89,8 +127,14 @@ func TransactionMovePost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
 		return
 	}
-	trans := trans.NewTransaction(chain, wallet.Address)
-	trans.CreateMove(info.DstChain, info.Cost, info.Energy)
+	trans := trans.NewTransaction(chain, wallet.Address, info.Cost)
+	trans.SetEnergy(info.Energy)
+	if info.Cost+trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	trans.CreateMove(info.DstChain)
 
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
@@ -151,8 +195,14 @@ func TransactionTransferPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trans := trans.NewTransaction(chain, wallet.Address)
-	trans.CreateTransfer(info.Peer, "", info.Cost, info.Energy)
+	trans := trans.NewTransaction(chain, wallet.Address, info.Cost)
+	trans.SetEnergy(info.Energy)
+	if info.Cost+trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	trans.CreateTransfer(info.Peer, "")
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
 	trans.SetTheSign(sign)
@@ -242,8 +292,14 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	trans := trans.NewTransaction(chain, wallet.Address)
-	err = trans.RunApp(info.AppName, info.Cost, info.Energy, param)
+	trans := trans.NewTransaction(chain, wallet.Address, info.Cost)
+	trans.SetEnergy(info.Energy)
+	if info.Cost+trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	err = trans.RunApp(info.AppName, param)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "error:%s", err)
@@ -301,8 +357,14 @@ func TransactionAppLifePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trans := trans.NewTransaction(chain, wallet.Address)
-	trans.UpdateAppLife(info.AppName, info.Life, info.Energy)
+	trans := trans.NewTransaction(chain, wallet.Address, 0)
+	trans.SetEnergy(info.Energy)
+	if trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	trans.UpdateAppLife(info.AppName, info.Life)
 
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
@@ -317,6 +379,305 @@ func TransactionAppLifePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	info.Energy = trans.Energy
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(info)
+}
+
+// VoteInfo vote info
+type VoteInfo struct {
+	Peer     string `json:"peer,omitempty"`
+	Cost     uint64 `json:"cost,omitempty"`
+	Energy   uint64 `json:"energy,omitempty"`
+	TransKey string `json:"trans_key,omitempty"`
+}
+
+// TransactionVotePost vote
+func TransactionVotePost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	chainStr := vars["chain"]
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "fail to read body of request,", err, chainStr)
+		return
+	}
+	chain, err := strconv.ParseUint(chainStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error chain"))
+		return
+	}
+	info := VoteInfo{}
+	err = json.Unmarshal(data, &info)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
+		return
+	}
+	if info.Cost == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "error cost value,", info.Cost)
+		return
+	}
+
+	trans := trans.NewTransaction(chain, wallet.Address, info.Cost)
+	trans.SetEnergy(info.Energy)
+	if info.Cost+trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	trans.CreateVote(info.Peer)
+	td := trans.GetSignData()
+	sign := wallet.Sign(td)
+	trans.SetTheSign(sign)
+	td = trans.Output()
+	key := trans.Key[:]
+
+	err = postTrans(chain, td)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error:%s", err)
+		return
+	}
+
+	info.Energy = trans.Energy
+	info.TransKey = hex.EncodeToString(key)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(info)
+}
+
+// TransactionVoteDelete unvote
+func TransactionVoteDelete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	chainStr := vars["chain"]
+	chain, err := strconv.ParseUint(chainStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error chain"))
+		return
+	}
+
+	trans := trans.NewTransaction(chain, wallet.Address, 0)
+	if trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	trans.Unvote()
+	td := trans.GetSignData()
+	sign := wallet.Sign(td)
+	trans.SetTheSign(sign)
+	td = trans.Output()
+	key := trans.Key[:]
+
+	err = postTrans(chain, td)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error:%s", err)
+		return
+	}
+
+	info := VoteInfo{}
+	info.Energy = trans.Energy
+	info.TransKey = hex.EncodeToString(key)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(info)
+}
+
+func getDataFromServer(chain uint64, app, structName, key string) []byte {
+	if app == "" {
+		app = "ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+	}
+	urlStr := fmt.Sprintf("%s/api/v1/%d/data?app_name=%s&is_db_data=true&raw=true&key=%s&struct_name=%s",
+		conf.APIServer, chain, app, key, structName)
+	resp, err := http.Get(urlStr)
+	if err != nil {
+		log.Println("fail to get data:", urlStr, err)
+		return nil
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		log.Println("error response status:", resp.Status, urlStr)
+		return nil
+	}
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("fail to read response body:", err)
+		return nil
+	}
+
+	return data
+}
+
+// AdminsGet get admin list
+func AdminsGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	chainStr := vars["chain"]
+	chain, err := strconv.ParseUint(chainStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error chain"))
+		return
+	}
+	// key = []byte{core.StatAdmin}
+	data := getDataFromServer(chain, "", "dbStat", "0d")
+	if len(data) == 0 {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("[]"))
+		return
+	}
+	var adminList [trans.AdminNum]trans.Address
+	trans.Decode(data, &adminList)
+	var out []string
+	for _, it := range adminList {
+		if it.Empty() {
+			continue
+		}
+		val := hex.EncodeToString(it[:])
+		out = append(out, val)
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(out)
+}
+
+// AdminInfo vote info
+type AdminInfo struct {
+	Address string `json:"address"`
+	Deposit uint64 `json:"deposit"`
+	Votes   uint64 `json:"votes"`
+}
+
+// AdminInfoGet get admin info
+func AdminInfoGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	chainStr := vars["chain"]
+	r.ParseForm()
+	key := r.Form.Get("key")
+	chain, err := strconv.ParseUint(chainStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error chain"))
+		return
+	}
+	// key = []byte{core.StatAdmin}
+	data := getDataFromServer(chain, "", "dbAdmin", key)
+	if len(data) == 0 {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("{}"))
+		return
+	}
+	var info struct {
+		Deposit uint64
+		Votes   uint64
+	}
+	trans.Decode(data, &info)
+	var out AdminInfo
+	out.Address = key
+	out.Deposit = info.Deposit
+	out.Votes = info.Votes
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(out)
+}
+
+// Miner miner info
+type Miner struct {
+	TagetChain uint64 `json:"taget_chain,omitempty"`
+	Cost       uint64 `json:"cost,omitempty"`
+	Energy     uint64 `json:"energy,omitempty"`
+	Miner      string `json:"miner,omitempty"`
+	TransKey   string `json:"trans_key,omitempty"`
+}
+
+// TransactionMinerPost miner
+func TransactionMinerPost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	chainStr := vars["chain"]
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "fail to read body of request,", err, chainStr)
+		return
+	}
+	chain, err := strconv.ParseUint(chainStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error chain"))
+		return
+	}
+	info := Miner{}
+	err = json.Unmarshal(data, &info)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
+		return
+	}
+	if info.Cost == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "error cost value,", info.Cost)
+		return
+	}
+
+	trans := trans.NewTransaction(chain, wallet.Address, info.Cost)
+	trans.SetEnergy(info.Energy)
+	if info.Cost+trans.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	var peer []byte
+	if info.Miner != "" {
+		peer, err = hex.DecodeString(info.Miner)
+	}
+	trans.RegisterMiner(info.TagetChain, info.Cost, peer)
+	td := trans.GetSignData()
+	sign := wallet.Sign(td)
+	trans.SetTheSign(sign)
+	td = trans.Output()
+	key := trans.Key[:]
+
+	err = postTrans(chain, td)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error:%s", err)
+		return
+	}
+
+	info.Energy = trans.Energy
+	info.TransKey = hex.EncodeToString(key)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(info)
+}
+
+// VersionInfo version info
+type VersionInfo struct {
+	Version string
+	// BuildTime string
+	// GitHead   string
+}
+
+// VersionGet get software version
+func VersionGet(w http.ResponseWriter, r *http.Request) {
+	info := VersionInfo{Version}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	enc := json.NewEncoder(w)

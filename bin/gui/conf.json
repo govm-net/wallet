@@ -1,7 +1,7 @@
 {
-  "APIServer": "http://govm.net",
+  "APIServer": "http://govm.top:9090",
   "Langure": "",
-  "Unit": "tc",
+  "Unit": "govm",
   "WalletFile": "wallet.key",
   "langure_list": "en,zh"
 }

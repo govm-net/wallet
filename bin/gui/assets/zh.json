@@ -48,5 +48,9 @@
 	"opCode.5":"更新APP有效期",
 	"opCode.6":"注册矿工",
 	"Website":"官网",
-	"last":"最后一个"
+	"last":"最后一个",
+	"Vote":"投票",
+	"Votes":"票数",
+	"Unvote":"取消投票",
+	"Copy":"复制"
 }

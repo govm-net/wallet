@@ -6,5 +6,8 @@
     "send_history":"转出记录",
     "receive_history":"转入记录",
     "next":"下一页",
-    "transaction":"交易"
+    "transaction":"交易",
+    "admin_voted":"管理员(投票的)",
+    "votes":"投票数",
+    "mined":"挖到的块"
 }

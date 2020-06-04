@@ -141,7 +141,12 @@ function dataEncode(input, type) {
                 return 0;
             }
             
+            // t0,t3,t6,t9,tc,govm=t9
             var split = input.split("t")
+            if (split.length <= 1){
+                split = input.split("g")
+                split[1]="9"
+            }
             var num = parseFloat(split[0])
             if(split.length > 1){
                 var tn = parseInt(split[1],16)

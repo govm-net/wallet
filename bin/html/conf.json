@@ -1,0 +1,7 @@
+{
+  "password": "govm_pwd@2019",
+  "wallet_file": "./wallet.key",
+  "api_server": "http://govm.top:9090",
+  "static_files": "./static",
+  "http_port":9191
+}

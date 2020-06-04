@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -37,7 +36,7 @@ func postTrans(chain uint64, data []byte) error {
 	if resp.StatusCode != http.StatusOK {
 		log.Println("error status:", resp.Status)
 		data, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("error response status:%s,msg:%s", resp.Status, data)
+		return fmt.Errorf("error,status:%s,msg:%s", resp.Status, data)
 	}
 	return nil
 }
@@ -70,6 +69,7 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(fmt.Errorf("error amount"), w)
 				return
 			}
+			amount.SetText("")
 			cid, err := strconv.ParseUint(chain.Selected, 10, 64)
 			if err != nil {
 				dialog.ShowError(fmt.Errorf("error chain id"), w)
@@ -78,57 +78,29 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 			base := res.GetBaseOfUnit(conf.Get(conf.CoinUnit))
 			cost := uint64(costF * float64(base))
 			myWlt := conf.GetWallet()
-			trans := trans.NewTransaction(cid, myWlt.Address)
-			err = trans.CreateTransfer(peer.Text, "", cost, 0)
+			trans := trans.NewTransaction(cid, myWlt.Address, cost)
+			err = trans.CreateTransfer(peer.Text, "")
 			if err != nil {
 				dialog.ShowError(err, w)
 				return
 			}
-			var eid int
-			rid := rand.Int()
-			eid = event.RegisterConsumer(event.EResponsePwd, func(e string, param ...interface{}) error {
-				event.Unregister(eid)
-				if len(param) < 2 {
-					result.SetText("fail to get password")
-					return nil
-				}
-				if param[0].(int) != rid {
-					peer.SetText("")
-					amount.SetText("")
-					result.SetText("fail to get password")
-					return nil
-				}
-				pwd := param[1].(string)
-				if pwd == "" {
-					peer.SetText("")
-					amount.SetText("")
-					result.SetText("cancel")
-					return nil
-				}
-				if !conf.CheckPassword(pwd) {
-					result.SetText("error password")
-					return nil
-				}
-				td := trans.GetSignData()
-				myWlt := conf.GetWallet()
-				sign := myWlt.Sign(td)
-				trans.SetTheSign(sign)
-				td = trans.Output()
-				key := trans.Key[:]
 
-				err = postTrans(cid, td)
-				if err != nil {
-					result.SetText(fmt.Sprintf("fail to send trans:%s", err))
-					return nil
-				}
-				log.Printf("new transfer:%x\n", key)
-				// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
-				result.SetText(fmt.Sprintf("trans:%x", key))
-				peer.SetText("")
-				amount.SetText("")
-				return nil
-			})
-			event.Send(event.ERequsetPwd, rid)
+			td := trans.GetSignData()
+			sign := myWlt.Sign(td)
+			trans.SetTheSign(sign)
+			td = trans.Output()
+			key := trans.Key[:]
+
+			err = postTrans(cid, td)
+			if err != nil {
+				// result.SetText(fmt.Sprintf("%s", err))
+				dialog.ShowError(err, w)
+				return
+			}
+			log.Printf("new transfer:%x\n", key)
+			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
+			result.SetText(fmt.Sprintf("trans:%x", key))
+			peer.SetText("")
 		},
 	}
 	form.Append(res.GetLocalString("Chain"), chain)
@@ -167,6 +139,7 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(fmt.Errorf("error amount"), w)
 				return
 			}
+			amount.SetText("")
 			srcid, err := strconv.ParseUint(srcChain.Selected, 10, 64)
 			if err != nil {
 				dialog.ShowError(fmt.Errorf("error chain id"), w)
@@ -187,50 +160,23 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(fmt.Errorf("error amount"), w)
 				return
 			}
-			trans := trans.NewTransaction(srcid, conf.GetWallet().Address)
-			trans.CreateMove(dstid, cost, 0)
-			var eid int
-			rid := rand.Int()
-			eid = event.RegisterConsumer(event.EResponsePwd, func(e string, param ...interface{}) error {
-				event.Unregister(eid)
-				if len(param) < 2 {
-					result.SetText("fail to get password")
-					return nil
-				}
-				if param[0].(int) != rid {
-					amount.SetText("")
-					result.SetText("fail to get password")
-					return nil
-				}
-				pwd := param[1].(string)
-				if pwd == "" {
-					amount.SetText("")
-					result.SetText("cancel")
-					return nil
-				}
-				if !conf.CheckPassword(pwd) {
-					result.SetText("error password")
-					return nil
-				}
-				td := trans.GetSignData()
-				myWlt := conf.GetWallet()
-				sign := myWlt.Sign(td)
-				trans.SetTheSign(sign)
-				td = trans.Output()
-				key := trans.Key[:]
+			trans := trans.NewTransaction(srcid, conf.GetWallet().Address, cost)
+			trans.CreateMove(dstid)
+			td := trans.GetSignData()
+			myWlt := conf.GetWallet()
+			sign := myWlt.Sign(td)
+			trans.SetTheSign(sign)
+			td = trans.Output()
+			key := trans.Key[:]
 
-				err = postTrans(srcid, td)
-				if err != nil {
-					result.SetText(fmt.Sprintf("fail to send trans:%s", err))
-					return nil
-				}
-				log.Printf("new transfer:%x\n", key)
-				// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
-				result.SetText(fmt.Sprintf("trans:%x", key))
-				amount.SetText("")
-				return nil
-			})
-			event.Send(event.ERequsetPwd, rid)
+			err = postTrans(srcid, td)
+			if err != nil {
+				// result.SetText(fmt.Sprintf("%s", err))
+				dialog.ShowError(err, w)
+				return
+			}
+			log.Printf("new transfer:%x\n", key)
+			result.SetText(fmt.Sprintf("trans:%x", key))
 		},
 	}
 	form.Append(res.GetLocalString("move.from_chain"), srcChain)
@@ -241,10 +187,116 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 	return widget.NewVBox(form, result)
 }
 
+func makeVoteTab(w fyne.Window) fyne.Widget {
+	chain := widget.NewSelect([]string{"1", "2"}, nil)
+	chain.SetSelected("1")
+	peer := widget.NewEntry()
+	peer.SetPlaceHolder("admin address")
+	peer.SetText("01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709")
+	votes := widget.NewEntry()
+	result := widget.NewLabel("")
+
+	form := &widget.Form{
+		OnCancel: func() {
+			votes.SetText("")
+			result.SetText("")
+		},
+		OnSubmit: func() {
+			result.SetText("")
+			v, err := strconv.ParseUint(votes.Text, 10, 64)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error amount"), w)
+				return
+			}
+			votes.SetText("")
+			cid, err := strconv.ParseUint(chain.Selected, 10, 64)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error chain id"), w)
+				return
+			}
+			base := res.GetBaseOfUnit("govm")
+			cost := uint64(v * base)
+			myWlt := conf.GetWallet()
+			trans := trans.NewTransaction(cid, myWlt.Address, cost)
+			err = trans.CreateVote(peer.Text)
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+
+			td := trans.GetSignData()
+			sign := myWlt.Sign(td)
+			trans.SetTheSign(sign)
+			td = trans.Output()
+			key := trans.Key[:]
+
+			err = postTrans(cid, td)
+			if err != nil {
+				// result.SetText(fmt.Sprintf("%s", err))
+				dialog.ShowError(err, w)
+				return
+			}
+			log.Printf("new transfer:%x\n", key)
+			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
+			result.SetText(fmt.Sprintf("trans:%x", key))
+		},
+	}
+	form.Append(res.GetLocalString("Chain"), chain)
+	form.Append(res.GetLocalString("transfer.peer"), peer)
+	form.Append(res.GetLocalString("Votes"), votes)
+
+	return widget.NewVBox(form, result)
+}
+
+func makeUnvoteTab(w fyne.Window) fyne.Widget {
+	chain := widget.NewSelect([]string{"1", "2"}, nil)
+	chain.SetSelected("1")
+	result := widget.NewLabel("")
+
+	form := &widget.Form{
+		OnSubmit: func() {
+			result.SetText("")
+			cid, err := strconv.ParseUint(chain.Selected, 10, 64)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error chain id"), w)
+				return
+			}
+			myWlt := conf.GetWallet()
+			trans := trans.NewTransaction(cid, myWlt.Address, 0)
+			err = trans.Unvote()
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+
+			td := trans.GetSignData()
+			sign := myWlt.Sign(td)
+			trans.SetTheSign(sign)
+			td = trans.Output()
+			key := trans.Key[:]
+
+			err = postTrans(cid, td)
+			if err != nil {
+				// result.SetText(fmt.Sprintf("%s", err))
+				dialog.ShowError(err, w)
+				return
+			}
+			log.Printf("new transfer:%x\n", key)
+			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
+			result.SetText(fmt.Sprintf("trans:%x", key))
+		},
+	}
+	form.Append(res.GetLocalString("Chain"), chain)
+
+	return widget.NewVBox(form, result)
+}
+
 // TransactionScreen shows a panel containing widget demos
 func TransactionScreen(w fyne.Window) fyne.CanvasObject {
 	return widget.NewTabContainer(
 		widget.NewTabItem(res.GetLocalString("Transfer"), makeTransferTab(w)),
 		widget.NewTabItem(res.GetLocalString("Move"), makeMoveTransTab(w)),
+		widget.NewTabItem(res.GetLocalString("Vote"), makeVoteTab(w)),
+		widget.NewTabItem(res.GetLocalString("Unvote"), makeUnvoteTab(w)),
 	)
 }

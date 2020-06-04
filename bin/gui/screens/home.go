@@ -55,6 +55,14 @@ func getAccount(chain uint64, address string) account {
 func AccountScreen(w fyne.Window) fyne.Widget {
 	address := widget.NewEntry()
 	address.Disable()
+	addrCpy := fyne.NewContainerWithLayout(layout.NewCenterLayout(),
+		widget.NewButtonWithIcon(res.GetLocalString("Copy"), theme.ContentCopyIcon(), func() {
+			w.Clipboard().SetContent(conf.GetWallet().AddressStr)
+		}))
+
+	bl0 := layout.NewBorderLayout(nil, nil, nil, addrCpy)
+	addrItem := fyne.NewContainerWithLayout(bl0, addrCpy, address)
+
 	chain1 := widget.NewEntry()
 	chain1.Disable()
 	blance1 := widget.NewEntry()
@@ -75,7 +83,7 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 	eTime.Disable()
 
 	form := &widget.Form{}
-	form.Append(res.GetLocalString("Address"), address)
+	form.Append(res.GetLocalString("Address"), addrItem)
 	form.Append("Chain1", chain1)
 	form.Append("Blance1", showBlance1)
 	form.Append("Chain2", chain2)

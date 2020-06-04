@@ -14,7 +14,7 @@ import (
 // SettingScreen setting
 func SettingScreen(win fyne.Window) fyne.CanvasObject {
 	desc := widget.NewLabel(res.GetLocalString("setting.desc"))
-	unit := widget.NewSelect([]string{"tc", "t9", "t6", "t3", "t0"}, func(in string) {
+	unit := widget.NewSelect([]string{"govm", "t6", "t3", "t0"}, func(in string) {
 		conf.Set(conf.CoinUnit, in)
 		event.Send(event.EChangeUnit)
 	})

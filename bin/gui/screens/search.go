@@ -178,8 +178,6 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	eEUnit := widget.NewLabel(unit)
 	energyLayout := layout.NewBorderLayout(nil, nil, nil, eEUnit)
 	eEnergyUnit := fyne.NewContainerWithLayout(energyLayout, eEUnit, eEnergy)
-	eBlockID := widget.NewEntry()
-	eBlockID.Disable()
 	eOpcode := widget.NewEntry()
 	eOpcode.Disable()
 	eOthers := widget.NewMultiLineEntry()
@@ -221,41 +219,14 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 		base := res.GetBaseOfUnit(eCUnit.Text)
 		eCost.SetText(fmt.Sprintf("%.3f", float64(info.Cost)/float64(base)))
 		eEnergy.SetText(fmt.Sprintf("%.3f", float64(info.Energy)/float64(base)))
-		eBlockID.SetText(fmt.Sprintf("%v", info.Others["BlockID"]))
 		opCode := fmt.Sprintf("opCode.%d", info.Ops)
 		eOpcode.SetText(res.GetLocalString(opCode))
-		switch info.Ops {
-		case 0:
-			var peer []byte
-			d, err := json.Marshal(info.Others["peer"])
-			if err != nil {
-				log.Println("fail to marshal app name.", err)
-				return nil
-			}
-			json.Unmarshal(d, &peer)
-			eOthers.SetText("Peer:" + hex.EncodeToString(peer))
-		case 1:
-			eOthers.SetText(fmt.Sprintf("DstChain:%v", info.Others["peer"]))
-		case 2:
-			eOthers.SetText(fmt.Sprintf("New Chain:%v", info.Others["peer"]))
-		case 3:
-			data := fmt.Sprintf("App Name:%v\nPublic:%v\nEnable Run:%v\nEnable Import:%v",
-				info.Others["app_name"], info.Others["is_public"], info.Others["enable_run"],
-				info.Others["enable_import"])
-			eOthers.SetText(data)
-		case 4:
-			var name []byte
-			d, err := json.Marshal(info.Others["name"])
-			if err != nil {
-				log.Println("fail to marshal app name.", err)
-				return nil
-			}
-			json.Unmarshal(d, &name)
-			eOthers.SetText(fmt.Sprintf("App Name:%x", name))
-		case 5:
-		case 6:
-			eOthers.SetText(fmt.Sprintf("Index:%v", info.Others["index"]))
+		var other string
+		for k, v := range info.Others {
+			other += fmt.Sprintf("%s:%v\n", k, v)
 		}
+		eOthers.SetText(other)
+
 		// eOthers.Hide()
 		return nil
 	}
@@ -288,7 +259,6 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	showForm.Append(res.GetLocalString("User"), eUser)
 	showForm.Append(res.GetLocalString("Cost"), eCostUnit)
 	showForm.Append(res.GetLocalString("Energy"), eEnergyUnit)
-	showForm.Append(res.GetLocalString("BlockID"), eBlockID)
 	showForm.Append(res.GetLocalString("Opcode"), eOpcode)
 	showForm.Append(res.GetLocalString("Other"), eOthers)
 

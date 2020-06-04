@@ -107,6 +107,10 @@ func GetBaseOfUnit(in string) uint64 {
 		return 1000000000000
 	case "t9":
 		return 1000000000
+	case "gvm":
+		return 1000000000
+	case "govm":
+		return 1000000000
 	case "t6":
 		return 1000000
 	case "t3":
@@ -114,5 +118,5 @@ func GetBaseOfUnit(in string) uint64 {
 	case "t0":
 		return 1
 	}
-	return 1000000000000
+	return 1000000000
 }

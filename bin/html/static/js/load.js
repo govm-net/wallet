@@ -8,12 +8,12 @@ if (gChainID == "") {
 }
 gCostBase = getCookie("cost_base")
 if (gCostBase == "") {
-    gCostBase = "tc"
+    gCostBase = "govm"
     setCookie("cost_base", gCostBase)
 }
 gLanguage = getCookie("language")
 
-$.get("navbar.page?v=3", function (data) {
+$.get("navbar.page?v="+Math.random(), function (data) {
     $("#navbar").html(data);
     var url = window.location.pathname;
     if (url == "/") {
@@ -117,9 +117,14 @@ function getCookie(cname) {
     return "";
 }
 
+// t0,t3,t6,t9,tc,govm=t9
 function getBaseByName(name) {
     var num = 1;
     var split = name.split("t")
+    if (split.length <= 1){
+        split = name.split("g")
+        split[1]="9"
+    }
     var tn = parseInt(split[1],16)
     for (i = 0; i < tn; i++) {
         num = num * 10

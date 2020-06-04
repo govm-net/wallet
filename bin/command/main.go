@@ -178,17 +178,18 @@ func newTransaction() {
 		fmt.Println("fail to load wallet:", conf.WalletFile, err)
 		return
 	}
-	t := trans.NewTransaction(conf.Chain, w.Address)
+	t := trans.NewTransaction(conf.Chain, w.Address, conf.Cost)
+	t.SetEnergy(conf.Energy)
 	switch conf.TransOps {
 	case trans.OpsTransfer:
 		in := conf.Transfer
-		err := t.CreateTransfer(in.Peer, in.Msg, conf.Cost, conf.Energy)
+		err := t.CreateTransfer(in.Peer, in.Msg)
 		if err != nil {
 			fmt.Println("error:", err)
 			return
 		}
 	case trans.OpsMove:
-		t.CreateMove(conf.Move.DstChain, conf.Cost, conf.Energy)
+		t.CreateMove(conf.Move.DstChain)
 	case trans.OpsRunApp:
 		in := conf.RunApp
 		var d = []byte(in.Data)
@@ -199,14 +200,14 @@ func newTransaction() {
 				return
 			}
 		}
-		err = t.RunApp(in.AppName, conf.Cost, conf.Energy, d)
+		err = t.RunApp(in.AppName, d)
 		if err != nil {
 			fmt.Println("fail to RunApp:", err)
 			return
 		}
 	case trans.OpsUpdateAppLife:
 		in := conf.UpdateLife
-		err = t.UpdateAppLife(in.AppName, in.Life, conf.Energy)
+		err = t.UpdateAppLife(in.AppName, in.Life)
 		if err != nil {
 			fmt.Println("fail to RunApp:", err)
 			return
