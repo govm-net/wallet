@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="vote">
+                    Vote
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form class="bs-example bs-example-form" role="form">
+                    <div class="input-group">
+                        <label class="label label-info" data-localize="description">Description:</label>
+                        <label class="label label-primary" data-localize="desc_info">
+                            vote an administrator. The cost of each vote is 1govm. </label>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
+                        <input type="number" min="1" class="form-control" name="chain">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="admin">Admin:</span>
+                        <input type="text" class="form-control" name="peer" value="01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="votes">Votes</span>
+                        <input type="number" class="form-control" name="votes">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="energy">Energy</span>
+                        <input type="number" class="form-control" name="energy">
+                        <span class="input-group-addon" id="base_energy"></span>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-success pull-right" id="submit"
+                        data-localize="vote">Vote</button>
+                    <button type="button" class="btn btn-default" id="unvote" data-localize="unvote">
+                        Unvote</button>
+                </form>
+
+                <div>
+                    <h3 id="result">
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="admins">
+                    Admins
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div id="admins">
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="admin_info">
+                    Admin Details(Including candidates)
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="address">Address</span>
+                    <span class="form-control" id="address"></span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="deposit">Deposit</span>
+                    <span class="form-control" id="deposit"></span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="votes">Votes</span>
+                    <span class="form-control" id="votes"></span>
+                </div>
+                <button type="button" class="btn btn-success pull-right" id="next" data-localize="next">Next</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
+
+    <script type="application/javascript">
+        $("#base_energy").html(gCostBase);
+        $("input[name='chain']").val(gChainID);
+        var lastSubmit = "";
+        var preAdmin = "";
+        //发送表单ajax请求
+        $('#submit').on('click', function () {
+            $("#result").html("")
+            var data = $('form').serializeJSON()
+            data.cost = parseInt(data.votes) * getBaseByName("govm")
+            data.energy = parseInt(data.energy * getBaseByName(gCostBase))
+            var chain = data.chain
+            data = JSON.stringify(data)
+            if (lastSubmit == data) {
+                alert("Submit twice!!! Refuse")
+                return
+            }
+            lastSubmit = data
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/" + chain + "/transaction/vote",
+                data: data,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?chain=" + chain + "&key="
+                        + data.trans_key + "\">" + data.trans_key + "</a></span>");
+                    console.log(data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    console.log(XMLHttpRequest.responseText);
+                    // 错误信息   
+                    console.log(textStatus);
+                    //alert(XMLHttpRequest.responseText)
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+
+        $('#unvote').on('click', function () {
+            $("#result").html("")
+            var chain = $("input[name='chain']").val();
+            $.ajax({
+                type: "DELETE",
+                url: "/api/v1/" + chain + "/transaction/vote",
+                contentType: "application/json",
+                success: function (data) {
+                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?chain=" + chain + "&key="
+                        + data.trans_key + "\">" + data.trans_key + "</a></span>");
+                    console.log(data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    // 状态码
+                    console.log(XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    console.log(XMLHttpRequest.responseText);
+                    // 错误信息   
+                    console.log(textStatus);
+                    //alert(XMLHttpRequest.responseText)
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+
+        function getAdmins(chain) {
+            console.log("start to get admins");
+            $("#admins").html("");
+            $.get("/api/v1/" + chain + "/admins", function (data, status) {
+                for (key in data) {
+                    $("#admins").append($("<div class='input-group'>").append(
+                        $("<span class='input-group-addon'></span>").append("Admin" + key)
+                    ).append(
+                        $("<span class='form-control'>").append(data[key])
+                    ));
+                }
+                //console.log(data);
+            }).fail(function () {
+            });
+        }
+
+        function getNextAdminInfo(chain, pre_key) {
+            $("#address").html("")
+            $("#deposit").html("")
+            $("#votes").html("")
+            $.ajax({
+                type: "GET",
+                url: "/api/v1/" + chain + "/data/visit",
+                data: {
+                    "app_name": "ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+                    "struct_name": "dbAdmin", "is_db_data": true, "pre_key": pre_key
+                },
+                dataType: "json",
+                success: function (rst) {
+                    if (rst.key === undefined || rst.key == "") {
+                        preAdmin = "";
+                        return
+                    }
+                    preAdmin = rst.key;
+                    $.get("/api/v1/" + chain + "/admin?key=" + rst.key, function (data, status) {
+                        $("#address").html(data.address)
+                        $("#deposit").html(data.deposit)
+                        $("#votes").html(data.votes)
+                        //console.log(data);
+                    }).fail(function () {
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest.responseText);
+                    console.log(textStatus);
+                    preAdmin = "";
+                }
+            });
+        }
+
+        $('#next').on('click', function () {
+            getNextAdminInfo(gChainID, preAdmin);
+        });
+        getAdmins(gChainID);
+        getNextAdminInfo(gChainID, preAdmin);
+    </script>
+</body>
+
+</html>

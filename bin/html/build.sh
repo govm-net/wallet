@@ -11,7 +11,7 @@ mv html_wallet_windows.exe $folder
 mv html_wallet_linux $folder
 mv html_wallet_mac $folder
 cp static $folder -rf
-tar zcvf "$folder"_$(date +'%y%m%d_%H%M%S').tar.gz $folder
+tar zcvf "$folder"_$(date +'%Y%m%d_%H%M%S').tar.gz $folder
 rm $folder -rf
 echo Enter to exit
 read k

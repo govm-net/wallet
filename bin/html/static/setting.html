@@ -53,10 +53,7 @@
                                     <a onclick="changeBase('t6')">t6=1000*t3</a>
                                 </li>
                                 <li>
-                                    <a onclick="changeBase('t9')">t9=1000*t6</a>
-                                </li>
-                                <li>
-                                    <a onclick="changeBase('tc')">tc=1000*t9</a>
+                                    <a onclick="changeBase('govm')">govm=1000*t6</a>
                                 </li>
                             </ul>
                         </div>
@@ -83,6 +80,12 @@
                             </ul>
                         </div>
                     </div>
+                    <br>
+
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="version">Software Version:</span>
+                        <span class="form-control" id="version"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,8 +97,9 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=3"></script>
-
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
     <script type="text/javascript">
         $("#cost_base").html(gCostBase);
         $("#chain").val(gChainID);
@@ -116,8 +120,6 @@
                 alert("Data: " + data + "\nStatus: " + status);
             } else {
                 $("#version").html("<b>" + data.Version + "</b>");
-                $("#build_time").html("<b>" + data.BuildTime + "</b>");
-                $("#git_head").html("<b>" + data.GitHead + "</b>");
             }
         });
 

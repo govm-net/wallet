@@ -12,7 +12,7 @@ import (
 )
 
 // Vserion version of wallet
-const Vserion = "v0.1.1"
+const Vserion = "v0.5.0"
 
 var (
 	conf       map[string]string
@@ -123,9 +123,9 @@ func Get(key string) string {
 			}
 			log.Println("lang", lang)
 		case APIServer:
-			out = "http://govm.net"
+			out = "http://govm.top:9090"
 		case CoinUnit:
-			out = "tc"
+			out = "govm"
 		}
 	}
 	return out

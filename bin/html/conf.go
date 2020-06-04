@@ -21,12 +21,11 @@ type TConfig struct {
 	WalletFile  string `json:"wallet_file"`
 	APIServer   string `json:"api_server"`
 	StaticFiles string `json:"static_files"`
+	HTTPPort    int    `json:"http_port"`
 }
 
-// DebugMod debug mode
-const (
-	CreateFristTrans = false
-)
+// Version Version
+const Version = "v0.5.0"
 
 var (
 	confFile = "conf.json"
@@ -84,7 +83,7 @@ func loadConfig() error {
 		}
 	}
 	if conf.APIServer == "" {
-		conf.APIServer = "http://govm.net"
+		conf.APIServer = "http://govm.top:9090"
 	}
 	if conf.StaticFiles == "" {
 		conf.StaticFiles = path.Join(getWorkDir(), "static")

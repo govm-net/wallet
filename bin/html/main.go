@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os/exec"
@@ -10,11 +11,13 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
 	mux := NewRouter()
 	mux.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))
 	srv := http.Server{}
 	srv.Handler = mux
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", conf.HTTPPort))
 	if err != nil {
 		return
 	}
@@ -33,7 +36,7 @@ func main() {
 		}
 		err := cmd.Start()
 		if err != nil {
-			fmt.Println("fail to open baidu.com. ", err)
+			fmt.Println("fail to open browser. ", err)
 			return
 		}
 	}(addr)

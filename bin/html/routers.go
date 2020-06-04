@@ -74,6 +74,20 @@ var routes = Routes{
 	},
 
 	Route{
+		"TransactionVotePost",
+		strings.ToUpper("Post"),
+		"/api/v1/{chain}/transaction/vote",
+		TransactionVotePost,
+	},
+
+	Route{
+		"TransactionVoteDelete",
+		strings.ToUpper("Delete"),
+		"/api/v1/{chain}/transaction/vote",
+		TransactionVoteDelete,
+	},
+
+	Route{
 		"TransactionRunAppPost",
 		strings.ToUpper("Post"),
 		"/api/v1/{chain}/transaction/app/run",
@@ -120,5 +134,25 @@ var routes = Routes{
 		strings.ToUpper("Get"),
 		"/api/v1/{chain}/data/visit",
 		proxyHTTP,
+	},
+
+	Route{
+		"AdminsGet",
+		strings.ToUpper("Get"),
+		"/api/v1/{chain}/admins",
+		AdminsGet,
+	},
+
+	Route{
+		"AdminInfoGet",
+		strings.ToUpper("Get"),
+		"/api/v1/{chain}/admin",
+		AdminInfoGet,
+	},
+	Route{
+		"VersionGet",
+		strings.ToUpper("Get"),
+		"/api/v1/version",
+		VersionGet,
 	},
 }

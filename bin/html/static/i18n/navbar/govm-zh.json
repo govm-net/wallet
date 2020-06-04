@@ -10,6 +10,7 @@
         "transaction":"交易信息",
         "miner":"矿工",
         "mine":"挖矿",
+        "vote":"投票",
         "chain":"链",
         "node":"节点",
         "setting":"设置",

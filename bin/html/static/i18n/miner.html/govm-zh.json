@@ -1,0 +1,15 @@
+{
+    "reg_miner":"注册矿工",
+    "description":"描述:",
+    "desc_info":"注册成为指定区块的注册矿工，挖对应区块时，有算力加成。代币将在5万个区块后返还",
+    "chain":"链",
+    "index":"区块序号",
+    "cost":"押金",
+    "energy":"手续费",
+    "submit":"提交",
+    "miner":"矿工",
+    "wallet_addr":"钱包地址",
+    "go":"查询",
+    "search":"查询",
+    "miner_info":"已注册的信息"
+}

@@ -40,6 +40,18 @@
                         <span class="form-control" id="balance0"></span>
                         <span class="input-group-addon" id="base_cost0"></span>
                     </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="admin_voted">Admin(voted):</span>
+                        <span class="form-control" id="admin0"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="votes">Votes:</span>
+                        <span class="form-control" id="votes0"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="mined">Blocks Mined:</span>
+                        <span class="form-control" id="mined0"></span>
+                    </div>
                     <br>
                     <div class="input-group">
                         <span class="input-group-addon" data-localize="chain">Chain:</span>
@@ -49,6 +61,18 @@
                         <span class="input-group-addon" data-localize="blance">Balance:</span>
                         <span class="form-control" id="balance1"></span>
                         <span class="input-group-addon" id="base_cost1"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="admin_voted">Admin(voted):</span>
+                        <span class="form-control" id="admin1"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="votes">Votes:</span>
+                        <span class="form-control" id="votes1"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="mined">Blocks Mined:</span>
+                        <span class="form-control" id="mined1"></span>
                     </div>
                 </div>
             </div>
@@ -61,7 +85,11 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=3"></script>
+    <!-- <script src="js/load.js?v=New Date()"></script> -->
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+        document.write("<s" + "cript type='text/javascript' src='js/encode.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
 
     <script type="text/javascript">
         var last_send = ""
@@ -74,11 +102,42 @@
             $.get("/api/v1/" + chain + "/account", function (data, status) {
                 if (status != "success") {
                     alert("Chain:" + chain + ". Data: " + data + "\nStatus: " + status);
-                } else {
-                    $("#address").html("<b>" + data.address + "</b>");
-                    $("#chain" + id).html("<b>" + data.chain + "</b>");
-                    $("#balance" + id).html("<b><p title='" + fmoney(data.cost) + "'>" + getValueWithBase(data.cost, gCostBase) + "</p></b>");
+                    return;
                 }
+                if (data.cost === undefined){
+                    data.cost = 0
+                }
+                // success to get account info
+                $("#address").html("<b>" + data.address + "</b>");
+                $("#chain" + id).html("<b>" + data.chain + "</b>");
+                $("#balance" + id).html("<b><p title='" + fmoney(data.cost) + "'>" + getValueWithBase(data.cost, gCostBase) + "</p></b>");
+
+                // get coinsLock
+                var urlStr = "/api/v1/" + chain + "/data?app_name=ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+                urlStr += "&is_db_data=true&key=" + data.address;
+                $.get(urlStr+ "&struct_name=dbVote", function (data, status) {
+                    if (status != "success" || data.value === undefined) {
+                        console.log("dbVote,Status: " + status);
+                        return;
+                    }
+                    console.log("dbVote:", data.value.length)
+                    var admin = data.value.slice(0,48)
+                    var voteCost = dataEncode(data.value.slice(48,64), "hex2int")
+                    $("#admin" + id).html(admin)
+                    $("#votes" + id).html(Math.floor(voteCost/1000000000))
+                });
+
+                $.get(urlStr + "&struct_name=statMining", function (data, status) {
+                    if (status != "success") {
+                        console.log("statMiningCount,Data: " + data + "\nStatus: " + status);
+                        return;
+                    }
+                    if (data.value === undefined) {
+                        console.log("statMiningCount:undefined")
+                        return
+                    }
+                    $("#mined" + id).html(dataEncode(data.value, "hex2int"))
+                });
             });
         }
 

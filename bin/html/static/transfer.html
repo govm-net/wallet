@@ -70,28 +70,28 @@
     <script src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=3"></script>
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
 
     <script type="application/javascript">
         $("#base_cost").html(gCostBase);
         $("#base_energy").html(gCostBase);
         $("#search_chain").val(gChainID);
         $("input[name='chain']").val(gChainID);
-        var lastSubmit = "";
         //发送表单ajax请求
         $('#submit').on('click', function () {
             $("#result").html("")
             var data = $('form').serializeJSON()
+            $("input[name='cost']").val("")
             base = getBaseByName(gCostBase);
             data.cost = parseInt(data.cost*base)
+            if (data.cost <= 0){
+                return
+            }
             data.energy = parseInt(data.energy*base)
             var chain = data.chain
             data = JSON.stringify(data)
-            if (lastSubmit == data){
-                alert("Submit twice!!! Refuse")
-                return 
-            }
-            lastSubmit = data
             $.ajax({
                 type: "POST",
                 url: "/api/v1/"+chain+"/transaction/transfer",

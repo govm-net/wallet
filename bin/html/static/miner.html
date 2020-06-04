@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="col-md-12 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" data-localize="reg_miner">
+                        Register Miner
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <form class="bs-example bs-example-form" role="form">
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="chain">Chain:</span>
+                            <input type="number" min="1" class="form-control" name="chain" value="1">
+                            <span class="input-group-addon label-success">*</span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="cost">Cost:</span>
+                            <input type="number" class="form-control" name="cost" value="5">
+                            <span class="input-group-addon" id="base_cost">govm</span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="miner">Miner:</span>
+                            <input type="text" class="form-control" name="miner">
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="energy">Energy:</span>
+                            <input type="number" class="form-control" name="energy">
+                            <span class="input-group-addon" id="base_energy"></span>
+                        </div>
+                        <br>
+                        <button type="button" class="btn btn-success pull-right" id="submit"
+                            data-localize="submit">Submit</button>
+                    </form>
+                </div>
+                <div id="result">
+                </div>
+            </div>
+            <!-- <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" data-localize="search">
+                        Search
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain:</span>
+                        <input type="number" min="1" class="form-control" id="search_chain" value="1">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="wallet_addr">Wallet Address:</span>
+                        <input type="number" min="1" class="form-control" id="address">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btn_key" data-localize="go">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=3"></script>
+
+    <script type="text/javascript">
+        $("#base_energy").html(gCostBase);
+        $("#search_chain").val(gChainID);
+        $("input[name='chain']").val(gChainID);
+
+        $('#submit').on('click', function () {
+            var data = $('form').serializeJSON()
+            // console.log(data);
+            base = getBaseByName(gCostBase)
+            data.energy = parseInt(data.energy * base)
+            data.cost = parseInt(data.cost * getBaseByName("govm"))
+            if (data.cost < 0){
+                return
+            }
+            var chain = data.chain
+            data = JSON.stringify(data)
+            //alert(data)
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/" + chain + "/transaction/miner",
+                data: data,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?key="
+                        + data.trans_key + "\">" + data.trans_key + "</a></span>");
+                    $("#chain").html("");
+                    $("#miner").html("");
+                    $("#cost").html("");
+                    console.log(data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

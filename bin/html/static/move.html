@@ -70,8 +70,9 @@
     <script src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
     <script src="js/jquery.localize.min.js"></script>
-    <script src="js/load.js?v=3"></script>
-
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
     <script type="application/javascript">
         $("#base_cost").html(gCostBase);
         $("#base_energy").html(gCostBase);
@@ -79,9 +80,13 @@
         //发送表单ajax请求
         $('#submit').on('click', function () {
             var data = $('form').serializeJSON()
+            $("input[name='cost']").val("")
             base = getBaseByName(gCostBase)
             data.dst_chain = parseInt(data.dst_chain)
             data.cost = parseInt(data.cost*base)
+            if (data.cost<=0){
+                return
+            }
             data.energy = parseInt(data.energy*base)
             var chain = data.src_chain
             data = JSON.stringify(data)

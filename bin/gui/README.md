@@ -3,7 +3,8 @@
 ## Build
 
 1. fyne.exe package -os windows -name govm.net -icon ./assets/govm.png
-2. tar zcvf  wallet_gui.tar.gz gui.exe assets conf.json
+2. mv gui.exe govm.exe
+2. tar zcvf  govm_windows_$(date +'%Y%m%d_%H%M%S').tar.gz govm.exe assets conf.json
 
 ## add local language
 
