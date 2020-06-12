@@ -24,6 +24,13 @@ type account struct {
 	Cost    uint64 `json:"cost,omitempty"`
 }
 
+// VoteInfo vote info
+type VoteInfo struct {
+	Admin    [24]byte
+	Cost     uint64
+	StartDay uint64
+}
+
 func getAccount(chain uint64, address string) account {
 	apiServer := conf.Get(conf.APIServer)
 	info := account{}
@@ -70,6 +77,8 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 	unit1 := widget.NewLabel(conf.Get(conf.CoinUnit))
 	borderLayout1 := layout.NewBorderLayout(nil, nil, nil, unit1)
 	showBlance1 := fyne.NewContainerWithLayout(borderLayout1, unit1, blance1)
+	votes1 := widget.NewEntry()
+	votes1.Disable()
 
 	chain2 := widget.NewEntry()
 	chain2.Disable()
@@ -78,6 +87,8 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 	unit2 := widget.NewLabel(conf.Get(conf.CoinUnit))
 	borderLayout2 := layout.NewBorderLayout(nil, nil, nil, unit2)
 	showBlance2 := fyne.NewContainerWithLayout(borderLayout2, unit2, blance2)
+	votes2 := widget.NewEntry()
+	votes2.Disable()
 
 	eTime := widget.NewEntry()
 	eTime.Disable()
@@ -86,8 +97,10 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 	form.Append(res.GetLocalString("Address"), addrItem)
 	form.Append("Chain1", chain1)
 	form.Append("Blance1", showBlance1)
+	form.Append("Votes1", votes1)
 	form.Append("Chain2", chain2)
 	form.Append("Blance2", showBlance2)
+	form.Append("Votes2", votes2)
 	form.Append("Time", eTime)
 
 	updateAccount := func() {
@@ -101,13 +114,28 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 		cost1 := float64(info.Cost) / float64(base)
 		chain1.SetText(fmt.Sprintf("%d", info.Chain))
 		blance1.SetText(fmt.Sprintf("%.3f", cost1))
-		// log.Println("get account1:", info, base)
 		info2 := getAccount(2, addr)
 		cost2 := float64(info2.Cost) / float64(base)
 		chain2.SetText(fmt.Sprintf("%d", info2.Chain))
 		blance2.SetText(fmt.Sprintf("%.3f", cost2))
 		log.Println("get account:", base, info, info2)
 		eTime.SetText(time.Now().Local().String())
+		data := getDataFromServer(1, conf.Get(conf.APIServer), "", "dbVote", addr)
+
+		var vInfo1 VoteInfo
+		if len(data) > 0 {
+			Decode(data, &vInfo1)
+		}
+		votes1.Text = fmt.Sprintf("%d", vInfo1.Cost/1000000000)
+		adminOfVote = fmt.Sprintf("%x", vInfo1.Admin)
+		data2 := getDataFromServer(2, conf.Get(conf.APIServer), "", "dbVote", addr)
+		var vInfo VoteInfo
+		if len(data2) > 0 {
+			Decode(data2, &vInfo)
+		}
+		votes2.Text = fmt.Sprintf("%d", vInfo.Cost/1000000000)
+		adminOfVote = fmt.Sprintf("%x", vInfo.Admin)
+
 	}
 
 	event.RegisterConsumer(event.EShowHome, func(e string, param ...interface{}) error {

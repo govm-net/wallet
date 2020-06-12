@@ -18,6 +18,8 @@ import (
 	"github.com/lengzhao/wallet/trans"
 )
 
+var adminOfVote string = "01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709"
+
 func postTrans(chain uint64, data []byte) error {
 	apiServer := conf.Get(conf.APIServer)
 	buf := bytes.NewBuffer(data)
@@ -49,7 +51,8 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 	// peer.SetText("01853433fb23a8e55663bc2b3cba0db2a8530acd60540fd9")
 	amount := widget.NewEntry()
 	unit := widget.NewLabel(conf.Get(conf.CoinUnit))
-	result := widget.NewLabel("")
+	result := widget.NewEntry()
+	result.Disable()
 
 	event.RegisterConsumer(event.EChangeUnit, func(e string, param ...interface{}) error {
 		unit.SetText(conf.Get(conf.CoinUnit))
@@ -99,7 +102,7 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 			}
 			log.Printf("new transfer:%x\n", key)
 			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
-			result.SetText(fmt.Sprintf("trans:%x", key))
+			result.SetText(fmt.Sprintf("%x", key))
 			peer.SetText("")
 		},
 	}
@@ -120,7 +123,8 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 	// amount.SetText("1.1")
 	unit := widget.NewLabel(conf.Get(conf.CoinUnit))
 	unit.TextStyle.Bold = true
-	result := widget.NewLabel("")
+	result := widget.NewEntry()
+	result.Disable()
 
 	event.RegisterConsumer(event.EChangeUnit, func(e string, param ...interface{}) error {
 		unit.SetText(conf.Get(conf.CoinUnit))
@@ -176,7 +180,7 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 				return
 			}
 			log.Printf("new transfer:%x\n", key)
-			result.SetText(fmt.Sprintf("trans:%x", key))
+			result.SetText(fmt.Sprintf("%x", key))
 		},
 	}
 	form.Append(res.GetLocalString("move.from_chain"), srcChain)
@@ -188,13 +192,15 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 }
 
 func makeVoteTab(w fyne.Window) fyne.Widget {
+	desc := widget.NewLabel(res.GetLocalString("vote_desc"))
 	chain := widget.NewSelect([]string{"1", "2"}, nil)
 	chain.SetSelected("1")
 	peer := widget.NewEntry()
 	peer.SetPlaceHolder("admin address")
-	peer.SetText("01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709")
+	peer.SetText(adminOfVote)
 	votes := widget.NewEntry()
-	result := widget.NewLabel("")
+	result := widget.NewEntry()
+	result.Disable()
 
 	form := &widget.Form{
 		OnCancel: func() {
@@ -236,11 +242,13 @@ func makeVoteTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(err, w)
 				return
 			}
+			adminOfVote = peer.Text
 			log.Printf("new transfer:%x\n", key)
 			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
-			result.SetText(fmt.Sprintf("trans:%x", key))
+			result.SetText(fmt.Sprintf("%x", key))
 		},
 	}
+	form.Append(res.GetLocalString("Description"), desc)
 	form.Append(res.GetLocalString("Chain"), chain)
 	form.Append(res.GetLocalString("transfer.peer"), peer)
 	form.Append(res.GetLocalString("Votes"), votes)
@@ -251,7 +259,8 @@ func makeVoteTab(w fyne.Window) fyne.Widget {
 func makeUnvoteTab(w fyne.Window) fyne.Widget {
 	chain := widget.NewSelect([]string{"1", "2"}, nil)
 	chain.SetSelected("1")
-	result := widget.NewLabel("")
+	result := widget.NewEntry()
+	result.Disable()
 
 	form := &widget.Form{
 		OnSubmit: func() {
@@ -283,10 +292,74 @@ func makeUnvoteTab(w fyne.Window) fyne.Widget {
 			}
 			log.Printf("new transfer:%x\n", key)
 			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
-			result.SetText(fmt.Sprintf("trans:%x", key))
+			result.SetText(fmt.Sprintf("%x", key))
 		},
 	}
 	form.Append(res.GetLocalString("Chain"), chain)
+
+	return widget.NewVBox(form, result)
+}
+
+func makeMinerTab(w fyne.Window) fyne.Widget {
+	chain := widget.NewSelect([]string{"1", "2"}, nil)
+	chain.SetSelected("1")
+	peer := widget.NewEntry()
+	peer.SetPlaceHolder("miner address")
+	amount := widget.NewEntry()
+	amount.Text = "5"
+	unit := widget.NewLabel("govm")
+	result := widget.NewEntry()
+	result.Disable()
+
+	form := &widget.Form{
+		OnCancel: func() {
+			peer.SetText("")
+			result.SetText("")
+		},
+		OnSubmit: func() {
+			result.SetText("")
+			costF, err := strconv.ParseFloat(amount.Text, 10)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error amount"), w)
+				return
+			}
+			cid, err := strconv.ParseUint(chain.Selected, 10, 64)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error chain id"), w)
+				return
+			}
+			base := res.GetBaseOfUnit("govm")
+			cost := uint64(costF * float64(base))
+			myWlt := conf.GetWallet()
+			trans := trans.NewTransaction(cid, myWlt.Address, cost)
+			err = trans.RegisterMiner(0, peer.Text)
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+
+			td := trans.GetSignData()
+			sign := myWlt.Sign(td)
+			trans.SetTheSign(sign)
+			td = trans.Output()
+			key := trans.Key[:]
+
+			err = postTrans(cid, td)
+			if err != nil {
+				// result.SetText(fmt.Sprintf("%s", err))
+				dialog.ShowError(err, w)
+				return
+			}
+			log.Printf("new transfer:%x\n", key)
+			// dialog.ShowInformation("transaction", fmt.Sprintf("%x", key), w)
+			result.SetText(fmt.Sprintf("%x", key))
+			peer.SetText("")
+		},
+	}
+	form.Append(res.GetLocalString("Chain"), chain)
+	form.Append(res.GetLocalString("Miner"), peer)
+	borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)
+	form.Append(res.GetLocalString("Amount"), fyne.NewContainerWithLayout(borderLayout, unit, amount))
 
 	return widget.NewVBox(form, result)
 }
@@ -298,5 +371,6 @@ func TransactionScreen(w fyne.Window) fyne.CanvasObject {
 		widget.NewTabItem(res.GetLocalString("Move"), makeMoveTransTab(w)),
 		widget.NewTabItem(res.GetLocalString("Vote"), makeVoteTab(w)),
 		widget.NewTabItem(res.GetLocalString("Unvote"), makeUnvoteTab(w)),
+		widget.NewTabItem(res.GetLocalString("Register Miner"), makeMinerTab(w)),
 	)
 }

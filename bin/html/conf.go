@@ -8,11 +8,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"syscall"
 	"time"
 
 	"github.com/lengzhao/wallet/trans"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // TConfig config of app
@@ -25,7 +23,7 @@ type TConfig struct {
 }
 
 // Version Version
-const Version = "v0.5.0"
+const Version = "v0.5.1"
 
 var (
 	confFile = "conf.json"
@@ -71,17 +69,6 @@ func loadConfig() error {
 		conf.WalletFile = path.Join(getWorkDir(), "wallet.key")
 	}
 
-	if conf.Password == "" {
-		fmt.Println("please enter the password of wallet:(default is govm_pwd@2019)")
-		password, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			return err
-		}
-		conf.Password = string(password)
-		if conf.Password == "" {
-			return fmt.Errorf("need password")
-		}
-	}
 	if conf.APIServer == "" {
 		conf.APIServer = "http://govm.top:9090"
 	}
@@ -98,10 +85,16 @@ func loadConfig() error {
 			log.Println("fail to read wallet file:", conf.WalletFile, err)
 			return err
 		}
-		err = wallet.Load(conf.Password, string(data))
-		if err != nil {
-			log.Println("fail to load wallet.", err)
-			return err
+		for {
+			if conf.Password == "" {
+				conf.Password = "govm_pwd@2019"
+			}
+			err = wallet.Load(conf.Password, string(data))
+			if err == nil {
+				break
+			}
+			fmt.Println("please enter the password of wallet:")
+			fmt.Scanln(&conf.Password)
 		}
 	}
 	if writeConf {

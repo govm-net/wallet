@@ -2,6 +2,7 @@ package conf
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,7 +13,7 @@ import (
 )
 
 // Vserion version of wallet
-const Vserion = "v0.5.0"
+const Vserion = "v0.5.1"
 
 var (
 	conf       map[string]string
@@ -101,6 +102,22 @@ func CheckPassword(in string) bool {
 		return true
 	}
 	return false
+}
+
+// ChangePassword change password
+func ChangePassword(pwd string) error {
+	if !myWallet.ChangePwd(myPassword, pwd) {
+		return errors.New("error old password")
+	}
+	out := myWallet.String()
+	os.Rename(conf["WalletFile"], "old_"+conf["WalletFile"])
+	err := ioutil.WriteFile(conf["WalletFile"], []byte(out), 666)
+	if err != nil {
+		log.Println("fail to save wallet")
+		return err
+	}
+	myPassword = pwd
+	return nil
 }
 
 // Get get config

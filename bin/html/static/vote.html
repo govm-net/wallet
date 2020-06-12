@@ -218,7 +218,7 @@
                     preAdmin = rst.key;
                     $.get("/api/v1/" + chain + "/admin?key=" + rst.key, function (data, status) {
                         $("#address").html(data.address)
-                        $("#deposit").html(data.deposit)
+                        $("#deposit").html(getValueWithBase(data.deposit, "govm") + " govm")
                         $("#votes").html(data.votes)
                         //console.log(data);
                     }).fail(function () {

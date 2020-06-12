@@ -641,11 +641,12 @@ func TransactionMinerPost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "not enough cost")
 		return
 	}
-	var peer []byte
-	if info.Miner != "" {
-		peer, err = hex.DecodeString(info.Miner)
+	err = trans.RegisterMiner(info.TagetChain, info.Miner)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, err)
+		return
 	}
-	trans.RegisterMiner(info.TagetChain, info.Cost, peer)
 	td := trans.GetSignData()
 	sign := wallet.Sign(td)
 	trans.SetTheSign(sign)

@@ -26,7 +26,7 @@ import (
 //statMove
 //statAPPRun
 
-const coreName = "e4a05b2b8a4de21d9e6f26e9d7992f7f33e89689f3015f3fc8a3a3278815e28c"
+const coreName = "ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
 
 type dataInfo struct {
 	AppName    string `json:"app_name,omitempty"`
@@ -90,7 +90,8 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 	btn := widget.NewButton(res.GetLocalString("Update"), func() {
 		address := conf.GetWallet().AddressStr
 		// address := "01853433fb23a8e55663bc2b3cba0db2a8530acd60540fd9"
-		newCount := getIntOfDB(chain.Selected, "statTransferOut", address)
+		// newCount := getIntOfDB(chain.Selected, "statTransferOut", address)
+		newCount := getIntOfDB(chain.Selected, "statTransList", address)
 		log.Println("update:", "statTransferOut", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
 		old := numbers[chain.Selected]
@@ -106,7 +107,8 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 			if ok {
 				break
 			}
-			transKey := getStringOfDB(chain.Selected, "statTransferOut", key)
+			// transKey := getStringOfDB(chain.Selected, "statTransferOut", key)
+			transKey := getStringOfDB(chain.Selected, "statTransList", key)
 			if transKey != "" {
 				his[key] = transKey
 			}
