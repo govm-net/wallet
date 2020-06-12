@@ -178,8 +178,8 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	eEUnit := widget.NewLabel(unit)
 	energyLayout := layout.NewBorderLayout(nil, nil, nil, eEUnit)
 	eEnergyUnit := fyne.NewContainerWithLayout(energyLayout, eEUnit, eEnergy)
-	eOpcode := widget.NewEntry()
-	eOpcode.Disable()
+	// eOpcode := widget.NewEntry()
+	// eOpcode.Disable()
 	eOthers := widget.NewMultiLineEntry()
 	eOthers.Disable()
 
@@ -219,8 +219,8 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 		base := res.GetBaseOfUnit(eCUnit.Text)
 		eCost.SetText(fmt.Sprintf("%.3f", float64(info.Cost)/float64(base)))
 		eEnergy.SetText(fmt.Sprintf("%.3f", float64(info.Energy)/float64(base)))
-		opCode := fmt.Sprintf("opCode.%d", info.Ops)
-		eOpcode.SetText(res.GetLocalString(opCode))
+		// opCode := fmt.Sprintf("opCode.%d", info.Ops)
+		// eOpcode.SetText(res.GetLocalString(opCode))
 		var other string
 		for k, v := range info.Others {
 			other += fmt.Sprintf("%s:%v\n", k, v)
@@ -259,7 +259,7 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	showForm.Append(res.GetLocalString("User"), eUser)
 	showForm.Append(res.GetLocalString("Cost"), eCostUnit)
 	showForm.Append(res.GetLocalString("Energy"), eEnergyUnit)
-	showForm.Append(res.GetLocalString("Opcode"), eOpcode)
+	// showForm.Append(res.GetLocalString("Opcode"), eOpcode)
 	showForm.Append(res.GetLocalString("Other"), eOthers)
 
 	info := widget.NewGroup("Info", showForm)

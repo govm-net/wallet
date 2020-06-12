@@ -52,5 +52,14 @@
 	"Vote":"投票",
 	"Votes":"票数",
 	"Unvote":"取消投票",
-	"Copy":"复制"
+	"Copy":"复制",
+	"Old Password":"原密码",
+	"New Password":"新密码",
+	"vote_desc":"投票后，需要自己收取收益(每隔一个月通过0投票或撤销收取)",
+	"Change Password":"修改密码",
+	"Privage Key":"明文私钥",
+	"View Private Key":"查看明文私钥",
+	"Register Miner":"注册矿工",
+	"Miner":"矿工",
+	"":""
 }

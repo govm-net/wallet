@@ -34,6 +34,7 @@ var i18n = map[string]string{
 	"opCode.5":         "Update App Life",
 	"opCode.6":         "Register Miner",
 	"setting.desc":     "Restart after setting",
+	"vote_desc":        "After voting, collect the income yourself (every month through 0 vote)",
 }
 
 var readFile func(fn string) ([]byte, error)

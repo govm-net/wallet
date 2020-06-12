@@ -35,8 +35,7 @@ func Master(a fyne.App) fyne.Window {
 
 	btn := widget.NewButton("Ok", func() {
 		if pwd.Text == "" {
-			dialog.ShowInformation("Error", res.GetLocalString("login.empty_pwd"), w)
-			return
+			pwd.Text = "govm_pwd@2019"
 		}
 		err := conf.Load(pwd.Text)
 		if err != nil {

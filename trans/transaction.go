@@ -313,14 +313,24 @@ func (t *StTrans) Unvote() error {
 }
 
 // RegisterMiner RegisterMiner
-func (t *StTrans) RegisterMiner(chain, cost uint64, peer []byte) {
-	t.Cost = cost
+func (t *StTrans) RegisterMiner(chain uint64, peer string) error {
 	t.Ops = OpsRegisterMiner
+
 	if chain != 0 && chain != t.Chain {
 		t.Data = Encode(chain)
 	}
-	if len(peer) > 0 {
+	if peer != "" {
+		p, err := hex.DecodeString(peer)
+		if err != nil {
+			fmt.Println("error address:", peer)
+			return err
+		}
+		if len(p) != AddressLen {
+			fmt.Println("error address length:", peer)
+			return fmt.Errorf("error address length:%d", len(p))
+		}
 		t.Data = Encode(chain)
-		t.Data = append(t.Data, peer...)
+		t.Data = append(t.Data, p...)
 	}
+	return nil
 }
