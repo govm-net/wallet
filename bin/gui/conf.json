@@ -1,7 +1,15 @@
 {
-  "APIServer": "http://govm.top:9090",
-  "Langure": "",
-  "Unit": "govm",
-  "WalletFile": "wallet.key",
-  "langure_list": "en,zh"
+  "api_server": "http://govm.top:9090",
+  "wallet_file": "wallet.key",
+  "langure": "",
+  "langure_list": [
+    "en",
+    "zh"
+  ],
+  "coin_unit": "govm",
+  "default_chain": "1",
+  "chains": [
+    "1",
+    "2"
+  ]
 }

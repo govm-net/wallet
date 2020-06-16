@@ -21,7 +21,7 @@ import (
 var adminOfVote string = "01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709"
 
 func postTrans(chain uint64, data []byte) error {
-	apiServer := conf.Get(conf.APIServer)
+	apiServer := conf.Get().APIServer
 	buf := bytes.NewBuffer(data)
 	urlStr := fmt.Sprintf("%s/api/v1/%d/transaction/new", apiServer, chain)
 	req, err := http.NewRequest(http.MethodPost, urlStr, buf)
@@ -44,18 +44,19 @@ func postTrans(chain uint64, data []byte) error {
 }
 
 func makeTransferTab(w fyne.Window) fyne.Widget {
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	c := conf.Get()
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	peer := widget.NewEntry()
 	peer.SetPlaceHolder("peer address")
 	// peer.SetText("01853433fb23a8e55663bc2b3cba0db2a8530acd60540fd9")
 	amount := widget.NewEntry()
-	unit := widget.NewLabel(conf.Get(conf.CoinUnit))
+	unit := widget.NewLabel(c.CoinUnit)
 	result := widget.NewEntry()
 	result.Disable()
 
 	event.RegisterConsumer(event.EChangeUnit, func(e string, param ...interface{}) error {
-		unit.SetText(conf.Get(conf.CoinUnit))
+		unit.SetText(c.CoinUnit)
 		return nil
 	})
 
@@ -78,7 +79,7 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(fmt.Errorf("error chain id"), w)
 				return
 			}
-			base := res.GetBaseOfUnit(conf.Get(conf.CoinUnit))
+			base := res.GetBaseOfUnit(c.CoinUnit)
 			cost := uint64(costF * float64(base))
 			myWlt := conf.GetWallet()
 			trans := trans.NewTransaction(cid, myWlt.Address, cost)
@@ -115,19 +116,20 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 }
 
 func makeMoveTransTab(w fyne.Window) fyne.Widget {
-	srcChain := widget.NewSelect([]string{"1", "2"}, nil)
-	srcChain.SetSelected("1")
-	dstChain := widget.NewSelect([]string{"1", "2"}, nil)
+	c := conf.Get()
+	srcChain := widget.NewSelect(c.Chains, nil)
+	srcChain.SetSelected(c.DefaultChain)
+	dstChain := widget.NewSelect(c.Chains, nil)
 	dstChain.SetSelected("2")
 	amount := widget.NewEntry()
 	// amount.SetText("1.1")
-	unit := widget.NewLabel(conf.Get(conf.CoinUnit))
+	unit := widget.NewLabel(c.CoinUnit)
 	unit.TextStyle.Bold = true
 	result := widget.NewEntry()
 	result.Disable()
 
 	event.RegisterConsumer(event.EChangeUnit, func(e string, param ...interface{}) error {
-		unit.SetText(conf.Get(conf.CoinUnit))
+		unit.SetText(c.CoinUnit)
 		return nil
 	})
 
@@ -158,7 +160,7 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(fmt.Errorf("same chain id"), w)
 				return
 			}
-			base := res.GetBaseOfUnit(conf.Get(conf.CoinUnit))
+			base := res.GetBaseOfUnit(c.CoinUnit)
 			cost := uint64(costF * float64(base))
 			if cost == 0 {
 				dialog.ShowError(fmt.Errorf("error amount"), w)
@@ -192,9 +194,10 @@ func makeMoveTransTab(w fyne.Window) fyne.Widget {
 }
 
 func makeVoteTab(w fyne.Window) fyne.Widget {
+	c := conf.Get()
 	desc := widget.NewLabel(res.GetLocalString("vote_desc"))
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	peer := widget.NewEntry()
 	peer.SetPlaceHolder("admin address")
 	peer.SetText(adminOfVote)
@@ -257,8 +260,9 @@ func makeVoteTab(w fyne.Window) fyne.Widget {
 }
 
 func makeUnvoteTab(w fyne.Window) fyne.Widget {
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	c := conf.Get()
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	result := widget.NewEntry()
 	result.Disable()
 
@@ -301,8 +305,9 @@ func makeUnvoteTab(w fyne.Window) fyne.Widget {
 }
 
 func makeMinerTab(w fyne.Window) fyne.Widget {
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	c := conf.Get()
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	peer := widget.NewEntry()
 	peer.SetPlaceHolder("miner address")
 	amount := widget.NewEntry()

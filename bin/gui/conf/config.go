@@ -13,74 +13,84 @@ import (
 )
 
 // Vserion version of wallet
-const Vserion = "v0.5.1"
+const Vserion = "v0.5.2"
+
+// Config config
+type Config struct {
+	APIServer    string   `json:"api_server,omitempty"`
+	WalletFile   string   `json:"wallet_file,omitempty"`
+	Langure      string   `json:"langure,omitempty"`
+	LangureList  []string `json:"langure_list,omitempty"`
+	CoinUnit     string   `json:"coin_unit,omitempty"`
+	DefaultChain string   `json:"default_chain,omitempty"`
+	Chains       []string `json:"chains,omitempty"`
+}
+
+// Public key of config
+const confFile = "conf.json"
 
 var (
-	conf       map[string]string
+	conf       Config
 	myWallet   trans.Wallet
 	myPassword string
 )
 
-// Public key of config
-const (
-	APIServer   = "APIServer"
-	WalletFile  = "WalletFile"
-	Langure     = "Langure"
-	CoinUnit    = "Unit"
-	FyneScale   = "FYNE_SCALE"
-	LangureList = "langure_list"
-
-	confFile = "conf.json"
-)
-
-// Languages languages
-var Languages []string
-
 func init() {
 	writeConf := false
-	var c map[string]string
+	conf.APIServer = "http://govm.net:9090"
+	conf.Chains = []string{"1", "2"}
+	conf.WalletFile = "wallet.key"
+	conf.CoinUnit = "govm"
+	conf.LangureList = []string{"en", "zh"}
+	conf.DefaultChain = "1"
 
 	data, err := ioutil.ReadFile(confFile)
 	if err == nil {
-		err = json.Unmarshal(data, &c)
+		err = json.Unmarshal(data, &conf)
 		if err != nil {
 			log.Println("fail to Unmarshal configure,conf.json")
 			writeConf = true
 		}
 	} else {
 		writeConf = true
-		c = make(map[string]string)
+	}
+	if conf.Langure == "" {
+		conf.Langure = getLangure()
 	}
 
-	if c[WalletFile] == "" {
-		c[WalletFile] = "wallet.key"
-	}
-
-	if c[APIServer] == "" {
-		c[APIServer] = "http://govm.net"
-	}
-	if c[LangureList] == "" {
-		c[LangureList] = "en,zh"
-	}
 	if writeConf {
-		data, _ = json.MarshalIndent(c, "", "  ")
+		data, _ = json.MarshalIndent(conf, "", "  ")
 		ioutil.WriteFile(confFile, data, 666)
 	}
-	Languages = strings.Split(c[LangureList], ",")
-	conf = c
+}
+
+func getLangure() string {
+	tag, err := locale.Detect()
+	if err != nil {
+		log.Println("fail to get lang")
+		return conf.LangureList[0]
+	}
+	lang := tag.String()
+	out := conf.LangureList[0]
+	for _, it := range conf.LangureList {
+		if strings.HasPrefix(lang, it) {
+			out = it
+		}
+	}
+	return out
 }
 
 // Load load wallet
 func Load(password string) error {
-	if _, err := os.Stat(conf["WalletFile"]); os.IsNotExist(err) {
+	if _, err := os.Stat(conf.WalletFile); os.IsNotExist(err) {
 		myWallet.New(password)
 		out := myWallet.String()
-		ioutil.WriteFile(conf["WalletFile"], []byte(out), 666)
+		ioutil.WriteFile(conf.WalletFile, []byte(out), 666)
 		log.Println("new wallet:", myWallet.AddressStr)
 	} else {
-		data, err := ioutil.ReadFile(conf["WalletFile"])
+		data, err := ioutil.ReadFile(conf.WalletFile)
 		if err != nil {
-			log.Println("fail to read wallet file:", conf["WalletFile"], err)
+			log.Println("fail to read wallet file:", conf.WalletFile, err)
 			return err
 		}
 
@@ -93,6 +103,13 @@ func Load(password string) error {
 	}
 
 	myPassword = password
+	return nil
+}
+
+// SaveConf save conf to file
+func SaveConf() error {
+	data, _ := json.MarshalIndent(conf, "", "  ")
+	ioutil.WriteFile(confFile, data, 666)
 	return nil
 }
 
@@ -110,8 +127,8 @@ func ChangePassword(pwd string) error {
 		return errors.New("error old password")
 	}
 	out := myWallet.String()
-	os.Rename(conf["WalletFile"], "old_"+conf["WalletFile"])
-	err := ioutil.WriteFile(conf["WalletFile"], []byte(out), 666)
+	os.Rename(conf.WalletFile, "old_"+conf.WalletFile)
+	err := ioutil.WriteFile(conf.WalletFile, []byte(out), 666)
 	if err != nil {
 		log.Println("fail to save wallet")
 		return err
@@ -120,42 +137,12 @@ func ChangePassword(pwd string) error {
 	return nil
 }
 
-// Get get config
-func Get(key string) string {
-	out, ok := conf[key]
-	if !ok {
-		switch key {
-		case Langure:
-			tag, err := locale.Detect()
-			if err != nil {
-				log.Println("fail to get lang")
-				return "en"
-			}
-			lang := tag.String()
-			out = Languages[0]
-			for _, it := range Languages {
-				if strings.HasPrefix(lang, it) {
-					out = it
-				}
-			}
-			log.Println("lang", lang)
-		case APIServer:
-			out = "http://govm.top:9090"
-		case CoinUnit:
-			out = "govm"
-		}
-	}
-	return out
-}
-
-// Set set
-func Set(key, value string) {
-	conf[key] = value
-	data, _ := json.MarshalIndent(conf, "", "  ")
-	ioutil.WriteFile(confFile, data, 666)
-}
-
 // GetWallet get wallet
 func GetWallet() trans.Wallet {
 	return myWallet
+}
+
+// Get get conf
+func Get() *Config {
+	return &conf
 }

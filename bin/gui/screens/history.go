@@ -50,7 +50,7 @@ func getIntOfDB(chain, structName, address string) uint64 {
 	return out
 }
 func getStringOfDB(chain, structName, address string) string {
-	urlStr := conf.Get(conf.APIServer)
+	urlStr := conf.Get().APIServer
 	urlStr += "/api/v1/" + chain + "/data?app_name=" + coreName
 	urlStr += "&is_db_data=true&struct_name=" + structName
 	urlStr += "&key=" + address
@@ -79,8 +79,9 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 	var his = make(map[string]string)
 	var numbers = make(map[string]uint64)
 	// var oldCount uint64
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	c := conf.Get()
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	number := widget.NewEntry()
 	number.Disable()
 	number.SetText("0")
@@ -94,10 +95,7 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 		newCount := getIntOfDB(chain.Selected, "statTransList", address)
 		log.Println("update:", "statTransferOut", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
-		old := numbers[chain.Selected]
-		if old >= newCount {
-			return
-		}
+
 		number.SetText(fmt.Sprintf("%d", newCount))
 		numbers[chain.Selected] = newCount
 		for i := newCount; i > 0 && i+10 > newCount; i-- {
@@ -119,7 +117,7 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 			key := address + id
 			item := his[key]
 			if item == "" {
-				item = "error"
+				item = fmt.Sprintf("error,index%d", i)
 			}
 			ent := widget.NewEntry()
 			ent.SetText(item)
@@ -132,7 +130,7 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 	updateItem := fyne.NewContainerWithLayout(layout2, btn, updateTime)
 	form := &widget.Form{}
 	form.Append(res.GetLocalString("Chain"), chain)
-	form.Append(res.GetLocalString("TransferNumber"), number)
+	form.Append(res.GetLocalString("Number"), number)
 	form.Append(res.GetLocalString("UpdateTime"), updateItem)
 
 	return widget.NewVBox(form, widget.NewGroup(res.GetLocalString("HistoryList"), box))
@@ -141,9 +139,9 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 func makeTransferInList(w fyne.Window) fyne.Widget {
 	var his = make(map[string]string)
 	var numbers = make(map[string]uint64)
-	// var oldCount uint64
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	c := conf.Get()
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	number := widget.NewEntry()
 	number.Disable()
 	number.SetText("0")
@@ -156,10 +154,7 @@ func makeTransferInList(w fyne.Window) fyne.Widget {
 		newCount := getIntOfDB(chain.Selected, "statTransferIn", address)
 		log.Println("update:", "statTransferIn", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
-		old := numbers[chain.Selected]
-		if old >= newCount {
-			return
-		}
+
 		number.SetText(fmt.Sprintf("%d", newCount))
 		numbers[chain.Selected] = newCount
 		for i := newCount; i > 0 && i+10 > newCount; i-- {
@@ -193,7 +188,7 @@ func makeTransferInList(w fyne.Window) fyne.Widget {
 	updateItem := fyne.NewContainerWithLayout(layout2, btn, updateTime)
 	form := &widget.Form{}
 	form.Append(res.GetLocalString("Chain"), chain)
-	form.Append(res.GetLocalString("TransferNumber"), number)
+	form.Append(res.GetLocalString("Number"), number)
 	form.Append(res.GetLocalString("UpdateTime"), updateItem)
 	// btn.Tapped()
 	return widget.NewVBox(form, widget.NewGroup(res.GetLocalString("HistoryList"), box))
@@ -203,9 +198,9 @@ func makeTransferInList(w fyne.Window) fyne.Widget {
 func makeMoveList(w fyne.Window) fyne.Widget {
 	var his = make(map[string]string)
 	var numbers = make(map[string]uint64)
-	// var oldCount uint64
-	chain := widget.NewSelect([]string{"1", "2"}, nil)
-	chain.SetSelected("1")
+	c := conf.Get()
+	chain := widget.NewSelect(c.Chains, nil)
+	chain.SetSelected(c.DefaultChain)
 	number := widget.NewEntry()
 	number.Disable()
 	number.SetText("0")
@@ -220,10 +215,7 @@ func makeMoveList(w fyne.Window) fyne.Widget {
 		newCount := getIntOfDB(chain.Selected, "statMove", address)
 		log.Println("update:", "statMove", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
-		old := numbers[chain.Selected]
-		if old >= newCount {
-			return
-		}
+
 		number.SetText(fmt.Sprintf("%d", newCount))
 		numbers[chain.Selected] = newCount
 		for i := newCount; i > 0 && i+10 > newCount; i-- {
@@ -245,11 +237,6 @@ func makeMoveList(w fyne.Window) fyne.Widget {
 			item := his[key]
 			if item == "" {
 				item = "error"
-			} else if len(item) == 16 {
-				val, _ := strconv.ParseUint(item, 16, 64)
-				item = fmt.Sprintf("(In, Block ID)%d", val)
-			} else {
-				item = "(Out)" + item
 			}
 			ent := widget.NewEntry()
 			ent.SetText(item)
@@ -262,8 +249,7 @@ func makeMoveList(w fyne.Window) fyne.Widget {
 	updateItem := fyne.NewContainerWithLayout(layout2, btn, updateTime)
 	form := &widget.Form{}
 	form.Append(res.GetLocalString("Chain"), chain)
-	form.Append(res.GetLocalString("TransferNumber"), number)
-	// form.Append(res.GetLocalString("Address"), addr)
+	form.Append(res.GetLocalString("Number"), number)
 	form.Append(res.GetLocalString("UpdateTime"), updateItem)
 
 	return widget.NewVBox(form, widget.NewGroup(res.GetLocalString("HistoryList"), box))

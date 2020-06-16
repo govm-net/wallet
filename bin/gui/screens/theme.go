@@ -161,8 +161,7 @@ func NewCustomTheme() fyne.Theme {
 		shadow:         color.RGBA{0x0, 0x0, 0x0, 0x33},
 	}
 
-	lang := conf.Get(conf.Langure)
-	font := lang + ".ttf"
+	font := conf.Get().Langure + ".ttf"
 
 	out.regular = res.GetResource(font)
 	out.bold = res.GetResource(font)
