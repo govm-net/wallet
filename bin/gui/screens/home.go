@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"fyne.io/fyne"
@@ -32,7 +33,7 @@ type VoteInfo struct {
 }
 
 func getAccount(chain uint64, address string) account {
-	apiServer := conf.Get(conf.APIServer)
+	apiServer := conf.Get().APIServer
 	info := account{}
 	urlStr1 := fmt.Sprintf("%s/api/v1/%d/account?address=%s", apiServer, chain, address)
 	resp, err := http.Get(urlStr1)
@@ -70,72 +71,67 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 	bl0 := layout.NewBorderLayout(nil, nil, nil, addrCpy)
 	addrItem := fyne.NewContainerWithLayout(bl0, addrCpy, address)
 
-	chain1 := widget.NewEntry()
-	chain1.Disable()
-	blance1 := widget.NewEntry()
-	blance1.Disable()
-	unit1 := widget.NewLabel(conf.Get(conf.CoinUnit))
-	borderLayout1 := layout.NewBorderLayout(nil, nil, nil, unit1)
-	showBlance1 := fyne.NewContainerWithLayout(borderLayout1, unit1, blance1)
-	votes1 := widget.NewEntry()
-	votes1.Disable()
+	form := &widget.Form{}
+	form.Append(res.GetLocalString("Address"), addrItem)
 
-	chain2 := widget.NewEntry()
-	chain2.Disable()
-	blance2 := widget.NewEntry()
-	blance2.Disable()
-	unit2 := widget.NewLabel(conf.Get(conf.CoinUnit))
-	borderLayout2 := layout.NewBorderLayout(nil, nil, nil, unit2)
-	showBlance2 := fyne.NewContainerWithLayout(borderLayout2, unit2, blance2)
-	votes2 := widget.NewEntry()
-	votes2.Disable()
+	c := conf.Get()
+	allWidget := make(map[string]*widget.Entry)
+	for i, chain := range c.Chains {
+		fmt.Println(i, chain)
+		chainW := widget.NewEntry()
+		chainW.Disable()
+		allWidget["chain"+chain] = chainW
+		form.Append("Chain"+chain, chainW)
+		balanceW := widget.NewEntry()
+		balanceW.Disable()
+		allWidget["balance"+chain] = balanceW
+		unit := widget.NewLabel(c.CoinUnit)
+		borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)
+		showBalance := fyne.NewContainerWithLayout(borderLayout, unit, balanceW)
+		form.Append("Balance"+chain, showBalance)
+
+		votes := widget.NewEntry()
+		votes.Disable()
+		allWidget["votes"+chain] = votes
+		form.Append("Votes"+chain, votes)
+		// voteReward := widget.NewEntry()
+		// voteReward.Disable()
+		// allWidget["voteReward"+chain] = voteReward
+		// form.Append("VoteReward"+chain, voteReward)
+	}
 
 	eTime := widget.NewEntry()
 	eTime.Disable()
-
-	form := &widget.Form{}
-	form.Append(res.GetLocalString("Address"), addrItem)
-	form.Append("Chain1", chain1)
-	form.Append("Blance1", showBlance1)
-	form.Append("Votes1", votes1)
-	form.Append("Chain2", chain2)
-	form.Append("Blance2", showBlance2)
-	form.Append("Votes2", votes2)
 	form.Append("Time", eTime)
 
 	updateAccount := func() {
 		addr := conf.GetWallet().AddressStr
 		address.SetText(addr)
-		info := getAccount(1, addr)
-		unit := conf.Get(conf.CoinUnit)
-		unit1.SetText(unit)
-		unit2.SetText(unit)
+		unit := c.CoinUnit
 		base := res.GetBaseOfUnit(unit)
-		cost1 := float64(info.Cost) / float64(base)
-		chain1.SetText(fmt.Sprintf("%d", info.Chain))
-		blance1.SetText(fmt.Sprintf("%.3f", cost1))
-		info2 := getAccount(2, addr)
-		cost2 := float64(info2.Cost) / float64(base)
-		chain2.SetText(fmt.Sprintf("%d", info2.Chain))
-		blance2.SetText(fmt.Sprintf("%.3f", cost2))
-		log.Println("get account:", base, info, info2)
+		for _, it := range c.Chains {
+			chain, _ := strconv.ParseUint(it, 10, 64)
+			info := getAccount(chain, addr)
+			cost := float64(info.Cost) / float64(base)
+			chainW := allWidget["chain"+it]
+			chainW.SetText(fmt.Sprintf("%d", info.Chain))
+			chainW.Refresh()
+			balanceW := allWidget["balance"+it]
+			balanceW.SetText(fmt.Sprintf("%.3f", cost))
+			balanceW.Refresh()
+
+			data := getDataFromServer(chain, c.APIServer, "", "dbVote", addr)
+			var vInfo1 VoteInfo
+			if len(data) > 0 {
+				Decode(data, &vInfo1)
+			}
+			adminOfVote = fmt.Sprintf("%x", vInfo1.Admin)
+			votesW := allWidget["votes"+it]
+			votesW.Text = fmt.Sprintf("%d", vInfo1.Cost/1000000000)
+			votesW.Refresh()
+		}
 		eTime.SetText(time.Now().Local().String())
-		data := getDataFromServer(1, conf.Get(conf.APIServer), "", "dbVote", addr)
-
-		var vInfo1 VoteInfo
-		if len(data) > 0 {
-			Decode(data, &vInfo1)
-		}
-		votes1.Text = fmt.Sprintf("%d", vInfo1.Cost/1000000000)
-		adminOfVote = fmt.Sprintf("%x", vInfo1.Admin)
-		data2 := getDataFromServer(2, conf.Get(conf.APIServer), "", "dbVote", addr)
-		var vInfo VoteInfo
-		if len(data2) > 0 {
-			Decode(data2, &vInfo)
-		}
-		votes2.Text = fmt.Sprintf("%d", vInfo.Cost/1000000000)
-		adminOfVote = fmt.Sprintf("%x", vInfo.Admin)
-
+		eTime.Refresh()
 	}
 
 	event.RegisterConsumer(event.EShowHome, func(e string, param ...interface{}) error {
@@ -148,6 +144,7 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 		widget.NewButtonWithIcon(res.GetLocalString("Update"), theme.ViewRefreshIcon(), func() {
 			updateAccount()
 		}))
+
 	win := widget.NewVBox(form, btn)
 	return win
 }

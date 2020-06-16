@@ -3,10 +3,8 @@ package res
 import (
 	"encoding/json"
 	"io/ioutil"
-	"os"
 	"path"
 	"path/filepath"
-	"strconv"
 
 	"fyne.io/fyne"
 	"github.com/lengzhao/wallet/bin/gui/conf"
@@ -49,7 +47,7 @@ func assetRead(fn string) []byte {
 
 // LoadLanguage load language
 func LoadLanguage() error {
-	lang := conf.Get(conf.Langure)
+	lang := conf.Get().Langure
 	data := assetRead(lang + ".json")
 	if len(data) == 0 {
 		return nil
@@ -58,14 +56,6 @@ func LoadLanguage() error {
 	if err != nil {
 		return err
 	}
-	scal := conf.Get(conf.FyneScale)
-	if scal != "" {
-		val, _ := strconv.ParseFloat(scal, 64)
-		if val > 0.5 && val < 2.0 {
-			os.Setenv(conf.FyneScale, scal)
-		}
-	}
-
 	return nil
 }
 

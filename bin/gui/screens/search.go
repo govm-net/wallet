@@ -32,8 +32,9 @@ type blockInfo struct {
 }
 
 func searchBlock(w fyne.Window) fyne.Widget {
-	srcChain := widget.NewSelect([]string{"1", "2"}, nil)
-	srcChain.SetSelected("1")
+	c := conf.Get()
+	srcChain := widget.NewSelect(c.Chains, nil)
+	srcChain.SetSelected(c.DefaultChain)
 	srcIndex := widget.NewEntry()
 	srcKey := widget.NewEntry()
 
@@ -57,7 +58,7 @@ func searchBlock(w fyne.Window) fyne.Widget {
 	eRightChild.Disable()
 
 	reqBlock := func(chain, index uint64, key string) error {
-		apiServer := conf.Get(conf.APIServer)
+		apiServer := conf.Get().APIServer
 		urlStr1 := fmt.Sprintf("%s/api/v1/%d/block/info?index=%d&key=%s", apiServer, chain, index, key)
 		resp, err := http.Get(urlStr1)
 		if err != nil {
@@ -154,8 +155,9 @@ type transactionInfo struct {
 }
 
 func searchTransaction(w fyne.Window) fyne.Widget {
-	srcChain := widget.NewSelect([]string{"1", "2"}, nil)
-	srcChain.SetSelected("1")
+	c := conf.Get()
+	srcChain := widget.NewSelect(c.Chains, nil)
+	srcChain.SetSelected(c.DefaultChain)
 	srcKey := widget.NewEntry()
 	// srcKey.SetText("0c64e484f3b329fea41a03be2677161eaac92741105cb0548b6ec4a5529efc71")
 
@@ -169,13 +171,12 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	eUser.Disable()
 	eCost := widget.NewEntry()
 	eCost.Disable()
-	unit := conf.Get(conf.CoinUnit)
-	eCUnit := widget.NewLabel(unit)
+	eCUnit := widget.NewLabel(c.CoinUnit)
 	costLayout := layout.NewBorderLayout(nil, nil, nil, eCUnit)
 	eCostUnit := fyne.NewContainerWithLayout(costLayout, eCUnit, eCost)
 	eEnergy := widget.NewEntry()
 	eEnergy.Disable()
-	eEUnit := widget.NewLabel(unit)
+	eEUnit := widget.NewLabel(c.CoinUnit)
 	energyLayout := layout.NewBorderLayout(nil, nil, nil, eEUnit)
 	eEnergyUnit := fyne.NewContainerWithLayout(energyLayout, eEUnit, eEnergy)
 	// eOpcode := widget.NewEntry()
@@ -186,14 +187,13 @@ func searchTransaction(w fyne.Window) fyne.Widget {
 	event.RegisterConsumer(event.EChangeUnit, func(e string, param ...interface{}) error {
 		eCost.SetText("")
 		eEnergy.SetText("")
-		eCUnit.SetText(conf.Get(conf.CoinUnit))
-		eEUnit.SetText(conf.Get(conf.CoinUnit))
+		eCUnit.SetText(c.CoinUnit)
+		eEUnit.SetText(c.CoinUnit)
 		return nil
 	})
 
 	reqTrans := func(chain uint64, key string) error {
-		apiServer := conf.Get(conf.APIServer)
-		urlStr1 := fmt.Sprintf("%s/api/v1/%d/transaction/info?key=%s", apiServer, chain, key)
+		urlStr1 := fmt.Sprintf("%s/api/v1/%d/transaction/info?key=%s", c.APIServer, chain, key)
 		resp, err := http.Get(urlStr1)
 		if err != nil {
 			log.Print("fail to do get trans,", err)

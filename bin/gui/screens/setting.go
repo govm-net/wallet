@@ -17,27 +17,26 @@ import (
 
 // SettingScreen setting
 func SettingScreen(win fyne.Window) fyne.CanvasObject {
+	c := conf.Get()
 	desc := widget.NewLabel(res.GetLocalString("setting.desc"))
 	unit := widget.NewSelect([]string{"govm", "t6", "t3", "t0"}, func(in string) {
-		conf.Set(conf.CoinUnit, in)
+		c.CoinUnit = in
+		conf.SaveConf()
 		event.Send(event.EChangeUnit)
 	})
-	unit.SetSelected(conf.Get(conf.CoinUnit))
+	unit.SetSelected(c.CoinUnit)
 
-	var list = []string{"en", "zh"}
-	selected := conf.Get(conf.Langure)
-	if selected == "" {
-		selected = list[0]
-	}
-	lng := widget.NewSelect(list, func(in string) {
-		conf.Set(conf.Langure, in)
+	lng := widget.NewSelect(c.LangureList, func(in string) {
+		c.Langure = in
+		conf.SaveConf()
 	})
-	lng.SetSelected(selected)
+	lng.SetSelected(c.Langure)
 
 	entry1 := widget.NewEntry()
-	entry1.SetText(conf.Get(conf.APIServer))
+	entry1.SetText(c.APIServer)
 	btn := widget.NewButton(res.GetLocalString("Set"), func() {
-		conf.Set(conf.APIServer, entry1.Text)
+		c.APIServer = entry1.Text
+		conf.SaveConf()
 	})
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, btn)
 	apiServer := fyne.NewContainerWithLayout(borderLayout, btn, entry1)
