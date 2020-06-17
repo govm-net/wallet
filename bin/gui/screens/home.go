@@ -124,8 +124,10 @@ func AccountScreen(w fyne.Window) fyne.Widget {
 			var vInfo1 VoteInfo
 			if len(data) > 0 {
 				Decode(data, &vInfo1)
+				adminOfVote = fmt.Sprintf("%x", vInfo1.Admin)
+				fmt.Printf("set admin of vote:%x\n", vInfo1.Admin)
+				event.Send(event.EAdminOfVote, w)
 			}
-			adminOfVote = fmt.Sprintf("%x", vInfo1.Admin)
 			votesW := allWidget["votes"+it]
 			votesW.Text = fmt.Sprintf("%d", vInfo1.Cost/1000000000)
 			votesW.Refresh()
