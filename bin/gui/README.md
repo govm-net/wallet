@@ -11,7 +11,7 @@
 1. add translation: assets/zh.json
 2. copy ttf from C:\Windows\Fonts, rename to assert/zh.ttf
 3. add 'zh' to conf.json->langure_list, split by ','
-4. use the language: conf.json->Langure set value to zh
+4. use the language: conf.json->langure set value to zh
 
 ## others
 
