@@ -14,8 +14,8 @@ var localI18n map[string]string
 
 var i18n = map[string]string{
 	"GOVM":             "GOVM",
-	"login.msg":        "Please entry password",
-	"login.empty_pwd":  "not entry password",
+	"login.msg":        "Please enter password",
+	"login.empty_pwd":  "not enter password",
 	"transfer.peer":    "Peer",
 	"transfer.desc":    "After the transfer, wait until the block index of the transaction is not 0 to be considered a success. Normally less than 2 minutes.",
 	"move.from_chain":  "From Chain",
