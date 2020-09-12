@@ -264,7 +264,6 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
 		return
 	}
-	log.Println("run app:", info)
 	var param []byte
 	switch info.ParamType {
 	case "json":
@@ -278,9 +277,11 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 			param = prefix
 		}
 		jData, _ := json.Marshal(info.JSONParam)
+		log.Println("run json param:", info.Param, string(jData))
 		param = append(param, jData...)
 	case "string":
 		param = []byte(info.Param)
+		log.Println("run string param:", info.Param)
 	default:
 		if len(info.Param) > 0 {
 			param, err = hex.DecodeString(info.Param)
@@ -289,6 +290,7 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintln(w, "error param, hope hex string,", err)
 				return
 			}
+			log.Println("run param:", info.Param)
 		}
 	}
 
@@ -317,8 +319,9 @@ func TransactionRunAppPost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "error:%s", err)
 		return
 	}
-
-	resp := RespOfNewTrans{chain, hex.EncodeToString(trans.Key[:])}
+	tk := hex.EncodeToString(trans.Key[:])
+	log.Println("run app:", tk, info)
+	resp := RespOfNewTrans{chain, tk}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	enc := json.NewEncoder(w)

@@ -10,6 +10,7 @@
                 <li><a href="/move.html"  data-localize="navbar.move">Move</a></li>
                 <li><a href="/vote.html"  data-localize="navbar.vote">Vote</a></li>
                 <li><a href="/miner.html"  data-localize="navbar.miner">Miner</a></li>
+                <li><a href="/wgovm.html"  data-localize="navbar.wgovm">wGovm</a></li>
                 <li><a href="/run_app.html"  data-localize="navbar.run_app">Run APP</a></li>
                 <li><a href="/block.html" data-localize="navbar.block">Block</a></li>
                 <li><a href="/transaction.html" data-localize="navbar.transaction">Transaction</a></li>

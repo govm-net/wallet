@@ -1,0 +1,20 @@
+{
+    "wGovm":"wGOVM兑换",
+    "description":"说明",
+    "desc_info":"将链1的govm兑换为以太坊的wgovm，手续费1%(需>1govm)",
+    "eth_addr":"以太坊地址",
+    "target":"转入的链",
+    "cost":"金额",
+    "chain":"链",
+    "relayMint":"以太坊造币(需要MetaMask)",
+    "key":"govm的交易哈希",
+    "owner":"兑换人(govm)",
+    "signature":"管理员签名",
+    "mint":"铸造币",
+    "info":"信息",
+    "eth_contract":"以太坊合约",
+    "govm_contract":"govm合约",
+    "wgovm_total":"wGovm总量",
+    "govm_locked":"govm锁定数量",
+    "energy":"矿工手续费"
+}
