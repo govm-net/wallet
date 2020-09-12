@@ -97,7 +97,7 @@
                 dataType: "json",
                 contentType: "application/json",
                 success: function (data) {
-                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?key="
+                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?chain="+chain+"&key="
                         + data.trans_key + "\">" + data.trans_key + "</a></span>");
                     console.log(data);
                 },

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="wGovm">
+                    wGOVM
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form class="bs-example bs-example-form" role="form" id="run_form">
+                    <div class="input-group">
+                        <label class="label label-info" data-localize="description">Description:</label>
+                        <label class="label label-primary" data-localize="desc_info">
+                            Wrapped GOVM. Exchange govm of chain1 to eth.wGovm,handling fee 1%.
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="chain">Chain</span>
+                        <span class="form-control">1</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="cost">Amount</span>
+                        <input type="number" class="form-control" placeholder=">10000" name="cost">
+                        <span class="input-group-addon" id="base_cost"></span>
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="energy">Energy(fee to Miner)</span>
+                        <input type="number" class="form-control" name="energy" value="0.1">
+                        <span class="input-group-addon" id="base_energy"></span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" data-localize="eth_addr">Eth Address</span>
+                        <input type="text" class="form-control" name="eth_addr">
+                        <span class="input-group-addon label-success">*</span>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-success pull-right" id="submit"
+                        data-localize="submit">Submit</button>
+                    <br>
+                </form>
+            </div>
+        </div>
+        <div>
+            <h3 id="result">
+            </h3>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="relayMint">
+                    RelayMint(require MetaMask)
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="key">Transaction Key:</span>
+                    <input type="text" class="form-control" id="search_key">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" id="btn_key" data-localize="go">Go!</button>
+                    </span>
+                </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="key">Key:</span>
+                    <input type="text" class="form-control" id="mint_key">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="owner">Owner:</span>
+                    <input type="text" class="form-control" id="mint_owner">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="eth_addr">Eth Address:</span>
+                    <input type="text" class="form-control" id="mint_eth_addr">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="cost">Amount:</span>
+                    <input type="number" class="form-control" id="mint_amount">
+                    <span class="input-group-addon">govm</span>
+                    <div hidden><input type="number" id="mint_amount1"></div>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="signature">Signature:</span>
+                    <input type="text" class="form-control" id="mint_signature">
+                </div>
+                <button type="button" class="btn btn-success pull-right" id="relayMint" data-localize="mint">Relay
+                    Mint</button>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="info">
+                    Info
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="eth_contract">Eth Contract:</span>
+                    <span class="form-control">
+                        <a target="_blank"
+                            href="https://etherscan.io/address/0xac5d7dff150b195c97fca77001f8ad596eda1761#code">
+                            0xaC5d7dFF150B195C97Fca77001f8AD596eda1761
+                        </a>
+                    </span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="govm_contract">govm Contract:</span>
+                    <span class="form-control">a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b</span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="wgovm_total">wGovm Total:</span>
+                    <span class="form-control" id="wgovm_total"></span>
+                    <span class="input-group-addon">govm</span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="govm_locked">govm Locked:</span>
+                    <span class="form-control" id="govm_locked"></span>
+                    <span class="input-group-addon">govm</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/web3-0.20.5.js"></script>
+    <script src="js/wgovm_abi.js"></script>
+    <script src="js/wgovm.js?v=2"></script>
+    <!-- 包括所有已编译的插件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script>
+        document.write("<s" + "cript type='text/javascript' src='js/load.js?v=" + Math.random() + "'></scr" + "ipt>");
+        document.write("<s" + "cript type='text/javascript' src='js/encode.js?v=" + Math.random() + "'></scr" + "ipt>"); 
+    </script>
+    <script type="text/javascript">
+        $("#base_cost").html(gCostBase);
+        $("#base_energy").html(gCostBase);
+        $('#btn_key').on('click', function () {
+            $("#result").html("");
+            var key = $("#search_key").val();
+            urlStr1 = "/api/v1/1/data?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
+            urlStr1 += "&struct_name=tTransIn&is_db_data=true&key=" + key;
+            $.get(urlStr1, function (data, status) {
+                if (status != "success" || data.value === undefined) {
+                    $("#result").html("not Found");
+                    return
+                }
+                var info = dataEncode(data.value, "hex2json")
+                console.log("trans:", info)
+                $("#mint_key").val("0x" + dataEncode(info.trans, "base2hex"))
+                $("#mint_owner").val(dataEncode(info.who, "base2hex"))
+                $("#mint_eth_addr").val(info.eth_addr)
+                $("#mint_amount").val(getValueWithBase(info.cost, "govm"))
+                $("#mint_amount1").val(info.cost)
+                urlStr2 = "/api/v1/1/data?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
+                urlStr2 += "&struct_name=tSign&is_db_data=true&key=" + key;
+                $.get(urlStr2, function (data, status) {
+                    if (status == "success") {
+                        console.log("sign:", data.value)
+                        $("#mint_signature").val("0x" + data.value)
+                    }
+                });
+            });
+        });
+        $('#submit').on('click', function () {
+            $("#result").html("");
+            var rParam = {};
+            var data = $('#run_form').serializeJSON()
+            base = getBaseByName(gCostBase)
+            data.cost = parseInt(data.cost * base)
+            data.energy = parseInt(data.energy * base)
+            data.app_name = "a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b"
+            data.param = "00"
+            if (data.eth_addr === undefined || data.eth_addr == "") {
+                $("#result").html("<span class=\"label label-danger\">need eth address</span>");
+                return
+            }
+            if (data.cost < 1000) {
+                $("#result").html("<span class=\"label label-danger\">require cost > 1000govm</span>");
+                return
+            }
+            rParam.eth_addr = data.eth_addr
+            data.json_param = rParam
+            data.param_type = "json"
+            data = JSON.stringify(data)
+            //alert(data)
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/1/transaction/app/run",
+                data: data,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data);
+                    $("#result").html("<span class=\"label label-success\">transaction:<a href=\"transaction.html?chain=1&key="
+                        + data.trans_key + "\">" + data.trans_key + "</a></span>");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest.status);
+                    console.log(XMLHttpRequest.readyState);
+                    console.log(XMLHttpRequest.responseText);
+                    console.log(textStatus);
+                    //alert(XMLHttpRequest.responseText)
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+
+        $.get("/api/v1/1/account?address=ff9b97a411b45c91779e1609386fa18484b8e50016379bd9", function (data, status) {
+            if (status != "success") {
+                alert("Chain:" + chain + ". Data: " + data + "\nStatus: " + status);
+                return;
+            }
+            if (data.cost === undefined) {
+                data.cost = 0
+            }
+            $('#govm_locked').html(data.cost / 1e9)
+        });
+
+    </script>
+</body>
+
+</html>

@@ -23,7 +23,7 @@ type TConfig struct {
 }
 
 // Version Version
-const Version = "v0.5.2"
+const Version = "v0.5.3"
 const defaultPWD = "govm_pwd@2019"
 
 var (
@@ -54,6 +54,11 @@ func init() {
 
 func loadConfig() error {
 	writeConf := false
+	conf.WalletFile = "wallet.key"
+	conf.APIServer = "http://govm.top:9090"
+	conf.StaticFiles = "static"
+	conf.HTTPPort = 9191
+
 	data, err := ioutil.ReadFile(confFile)
 	if err == nil {
 		err = json.Unmarshal(data, &conf)
@@ -66,16 +71,6 @@ func loadConfig() error {
 		writeConf = true
 	}
 
-	if conf.WalletFile == "" {
-		conf.WalletFile = "wallet.key"
-	}
-
-	if conf.APIServer == "" {
-		conf.APIServer = "http://govm.top:9090"
-	}
-	if conf.StaticFiles == "" {
-		conf.StaticFiles = "static"
-	}
 	if _, err := os.Stat(conf.WalletFile); os.IsNotExist(err) {
 		if conf.Password == "" {
 			conf.Password = defaultPWD

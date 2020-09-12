@@ -136,11 +136,20 @@ function dataEncode(input, type) {
             var myDate = new Date()
             myDate.setTime(input)
             return myDate.toString()
+        case "base2bytes":
+            var binary_string = window.atob(input);
+            var len = binary_string.length;
+            var bytes = new Uint8Array(len);
+            for (var i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes;
+        case "base2hex":
+            return dataEncode(dataEncode(input, "base2bytes"), "bytes2hex")
         case "cost2num":
             if (input === undefined || input == "" || input == "0" || typeof arr !== 'string') {
                 return 0;
             }
-            
             // t0,t3,t6,t9,tc,govm=t9
             var split = input.split("t")
             if (split.length <= 1){
