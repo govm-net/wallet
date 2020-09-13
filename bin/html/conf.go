@@ -23,7 +23,7 @@ type TConfig struct {
 }
 
 // Version Version
-const Version = "v0.5.3"
+const Version = "v0.5.4"
 const defaultPWD = "govm_pwd@2019"
 
 var (
