@@ -216,10 +216,12 @@
                 urlStr2 = "/api/v1/1/data?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
                 urlStr2 += "&struct_name=tSign&is_db_data=true&key=" + key;
                 $.get(urlStr2, function (data, status) {
-                    if (status == "success") {
+                    if (status != "success" || data.value === undefined) {
                         // console.log("sign:", data.value)
-                        $("#mint_signature").val("0x" + data.value)
+                        $("#result").html("Waiting for the administrator to sign");
+                        return
                     }
+                    $("#mint_signature").val("0x" + data.value)
                 });
             });
         });

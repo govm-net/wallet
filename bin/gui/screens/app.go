@@ -161,6 +161,12 @@ func makeWGOVMTab(w fyne.Window) fyne.Widget {
 			amount.SetPlaceHolder(amount.Text)
 			amount.SetText("")
 
+			engF, err := strconv.ParseFloat(energy.Text, 10)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error energy"), w)
+				return
+			}
+
 			if costF < 5000 {
 				dialog.ShowError(fmt.Errorf("require amount >= 5000govm"), w)
 				return
@@ -183,6 +189,7 @@ func makeWGOVMTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(err, w)
 				return
 			}
+			trans.Energy = uint64(engF * float64(base))
 
 			td := trans.GetSignData()
 			sign := myWlt.Sign(td)
@@ -193,6 +200,7 @@ func makeWGOVMTab(w fyne.Window) fyne.Widget {
 			err = postTrans(1, td)
 			if err != nil {
 				// result.SetText(fmt.Sprintf("%s", err))
+				log.Println(ethEntry.Text, trans.Cost, trans.Energy, err)
 				dialog.ShowError(err, w)
 				return
 			}
