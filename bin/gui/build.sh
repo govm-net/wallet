@@ -8,7 +8,7 @@ mkdir $folder
 mv govm.exe $folder
 cp assets $folder -rf
 cp conf.json $folder -rf
-zip -r govm_windows_wallet_$(date +'%Y%m%d_%H%M%S').tar.gz $folder
+zip -r govm_windows_wallet_$(date +'%Y%m%d_%H%M%S').zip $folder
 echo Enter to exit
 read k
 rm $folder -rf

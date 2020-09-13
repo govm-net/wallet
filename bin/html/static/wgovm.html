@@ -8,6 +8,27 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/x-ico" href="logo.ico" />
     <link rel="shortcut icon" href="logo.ico">
+    <style type="text/css">
+        input[readonly].form-control {
+            display: block;
+            width: 100%;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+
+        }
+    </style>
 </head>
 
 <body ng-app="">
@@ -70,30 +91,31 @@
                     <input type="text" class="form-control" id="search_key">
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" id="btn_key" data-localize="go">Go!</button>
+                        <button class="btn btn-default" type="button" id="next" data-localize="next">Next</button>
                     </span>
                 </div>
                 <br>
                 <div class="input-group">
                     <span class="input-group-addon" data-localize="key">Key:</span>
-                    <input type="text" class="form-control" id="mint_key">
+                    <input type="text" readonly class="form-control" id="mint_key">
                 </div>
                 <div class="input-group">
                     <span class="input-group-addon" data-localize="owner">Owner:</span>
-                    <input type="text" class="form-control" id="mint_owner">
+                    <input type="text" readonly class="form-control" id="mint_owner">
                 </div>
                 <div class="input-group">
                     <span class="input-group-addon" data-localize="eth_addr">Eth Address:</span>
-                    <input type="text" class="form-control" id="mint_eth_addr">
+                    <input type="text" readonly class="form-control" id="mint_eth_addr">
                 </div>
                 <div class="input-group">
                     <span class="input-group-addon" data-localize="cost">Amount:</span>
-                    <input type="number" class="form-control" id="mint_amount">
+                    <input type="number" readonly class="form-control" id="mint_amount">
                     <span class="input-group-addon">govm</span>
                     <div hidden><input type="number" id="mint_amount1"></div>
                 </div>
                 <div class="input-group">
                     <span class="input-group-addon" data-localize="signature">Signature:</span>
-                    <input type="text" class="form-control" id="mint_signature">
+                    <input type="text" readonly class="form-control" id="mint_signature">
                 </div>
                 <button type="button" class="btn btn-success pull-right" id="relayMint" data-localize="mint">Relay
                     Mint</button>
@@ -151,9 +173,32 @@
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);
         $("#base_energy").html(gCostBase);
+        $('#next').on('click', function () {
+            var key = $("#search_key").val();
+            urlStr1 = "/api/v1/1/data/visit?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
+            urlStr1 += "&struct_name=tTransIn&is_db_data=true&pre_key=" + key;
+            // console.log("url:", urlStr1)
+            $.get(urlStr1, function (data, status) {
+                if (status != "success" || data.key === undefined) {
+                    $("#result").html("not Found");
+                    $("#search_key").val("")
+                    $('#btn_key').click()
+                    return
+                }
+                $("#search_key").val(data.key)
+                $('#btn_key').click()
+            });
+        });
         $('#btn_key').on('click', function () {
             $("#result").html("");
+            $("#mint_key").val("")
+            $("#mint_owner").val("")
+            $("#mint_eth_addr").val("")
+            $("#mint_amount").val("")
+            $("#mint_amount1").val("")
+            $("#mint_signature").val("")
             var key = $("#search_key").val();
+            
             urlStr1 = "/api/v1/1/data?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
             urlStr1 += "&struct_name=tTransIn&is_db_data=true&key=" + key;
             $.get(urlStr1, function (data, status) {
@@ -162,7 +207,7 @@
                     return
                 }
                 var info = dataEncode(data.value, "hex2json")
-                console.log("trans:", info)
+                // console.log("trans:", info)
                 $("#mint_key").val("0x" + dataEncode(info.trans, "base2hex"))
                 $("#mint_owner").val(dataEncode(info.who, "base2hex"))
                 $("#mint_eth_addr").val(info.eth_addr)
@@ -172,7 +217,7 @@
                 urlStr2 += "&struct_name=tSign&is_db_data=true&key=" + key;
                 $.get(urlStr2, function (data, status) {
                     if (status == "success") {
-                        console.log("sign:", data.value)
+                        // console.log("sign:", data.value)
                         $("#mint_signature").val("0x" + data.value)
                     }
                 });
