@@ -12,7 +12,7 @@ mv html_wallet_linux $folder
 mv html_wallet_mac $folder
 cp static $folder -rf
 #tar zcvf "$folder"_$(date +'%Y%m%d_%H%M%S').tar.gz $folder
-zip -r "$folder"_$(date +'%Y%m%d_%H%M%S').tar.gz $folder
+zip -r "$folder"_$(date +'%Y%m%d_%H%M%S').zip $folder
 rm $folder -rf
 echo Enter to exit
 read k

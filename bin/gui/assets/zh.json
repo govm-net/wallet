@@ -61,6 +61,11 @@
 	"View Private Key":"查看明文私钥",
 	"Register Miner":"注册矿工",
 	"Miner":"矿工",
-	"Number":"数量",
-	"":""
+	"Eth Address":"以太坊地址",
+	"Run APP":"执行App",
+	"Data":"数据",
+	"Data Type":"数据类型",
+	"wgovm_desc":"将govm兑换为以太坊的wGovm\n1.执行当前App锁定govm\n2.管理员签名\n3.你自己在以太坊上造币(http://govm.net:9090/wgovm.html)",
+	"":"",
+	"Number":"数量"
 }

@@ -13,7 +13,7 @@ import (
 )
 
 // Vserion version of wallet
-const Vserion = "v0.5.2"
+const Vserion = "v0.5.3"
 
 // Config config
 type Config struct {

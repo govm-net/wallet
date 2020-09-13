@@ -102,6 +102,9 @@ function dataEncode(input, type) {
         case "bytes2int":
             return dataEncode(dataEncode(input, "bytes2hex"), "hex2int")
         case "hex2int":
+            if (input === undefined) {
+                return 0;
+            }
             return parseInt(input, 16)
         case "hex2bytes":
             var myUint8Array = new Uint8Array(input.match(/[\da-f]{2}/gi).map(function (h) {
