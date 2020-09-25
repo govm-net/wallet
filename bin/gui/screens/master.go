@@ -22,7 +22,7 @@ func Master(a fyne.App) fyne.Window {
 	tabs := widget.NewTabContainer(
 		widget.NewTabItemWithIcon(res.GetLocalString("Home"), theme.HomeIcon(), AccountScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("Transaction"), theme.MailSendIcon(), TransactionScreen(w)),
-		widget.NewTabItemWithIcon(res.GetLocalString("APP"), theme.MenuIcon(), AppScreen(w)),
+		widget.NewTabItemWithIcon(res.GetLocalString("APP"), theme.ComputerIcon(), AppScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("Search"), theme.SearchIcon(), SearchScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("History"), theme.ContentPasteIcon(), HistoryScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("Setting"), theme.SettingsIcon(), SettingScreen(w)))

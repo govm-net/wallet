@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
+	core "github.com/govm-net/govm/core"
+	"github.com/govm-net/govm/runtime"
 	"github.com/lengzhao/wallet/bin/gui/conf"
 	"github.com/lengzhao/wallet/bin/gui/event"
 	"github.com/lengzhao/wallet/bin/gui/res"
@@ -28,7 +31,7 @@ func makeAppRunTab(w fyne.Window) fyne.Widget {
 		dataType = nv
 	})
 	dType.SetSelected(dataType)
-	dEntry := widget.NewEntry()
+	dataEntry := widget.NewMultiLineEntry()
 	amount := widget.NewEntry()
 	unit := widget.NewLabel(c.CoinUnit)
 	energy := widget.NewEntry()
@@ -37,15 +40,10 @@ func makeAppRunTab(w fyne.Window) fyne.Widget {
 	result := widget.NewEntry()
 	result.Disable()
 
-	event.RegisterConsumer(event.EChangeUnit, func(e string, param ...interface{}) error {
-		unit.SetText(c.CoinUnit)
-		return nil
-	})
-
 	form := &widget.Form{
 		OnCancel: func() {
 			app.SetText("")
-			dEntry.SetText("")
+			dataEntry.SetText("")
 			amount.SetText("")
 			result.SetText("")
 		},
@@ -68,16 +66,16 @@ func makeAppRunTab(w fyne.Window) fyne.Widget {
 				return
 			}
 			var param []byte
-			if dEntry.Text != "" {
+			if dataEntry.Text != "" {
 				switch dataType {
 				case "hex":
-					param, err = hex.DecodeString(dEntry.Text)
+					param, err = hex.DecodeString(dataEntry.Text)
 					if err != nil {
 						dialog.ShowError(fmt.Errorf("error hex data.%s", err), w)
 						return
 					}
 				default:
-					param = []byte(dEntry.Text)
+					param = []byte(dataEntry.Text)
 				}
 			}
 
@@ -88,6 +86,7 @@ func makeAppRunTab(w fyne.Window) fyne.Widget {
 			err = trans.RunApp(app.Text, param)
 			if err != nil {
 				dialog.ShowError(err, w)
+				log.Println("fail to create transaction(run app):", err)
 				return
 			}
 
@@ -101,6 +100,7 @@ func makeAppRunTab(w fyne.Window) fyne.Widget {
 			if err != nil {
 				// result.SetText(fmt.Sprintf("%s", err))
 				dialog.ShowError(err, w)
+				log.Println("fail to run app:", err)
 				return
 			}
 			log.Printf("new transfer:%x\n", key)
@@ -113,7 +113,7 @@ func makeAppRunTab(w fyne.Window) fyne.Widget {
 	form.Append(res.GetLocalString("Chain"), chain)
 	form.Append(res.GetLocalString("App"), app)
 	form.Append(res.GetLocalString("Data Type"), dType)
-	form.Append(res.GetLocalString("Data"), dEntry)
+	form.Append(res.GetLocalString("Data"), dataEntry)
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)
 	form.Append(res.GetLocalString("Amount"), fyne.NewContainerWithLayout(borderLayout, unit, amount))
 	borderLayout2 := layout.NewBorderLayout(nil, nil, nil, unit2)
@@ -220,10 +220,115 @@ func makeWGOVMTab(w fyne.Window) fyne.Widget {
 	return widget.NewVBox(form, result)
 }
 
+func makeNewAPPTab(w fyne.Window) fyne.Widget {
+	c := conf.Get()
+	desc := widget.NewEntry()
+	desc.Disable()
+	desc.SetText(res.GetLocalString("new_app_desc"))
+	result := widget.NewEntry()
+	result.Disable()
+	codeEntry := widget.NewEntry()
+	codeEntry.SetText("./app.go")
+	btnOpen := widget.NewButton("Open", func() {
+		dialog.ShowFileOpen(func(in fyne.URIReadCloser, err error) {
+			if err != nil {
+				log.Println("fail to open file.", err)
+				return
+			}
+			if in == nil || in.URI() == nil {
+				log.Println("empty file.")
+				return
+			}
+			ext := in.URI().Extension()
+			if ext != ".go" && ext != ".govm" {
+				result.SetText("require go file")
+				dialog.ShowError(fmt.Errorf("require go file"), w)
+				return
+			}
+			fn := in.URI().String()
+			if strings.HasPrefix(fn, "file://") {
+				fn = fn[7:]
+			}
+
+			codeEntry.SetText(fn)
+			fmt.Println("file info:")
+			fmt.Println("name:", in.Name())
+			fmt.Println("Extension:", ext)
+			fmt.Println("MimeType:", in.URI().MimeType())
+			fmt.Println("Scheme:", in.URI().Scheme())
+			fmt.Println("URI:", in.URI().String())
+			fmt.Println("file name:", fn)
+		}, w)
+	})
+	energy := widget.NewEntry()
+	energy.SetText("1")
+	unit := widget.NewLabel(c.CoinUnit)
+
+	form := &widget.Form{
+		OnCancel: func() {
+			codeEntry.SetText("")
+			result.SetText("")
+		},
+		OnSubmit: func() {
+			result.SetText("")
+			defer func() {
+				err := recover()
+				if err != nil {
+					dialog.ShowError(fmt.Errorf("%s", err), w)
+				}
+			}()
+			engF, err := strconv.ParseFloat(energy.Text, 10)
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("error energy"), w)
+				return
+			}
+			fn := codeEntry.Text
+			if fn == "" {
+				dialog.ShowError(fmt.Errorf("require code file name"), w)
+				return
+			}
+			flag := runtime.AppFlagGzipCompress | runtime.AppFlagRun
+			flag |= runtime.AppFlagPlublc
+
+			code, _ := core.CreateAppFromSourceCode(fn, 0)
+			base := res.GetBaseOfUnit(c.CoinUnit)
+
+			myWlt := conf.GetWallet()
+			trans := trans.NewTransaction(1, myWlt.Address, 0)
+			trans.Energy = uint64(engF * float64(base))
+			trans.Data = code
+
+			td := trans.GetSignData()
+			sign := myWlt.Sign(td)
+			trans.SetTheSign(sign)
+			td = trans.Output()
+			key := trans.Key[:]
+
+			err = postTrans(1, td)
+			if err != nil {
+				log.Println("fail to new app:", trans.Energy, err)
+				dialog.ShowError(err, w)
+				return
+			}
+			log.Printf("new transfer:%x\n", key)
+			result.SetText(fmt.Sprintf("%x", key))
+		},
+	}
+
+	form.Append(res.GetLocalString("Description"), desc)
+	borderLayout := layout.NewBorderLayout(nil, nil, nil, btnOpen)
+	form.Append(res.GetLocalString("Code"), fyne.NewContainerWithLayout(borderLayout, btnOpen, codeEntry))
+	borderLayout2 := layout.NewBorderLayout(nil, nil, nil, unit)
+	form.Append(res.GetLocalString("Energy"), fyne.NewContainerWithLayout(borderLayout2, unit, energy))
+
+	return widget.NewVBox(form, result)
+}
+
 // AppScreen shows a panel containing widget demos
 func AppScreen(w fyne.Window) fyne.CanvasObject {
 	return widget.NewTabContainer(
 		widget.NewTabItem(res.GetLocalString("Run APP"), makeAppRunTab(w)),
 		widget.NewTabItem(res.GetLocalString("wGOVM"), makeWGOVMTab(w)),
+		widget.NewTabItem(res.GetLocalString("New APP"), makeNewAPPTab(w)),
 	)
 }

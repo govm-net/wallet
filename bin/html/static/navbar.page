@@ -1,21 +1,28 @@
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand"  data-localize="navbar.govm">GOVM</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li><a href="/index.html"  data-localize="navbar.home">Home</a></li>
-                <li><a href="/transfer.html"  data-localize="navbar.transfer">Transfer</a></li>
-                <li><a href="/move.html"  data-localize="navbar.move">Move</a></li>
-                <li><a href="/vote.html"  data-localize="navbar.vote">Vote</a></li>
-                <li><a href="/miner.html"  data-localize="navbar.miner">Miner</a></li>
-                <li><a href="/wgovm.html"  data-localize="navbar.wgovm">wGovm</a></li>
-                <li><a href="/run_app.html"  data-localize="navbar.run_app">Run APP</a></li>
-                <li><a href="/block.html" data-localize="navbar.block">Block</a></li>
-                <li><a href="/transaction.html" data-localize="navbar.transaction">Transaction</a></li>
-                <li><a href="/setting.html" data-localize="navbar.setting">Setting</a></li>
-            </ul>
-        </div>
-    </div>
+<nav class="navbar navbar-default">
+  <div class="navbar-header">
+    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#MenuCollaspe"
+      aria-controls="MenuCollaspe" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" data-localize="navbar.govm">GOVM</a>
+  </div>
+  <!-- navbar-nav -->
+  <div id="MenuCollaspe" class="navbar-collapse collapse">
+    <ul class="nav navbar-nav">
+      <li><a href="/index.html" data-localize="navbar.home">Home</a></li>
+      <li><a href="/transfer.html" data-localize="navbar.transfer">Transfer</a></li>
+      <li><a href="/move.html" data-localize="navbar.move">Move</a></li>
+      <li><a href="/vote.html" data-localize="navbar.vote">Vote</a></li>
+      <li><a href="/miner.html" data-localize="navbar.miner">Miner</a></li>
+      <li><a href="/wgovm.html" data-localize="navbar.wgovm">wGovm</a></li>
+      <li><a href="/run_app.html" data-localize="navbar.run_app">Run APP</a></li>
+      <li><a href="/new_app.html" data-localize="navbar.new_app">New APP</a></li>
+      <li><a href="/block.html" data-localize="navbar.block">Block</a></li>
+      <li><a href="/transaction.html" data-localize="navbar.transaction">Transaction</a></li>
+      <li><a href="/setting.html" data-localize="navbar.setting">Setting</a></li>
+    </ul>
+  </div>
 </nav>

@@ -53,9 +53,9 @@ Token.prototype.init = function () {
 // Displays the token balance of an address, triggered by the "Check balance" button
 Token.prototype.showAddressBalance = function (hash, cb) {
     var that = this;
-
+    $("#message").text("Waiting");
     // Gets form input value
-    var address = $("#balance-address").val();
+    var address = $("#search_addr").val();
 
     // Validates address using utility function
     if (!isValidAddress(address)) {
@@ -68,8 +68,8 @@ Token.prototype.showAddressBalance = function (hash, cb) {
         if (error) {
             console.log(error);
         } else {
-            console.log(balance/1E9);
-            $("#message").text(balance.toNumber()/1E9);
+            console.log(balance / 1E9);
+            $("#message").text(balance.toNumber() / 1E9);
         }
     });
 };
@@ -83,7 +83,7 @@ Token.prototype.getBalance = function (address, cb) {
 
 // Sends tokens to another address, triggered by the "Mint" button
 Token.prototype.mintTokens = function () {
-    $("#result").html("");
+    $("#mint_result").html("");
     var that = this;
     // Gets form input values
     var address = $("#mint_eth_addr").val();
@@ -95,31 +95,29 @@ Token.prototype.mintTokens = function () {
     // Validates address using utility function
     if (!isValidAddress(address)) {
         console.log("Invalid address");
-        $("#result").html("Invalid eth address");
+        $("#mint_result").html("Invalid eth address");
         return;
     }
 
     // Validate amount using utility function
-    if (!isValidAmount(amount)) {
+    if (!isValidAmount(amount) || amount < 1e10) {
         console.log("Invalid amount");
-        $("#result").html("Invalid amount");
+        $("#mint_result").html("Invalid amount");
         return;
     }
 
-    if (trans.length == 0){
+    if (trans.length == 0) {
         console.log("Invalid transaction key");
-        $("#result").html("Invalid transaction key");
+        $("#mint_result").html("Invalid transaction key");
         return;
     }
 
-    if (sign.length == 0){
+    if (sign.length == 0) {
         console.log("Invalid Signature");
-        $("#result").html("Invalid Signature");
+        $("#mint_result").html("Invalid Signature");
         return;
     }
-
-    console.log("relayMint:",address,amount,trans,sign)
-
+    console.log("relayMint:", address, amount, trans, sign)
     // Calls the public `mint` function from the smart contract
     this.instance.relayMint(
         address,
@@ -129,7 +127,7 @@ Token.prototype.mintTokens = function () {
         {
             from: window.web3.eth.accounts[0],
             gas: 1000000,
-            gasPrice: 100000,
+            gasPrice: 1e11,
             gasLimit: 1000000
         },
         function (error, txHash) {
@@ -139,20 +137,63 @@ Token.prototype.mintTokens = function () {
             // If success, wait for confirmation of transaction,
             // then clear form values
             else {
-                $("#result").html("tx:"+txHash);
-                $("#result").html("<span class=\"label label-success\">tx:<a target=\"_blank\" href=\"https://etherscan.io/tx/"
-                + txHash + "\">" + txHash + "</a></span>");
-                that.waitForReceipt(txHash, function (receipt) {
-                    if (receipt.status) {
-                        $("#create-address").val("");
-                        $("#create-amount").val("");
-                    } else {
-                        console.log("error");
-                    }
-                });
+                $("#mint_result").html("tx:" + txHash);
+                $("#mint_result").html("<span class=\"label label-success\">tx:<a target=\"_blank\" href=\"https://etherscan.io/tx/"
+                    + txHash + "\">" + txHash + "</a></span>");
             }
         }
     );
+};
+
+
+// Sends tokens to another address, triggered by the "Mint" button
+Token.prototype.burnTokens = function () {
+    $("#burn_result").html("");
+
+    var that = this;
+    // Gets form input values
+    var address = $("#govm_addr").val();
+    var amount = $("#burn_amount").val();
+    console.log("start burn:", address, amount);
+
+    // Validates address using utility function
+    if (address.length != 48) {
+        console.log("Invalid address.", address);
+        $("#burn_result").html("Invalid govm address");
+        return;
+    }
+
+    // Validate amount using utility function
+    if (!isValidAmount(amount) || amount < 10) {
+        console.log("Invalid amount");
+        $("#burn_result").html("Invalid amount");
+        return;
+    }
+
+    amount = amount * getBaseByName(gCostBase);
+    address = "0x" + address;
+    // console.log("burn001:", address, amount)
+
+    // burn wgovm, swap to govm
+    this.instance.burn(
+        amount,
+        address,
+        {
+            from: window.web3.eth.accounts[0],
+            gas: 1000000,
+            gasPrice: 0,
+            gasLimit: 200000
+        },
+        function (error, txHash) {
+            if (error) {
+                console.log(error);
+                return
+            }
+            $("#burn_result").html("<span class=\"label label-success\">tx:<a target=\"_blank\" href=\"https://etherscan.io/tx/"
+                + txHash + "\">" + txHash + "</a></span>");
+        }
+    );
+
 };
 
 // Waits for receipt of transaction
@@ -177,13 +218,13 @@ Token.prototype.waitForReceipt = function (hash, cb) {
         }
     });
 };
-Token.prototype.showTotal = function(){
-    this.instance.totalSupply( function (error, total) {
+Token.prototype.showTotal = function () {
+    this.instance.totalSupply(function (error, total) {
         if (error) {
             console.log(error);
         } else {
-            console.log("wgovm total:",total/1E9);
-            $("#wgovm_total").html(total.toNumber()/1E9);
+            console.log("wgovm total:", total / 1E9);
+            $("#wgovm_total").html(total.toNumber() / 1E9);
         }
     });
 }
@@ -198,6 +239,10 @@ Token.prototype.bindButtons = function () {
 
     $(document).on("click", "#button-check", function () {
         that.showAddressBalance();
+    });
+
+    $(document).on("click", "#button_burn", function () {
+        that.burnTokens();
     });
 };
 
@@ -240,7 +285,7 @@ function isValidAddress(address) {
 
 // Basic validation of amount. Bigger than 0 and typeof number
 function isValidAmount(amount) {
-    return amount > 1000000000 && typeof Number(amount) == "number";
+    return amount > 0 && typeof Number(amount) == "number";
 }
 
 if (typeof Contracts === "undefined") var Contracts = { Token: { abi: [] } };

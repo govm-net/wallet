@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lengzhao/govm/wallet"
+	"github.com/govm-net/govm/wallet"
 )
 
 const (
@@ -18,6 +18,19 @@ const (
 	AddressLen = 24
 	// AdminNum admin number
 	AdminNum = 23
+)
+
+const (
+	// AppFlagRun the app can be call
+	AppFlagRun = uint8(1 << iota)
+	// AppFlagImport the app code can be included
+	AppFlagImport
+	// AppFlagPlublc App funds address uses the plublc address, except for app, others have no right to operate the address.
+	AppFlagPlublc
+	// AppFlagGzipCompress gzip compress
+	AppFlagGzipCompress
+	// AppFlagEnd end of flag
+	AppFlagEnd
 )
 
 // Hash The KEY of the block of transaction

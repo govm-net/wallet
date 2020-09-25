@@ -95,6 +95,13 @@ var routes = Routes{
 	},
 
 	Route{
+		"TransactionNewAppPost",
+		strings.ToUpper("Post"),
+		"/api/v1/{chain}/transaction/app/new",
+		TransactionNewAppPost,
+	},
+
+	Route{
 		"TransactionRunAppPost",
 		strings.ToUpper("Post"),
 		"/api/v1/{chain}/transaction/app/run",

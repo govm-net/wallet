@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lengzhao/govm/encrypt"
-	"github.com/lengzhao/govm/wallet"
+	"github.com/govm-net/govm/encrypt"
+	"github.com/govm-net/govm/wallet"
 )
 
 // Wallet wallet

@@ -33,7 +33,8 @@ var i18n = map[string]string{
 	"opCode.6":         "Register Miner",
 	"setting.desc":     "Restart after setting",
 	"vote_desc":        "After voting, collect the income yourself (every month through 0 vote)",
-	"wgovm_desc":       "govm exchange to eth.wGovm\n1. run this.Contract to lock coins.\n2. sign by admin(1 day)\n3. relayMint by yourself(http://govm.net:9090/wgovm.html)",
+	"wgovm_desc":       "govm swap to eth.wGovm\n1. run this.Contract to lock coins.\n2. sign by admin(1 day)\n3. relayMint by yourself(http://govm.net:9090/wgovm.html)",
+	"new_app_desc":     "create app",
 }
 
 var readFile func(fn string) ([]byte, error)

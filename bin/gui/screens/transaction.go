@@ -52,6 +52,7 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 	// peer.SetText("01853433fb23a8e55663bc2b3cba0db2a8530acd60540fd9")
 	amount := widget.NewEntry()
 	unit := widget.NewLabel(c.CoinUnit)
+	tx := widget.NewEntry()
 	result := widget.NewEntry()
 	result.Disable()
 
@@ -83,7 +84,7 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 			cost := uint64(costF * float64(base))
 			myWlt := conf.GetWallet()
 			trans := trans.NewTransaction(cid, myWlt.Address, cost)
-			err = trans.CreateTransfer(peer.Text, "")
+			err = trans.CreateTransfer(peer.Text, tx.Text)
 			if err != nil {
 				dialog.ShowError(err, w)
 				return
@@ -111,6 +112,8 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 	form.Append(res.GetLocalString("transfer.peer"), peer)
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)
 	form.Append(res.GetLocalString("Amount"), fyne.NewContainerWithLayout(borderLayout, unit, amount))
+
+	form.Append(res.GetLocalString("Message"), tx)
 
 	return widget.NewVBox(form, result)
 }
