@@ -37,7 +37,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title" data-localize="wGovm">
-                    wGOVM
+                    wGOVM(lock govm)
                 </h3>
             </div>
             <div class="panel-body">
@@ -45,7 +45,7 @@
                     <div class="input-group">
                         <label class="label label-info" data-localize="description">Description:</label>
                         <label class="label label-primary" data-localize="desc_info">
-                            Wrapped GOVM. Exchange govm of chain1 to eth.wGovm,handling fee 1%.
+                            Wrapped GOVM. swap govm of chain1 to eth.wGovm,handling fee 1%.
                         </label>
                     </div>
                     <div class="input-group">
@@ -71,13 +71,12 @@
                     <br>
                     <button type="button" class="btn btn-success pull-right" id="submit"
                         data-localize="submit">Submit</button>
-                    <br>
                 </form>
+                <div>
+                    <h3 id="result">
+                    </h3>
+                </div>
             </div>
-        </div>
-        <div>
-            <h3 id="result">
-            </h3>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -117,11 +116,61 @@
                     <span class="input-group-addon" data-localize="signature">Signature:</span>
                     <input type="text" readonly class="form-control" id="mint_signature">
                 </div>
-                <button type="button" class="btn btn-success pull-right" id="relayMint" data-localize="mint">Relay
-                    Mint</button>
+                <button type="button" class="btn btn-success pull-right" id="relayMint" data-localize="relay_mint">
+                    Relay Mint</button>
+                <!-- <button type="button" class="btn btn-success pull-right" id="mint" data-localize="admin_mint">
+                    Admin Mint</button> -->
+            </div>
+            <div>
+                <h3 id="mint_result">
+                </h3>
             </div>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-localize="burn">
+                    Burn(wGOVM->govm)
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <label class="label label-info" data-localize="description">Description:</label>
+                    <label class="label label-primary" data-localize="desc_info1">
+                        Burn wGOVM, swap to govm.
+                    </label>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="chain">Chain</span>
+                    <span class="form-control">1</span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="burn_amount">Amount</span>
+                    <input type="number" class="form-control" placeholder=">10000" id="burn_amount">
+                    <span class="input-group-addon" id="base_burn"></span>
+                    <span class="input-group-addon label-success">*</span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="govm_addr">GOVM Address</span>
+                    <input type="text" class="form-control" id="govm_addr">
+                    <span class="input-group-addon label-success">*</span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="allowance">Allowance</span>
+                    <input type="text" readonly class="form-control" id="allowance" value="0">
+                    <span class="input-group-addon">govm</span>
+                </div>
+                <button class="btn btn-success" type="button" id="btn_approve" data-localize="approve">Approve</button>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-success" id="button_burn"
+                        data-localize="button_burn">Burn</button>
+                </div>
 
+                <div>
+                    <h3 id="burn_result">
+                    </h3>
+                </div>
+            </div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title" data-localize="info">
@@ -130,11 +179,20 @@
             </div>
             <div class="panel-body">
                 <div class="input-group">
-                    <span class="input-group-addon" data-localize="eth_contract">Eth Contract:</span>
+                    <span class="input-group-addon" data-localize="eth_contract">Eth Contract(Token):</span>
                     <span class="form-control">
                         <a target="_blank"
                             href="https://etherscan.io/address/0xac5d7dff150b195c97fca77001f8ad596eda1761#code">
                             0xaC5d7dFF150B195C97Fca77001f8AD596eda1761
+                        </a>
+                    </span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="manager_contract">Manager Contract:</span>
+                    <span class="form-control">
+                        <a target="_blank"
+                            href="https://etherscan.io/address/0xEb12a835C2FD57A912A76590C527fBB8e5E28f91#code">
+                            0xEb12a835C2FD57A912A76590C527fBB8e5E28f91
                         </a>
                     </span>
                 </div>
@@ -152,6 +210,18 @@
                     <span class="form-control" id="govm_locked"></span>
                     <span class="input-group-addon">govm</span>
                 </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="eth_addr">Eth Address:</span>
+                    <input type="text" class="form-control" id="search_addr">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" id="button-check" data-localize="go">Go!</button>
+                    </span>
+                </div>
+                <div>
+                    <h3 id="message">
+                    </h3>
+                </div>
             </div>
         </div>
     </div>
@@ -160,8 +230,9 @@
     <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/web3-0.20.5.js"></script>
-    <script src="js/wgovm_abi.js"></script>
-    <script src="js/wgovm.js?v=2"></script>
+    <script src="js/wgovm_abi.js?v=2"></script>
+    <script src="js/manager_abi.js?v=2"></script>
+    <script src="js/wgovm.js?v=15"></script>
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
@@ -173,6 +244,7 @@
     <script type="text/javascript">
         $("#base_cost").html(gCostBase);
         $("#base_energy").html(gCostBase);
+        $("#base_burn").html(gCostBase);
         $('#next').on('click', function () {
             var key = $("#search_key").val();
             urlStr1 = "/api/v1/1/data/visit?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
@@ -180,7 +252,7 @@
             // console.log("url:", urlStr1)
             $.get(urlStr1, function (data, status) {
                 if (status != "success" || data.key === undefined) {
-                    $("#result").html("not Found");
+                    $("#mint_result").html("not Found");
                     $("#search_key").val("")
                     $('#btn_key').click()
                     return
@@ -190,7 +262,7 @@
             });
         });
         $('#btn_key').on('click', function () {
-            $("#result").html("");
+            $("#mint_result").html("");
             $("#mint_key").val("")
             $("#mint_owner").val("")
             $("#mint_eth_addr").val("")
@@ -198,12 +270,12 @@
             $("#mint_amount1").val("")
             $("#mint_signature").val("")
             var key = $("#search_key").val();
-            
+
             urlStr1 = "/api/v1/1/data?app_name=a99b97a411b45c91779e1609386fa18484b8e50016379bd98c6822b491247b9b";
             urlStr1 += "&struct_name=tTransIn&is_db_data=true&key=" + key;
             $.get(urlStr1, function (data, status) {
                 if (status != "success" || data.value === undefined) {
-                    $("#result").html("not Found");
+                    $("#mint_result").html("not Found");
                     return
                 }
                 var info = dataEncode(data.value, "hex2json")
@@ -218,7 +290,7 @@
                 $.get(urlStr2, function (data, status) {
                     if (status != "success" || data.value === undefined) {
                         // console.log("sign:", data.value)
-                        $("#result").html("Waiting for the administrator to sign");
+                        $("#mint_result").html("Waiting for the administrator to sign");
                         return
                     }
                     $("#mint_signature").val("0x" + data.value)
@@ -279,6 +351,14 @@
                 data.cost = 0
             }
             $('#govm_locked').html(data.cost / 1e9)
+        });
+
+        $.get("/api/v1/1/account", function (data, status) {
+            if (status != "success" || data.address.length != 48) {
+                alert("Chain:" + chain + ". Data: " + data + "\nStatus: " + status);
+                return;
+            }
+            $('#govm_addr').val(data.address)
         });
 
     </script>

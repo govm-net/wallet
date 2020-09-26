@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	core "github.com/govm-net/govm/core"
 	"github.com/lengzhao/wallet/trans"
 )
 
@@ -26,14 +27,14 @@ type Blance struct {
 }
 
 func (b *Blance) get(chain uint64) uint64 {
-	now := time.Now().Unix()
-	if b.updateTime+10 > now {
+	now := time.Now().UnixNano()
+	if b.updateTime > now && b.value[chain] > 0 {
 		b.mu.Lock()
 		defer b.mu.Unlock()
 		return b.value[chain]
 	}
 	data := getDataFromServer(chain, "", "dbCoin", wallet.AddressStr)
-	b.updateTime = now + 10
+	b.updateTime = time.Now().Add(time.Second * 2).UnixNano()
 	if len(data) == 0 {
 		return 0
 	}
@@ -219,6 +220,94 @@ func TransactionTransferPost(w http.ResponseWriter, r *http.Request) {
 	info.Energy = trans.Energy
 	info.TransKey = hex.EncodeToString(key)
 
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(info)
+}
+
+// NewApp new app
+type NewApp struct {
+	Cost         uint64 `json:"cost,omitempty"`
+	Energy       uint64 `json:"energy,omitempty"`
+	CodePath     string `json:"code_path,omitempty"`
+	IsPrivate    bool   `json:"is_private,omitempty"`
+	EnableRun    bool   `json:"enable_run,omitempty"`
+	EnableImport bool   `json:"enable_import,omitempty"`
+	AppName      string `json:"app_name,omitempty"`
+	TransKey     string `json:"trans_key,omitempty"`
+}
+
+// TransactionNewAppPost new app
+func TransactionNewAppPost(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, "error code:", err)
+		}
+	}()
+	vars := mux.Vars(r)
+	chainStr := vars["chain"]
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "fail to read body of request,", err, chainStr)
+		return
+	}
+	chain, err := strconv.ParseUint(chainStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error chain"))
+		return
+	}
+	info := NewApp{}
+	err = json.Unmarshal(data, &info)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
+		return
+	}
+
+	var flag uint8
+	if !info.IsPrivate {
+		flag |= core.AppFlagPlublc
+		log.Println("1. flag:", flag)
+	}
+	if info.EnableRun {
+		flag |= core.AppFlagRun
+		log.Println("2. flag:", flag)
+	}
+	if info.EnableImport {
+		flag |= core.AppFlagImport
+		log.Println("3. flag:", flag)
+	}
+	code, _ := core.CreateAppFromSourceCode(info.CodePath, flag)
+	t := trans.NewTransaction(chain, wallet.Address, info.Cost)
+	t.SetEnergy(info.Energy)
+	if info.Cost+t.Energy > balance.get(chain) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "not enough cost")
+		return
+	}
+	t.Ops = trans.OpsNewApp
+	t.Data = code
+
+	td := t.GetSignData()
+	sign := wallet.Sign(td)
+	t.SetTheSign(sign)
+	td = t.Output()
+	key := t.Key[:]
+
+	err = postTrans(chain, td)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error:%s", err)
+		return
+	}
+
+	info.Energy = t.Energy
+	info.TransKey = hex.EncodeToString(key)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	enc := json.NewEncoder(w)
@@ -417,11 +506,6 @@ func TransactionVotePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintln(w, "fail to Unmarshal body of request,", err)
-		return
-	}
-	if info.Cost == 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "error cost value,", info.Cost)
 		return
 	}
 

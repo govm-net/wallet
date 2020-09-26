@@ -7,7 +7,18 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"reflect"
 )
+
+// Encode binary.BigEndian encode
+func Encode(in interface{}) []byte {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.BigEndian, in)
+	if err != nil {
+		log.Panic("fail to encode interface:", reflect.TypeOf(in).String(), in)
+	}
+	return buf.Bytes()
+}
 
 // Decode binary.BigEndian decode
 func Decode(in []byte, out interface{}) int {

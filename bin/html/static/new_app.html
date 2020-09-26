@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GOVM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-ico" href="logo.ico" />
+    <link rel="shortcut icon" href="logo.ico">
+</head>
+
+<body ng-app="">
+    <div class="container">
+        <div id="navbar"></div>
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab_default" data-toggle="tab" data-localize="tab_new">New APP</a></li>
+            <li><a href="#tab_search" data-toggle="tab" data-localize="tab_search">Search APP</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab_default">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" data-localize="new_app">
+                            New APP
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <form class="bs-example bs-example-form" role="form">
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="chain">Chain:</span>
+                                <input type="number" min="1" class="form-control" name="chain" value="1">
+                                <span class="input-group-addon label-success">*</span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="code_path">Code Path</span>
+                                <input type="text" class="form-control" name="code_path" placeholder="./app_code.go">
+                                <span class="input-group-addon label-success">*</span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" data-localize="energy">Energy</span>
+                                <input type="number" class="form-control" value="1" name="energy">
+                                <span class="input-group-addon">t9</span>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <input type="checkbox" name="is_private">Private</span>
+                                <span class="input-group-addon"></span>
+                                <span class="input-group-addon">
+                                    <input type="checkbox" checked="checked" name="enable_import">Enable Imported</span>
+                                <span class="input-group-addon"></span>
+                                <span class="input-group-addon">
+                                    <input type="checkbox" checked="checked" name="enable_run">Enable Run</span>
+                                <span class="form-control"></span>
+                            </div>
+                            <br>
+                            <button type="button" class="btn btn-success pull-right" id="submit"
+                                data-localize="submit">Submit</button>
+                            <br>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab_search">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" data-localize="search">
+                            Search
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="chain">Chain:</span>
+                            <input type="number" min="1" class="form-control" id="search_chain" value="1">
+                            <span class="input-group-addon label-success">*</span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="app_name">App Name:</span>
+                            <input type="text" class="form-control" id="search_key"
+                                value="ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btn_key"
+                                    data-localize="go">Go!</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" data-localize="app_info">
+                            APP Info
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="chain">Chain:</span>
+                            <span class="form-control" id="chain"></span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="key">Key:</span>
+                            <span class="form-control" id="key"></span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="flag">Flag:</span>
+                            <span class="form-control" id="flag"></span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="account">Account:</span>
+                            <span class="form-control" id="account"></span>
+                        </div>
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" data-localize="life">Life:</span>
+                            <span class="form-control" id="life"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h3 id="result">
+            </h3>
+        </div>
+    </div>
+
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery.edittable.min.js"></script>
+    <link rel="stylesheet" href="css/jquery.edittable.min.css">
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.serializejson.js"></script>
+    <script src="js/jquery.localize.min.js"></script>
+    <script src="js/load.js?v=6"></script>
+    <script src="js/encode.js?v=7"></script>
+
+    <script type="text/javascript">
+        $("#search_chain").val(gChainID);
+        $("input[name='chain']").val(gChainID);
+
+        $('#submit').on('click', function () {
+            $("#result").html("waiting...")
+            var data = $('form').serializeJSON()
+            data.energy = parseInt(data.energy * getBaseByName("t9"))
+            if (data.is_private == "on") {
+                data.is_private = true
+            }
+            if (data.enable_import == "on") {
+                data.enable_import = true
+            }
+            if (data.enable_run == "on") {
+                data.enable_run = true
+            }
+            var chain = data.chain
+            data = JSON.stringify(data)
+            //alert(data)
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/" + chain + "/transaction/app/new",
+                data: data,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    $("#result").html("<span class=\"label label-success\">key:<a href=\"transaction.html?chain=" + chain + "&key="
+                        + data.trans_key + "\">" + data.trans_key + "</a></span>");
+                    console.log(data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest.status);
+                    console.log(XMLHttpRequest.readyState);
+                    console.log(XMLHttpRequest.responseText);
+                    console.log(textStatus);
+                    $("#result").html("<span class=\"label label-danger\">error code:" + XMLHttpRequest.status +
+                        ". msg: " + XMLHttpRequest.responseText + "</span>");
+                }
+            });
+        });
+
+        function getAppInfo(chain, key) {
+            $("#chain").html("");
+            $("#key").html("");
+            $("#flag").html("");
+            $("#creater").html("");
+            $("#account").html("");
+            $("#life").html("");
+            $("#result").html("");
+            $.get("/api/v1/" + chain + "/transaction/app/info?key=" + key, function (data, status) {
+                console.log(data);
+                $("#chain").html("<b>" + chain + "</b>");
+                $("#key").html("<b>" + key + "</b>");
+                var flag = ""
+                if (data.flag & 1) {
+                    flag += "FlagRun . "
+                }
+                if (data.flag & 4) {
+                    flag += "FlagPlublc . "
+                }
+                if (data.flag & 2) {
+                    flag += "FlagImport"
+                }
+
+                $("#flag").html("<b>" + flag + "</b>");
+                $("#account").html("<b>" + bytes2Str(data.account) + "</b>");
+                var myDate = new Date()
+                myDate.setTime(data.life)
+                $("#life").html("<b>" + myDate.toString() + "</b>");
+            }).fail(function () {
+                $("#result").html("not found");
+            });
+        }
+
+        $('#btn_key').on('click', function () {
+            var chain = $("#search_chain").val()
+            var key = $("#search_key").val()
+            getAppInfo(chain, key)
+        });
+    </script>
+</body>
+
+</html>
