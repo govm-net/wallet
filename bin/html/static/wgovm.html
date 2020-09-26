@@ -116,15 +116,17 @@
                     <span class="input-group-addon" data-localize="signature">Signature:</span>
                     <input type="text" readonly class="form-control" id="mint_signature">
                 </div>
-                <button type="button" class="btn btn-success pull-right" id="relayMint" data-localize="mint">Relay
-                    Mint</button>
+                <button type="button" class="btn btn-success pull-right" id="relayMint" data-localize="relay_mint">
+                    Relay Mint</button>
+                <!-- <button type="button" class="btn btn-success pull-right" id="mint" data-localize="admin_mint">
+                    Admin Mint</button> -->
             </div>
             <div>
                 <h3 id="mint_result">
                 </h3>
             </div>
         </div>
-        <!-- <div class="panel panel-default">
+        <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title" data-localize="burn">
                     Burn(wGOVM->govm)
@@ -152,14 +154,23 @@
                     <input type="text" class="form-control" id="govm_addr">
                     <span class="input-group-addon label-success">*</span>
                 </div>
-                <button type="button" class="btn btn-success pull-right" id="button_burn"
-                    data-localize="button_burn">Burn</button>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="allowance">Allowance</span>
+                    <input type="text" readonly class="form-control" id="allowance" value="0">
+                    <span class="input-group-addon">govm</span>
+                </div>
+                <button class="btn btn-success" type="button" id="btn_approve" data-localize="approve">Approve</button>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-success" id="button_burn"
+                        data-localize="button_burn">Burn</button>
+                </div>
+
                 <div>
                     <h3 id="burn_result">
                     </h3>
                 </div>
             </div>
-        </div> -->
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title" data-localize="info">
@@ -168,11 +179,20 @@
             </div>
             <div class="panel-body">
                 <div class="input-group">
-                    <span class="input-group-addon" data-localize="eth_contract">Eth Contract:</span>
+                    <span class="input-group-addon" data-localize="eth_contract">Eth Contract(Token):</span>
                     <span class="form-control">
                         <a target="_blank"
                             href="https://etherscan.io/address/0xac5d7dff150b195c97fca77001f8ad596eda1761#code">
                             0xaC5d7dFF150B195C97Fca77001f8AD596eda1761
+                        </a>
+                    </span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" data-localize="manager_contract">Manager Contract:</span>
+                    <span class="form-control">
+                        <a target="_blank"
+                            href="https://etherscan.io/address/0xEb12a835C2FD57A912A76590C527fBB8e5E28f91#code">
+                            0xEb12a835C2FD57A912A76590C527fBB8e5E28f91
                         </a>
                     </span>
                 </div>
@@ -210,8 +230,9 @@
     <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/web3-0.20.5.js"></script>
-    <script src="js/wgovm_abi.js"></script>
-    <script src="js/wgovm.js?v=5"></script>
+    <script src="js/wgovm_abi.js?v=2"></script>
+    <script src="js/manager_abi.js?v=2"></script>
+    <script src="js/wgovm.js?v=15"></script>
     <!-- 包括所有已编译的插件 -->
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.serializejson.js"></script>

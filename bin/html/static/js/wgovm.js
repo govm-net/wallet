@@ -41,37 +41,11 @@ Token.prototype.init = function () {
     // Creates the contract interface using the web3.js contract object
     // Learn more: https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#new-contract
     var contract_interface = this.web3.eth.contract(this.Contract.abi);
-    // var contract_interface = new this.web3.eth.Contract(this.Contract.abi,this.Contract.address);
-
+    
     // Defines the address of the contract instance
     this.instance = this.Contract.address
         ? contract_interface.at(this.Contract.address)
         : { mintTokens: () => { } };
-
-};
-
-// Displays the token balance of an address, triggered by the "Check balance" button
-Token.prototype.showAddressBalance = function (hash, cb) {
-    var that = this;
-    $("#message").text("Waiting");
-    // Gets form input value
-    var address = $("#search_addr").val();
-
-    // Validates address using utility function
-    if (!isValidAddress(address)) {
-        console.log("Invalid address");
-        return;
-    }
-
-    // Gets the value stored within the `balances` mapping of the contract
-    this.getBalance(address, function (error, balance) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log(balance / 1E9);
-            $("#message").text(balance.toNumber() / 1E9);
-        }
-    });
 };
 
 // Returns the token balance (from the contract) of the given address
@@ -79,6 +53,53 @@ Token.prototype.getBalance = function (address, cb) {
     this.instance.balanceOf(address, function (error, result) {
         cb(error, result);
     });
+};
+
+// Returns the token balance (from the contract) of the given address
+Token.prototype.allowance = function (address) {
+    this.instance.allowance(
+        window.web3.eth.accounts[0],
+        address, function (error, result) {
+            if (error) {
+                console.log(error);
+            } else {
+                $("#allowance").val(result.toNumber() / 1E9);
+            }
+        });
+};
+
+Token.prototype.approve = function (address) {
+    var that = this;
+    if ($("#allowance").val()>1e10){
+        $("#burn_result").html("not need approve");
+        return;
+    }
+    this.instance.approve(
+        address,
+        1e25,
+        {
+            from: window.web3.eth.accounts[0],
+            gas: 1000000,
+            gasPrice: 1e11,
+            gasLimit: 100000
+        },
+        function (error, txHash) {
+            if (error) {
+                console.log(error);
+            }
+            // If success, wait for confirmation of transaction,
+            // then clear form values
+            else {
+                // $("#burn_result").html("not need approve");
+                // that.allowance(address);
+                $("#burn_result").html("<span class=\"label label-success\">tx:<a target=\"_blank\" href=\"https://etherscan.io/tx/"
+                + txHash + "\">" + txHash + "</a></span>");
+                that.waitForReceipt(txHash, function(r){
+                    that.allowance(address);
+                });
+            }
+        }
+    );
 };
 
 // Sends tokens to another address, triggered by the "Mint" button
@@ -147,7 +168,65 @@ Token.prototype.mintTokens = function () {
 
 
 // Sends tokens to another address, triggered by the "Mint" button
-Token.prototype.burnTokens = function () {
+Token.prototype.adminMintTokens = function () {
+    $("#mint_result").html("");
+    var that = this;
+    // Gets form input values
+    var address = $("#mint_eth_addr").val();
+    var amount = $("#mint_amount1").val();
+    var trans = $("#mint_key").val();
+    console.log(amount);
+
+    // Validates address using utility function
+    if (!isValidAddress(address)) {
+        console.log("Invalid address");
+        $("#mint_result").html("Invalid eth address");
+        return;
+    }
+
+    // Validate amount using utility function
+    if (!isValidAmount(amount) || amount < 1e10) {
+        console.log("Invalid amount");
+        $("#mint_result").html("Invalid amount");
+        return;
+    }
+
+    if (trans.length == 0) {
+        console.log("Invalid transaction key");
+        $("#mint_result").html("Invalid transaction key");
+        return;
+    }
+
+    console.log("admin mint:", address, amount, trans)
+    // Calls the public `mint` function from the smart contract
+    this.instance.mint(
+        address,
+        amount,
+        trans,
+        {
+            from: window.web3.eth.accounts[0],
+            gas: 1000000,
+            gasPrice: 1e11,
+            gasLimit: 1000000
+        },
+        function (error, txHash) {
+            if (error) {
+                console.log(error);
+            }
+            // If success, wait for confirmation of transaction,
+            // then clear form values
+            else {
+                $("#mint_result").html("tx:" + txHash);
+                $("#mint_result").html("<span class=\"label label-success\">tx:<a target=\"_blank\" href=\"https://etherscan.io/tx/"
+                    + txHash + "\">" + txHash + "</a></span>");
+            }
+        }
+    );
+};
+
+
+// Sends tokens to another address, triggered by the "Mint" button
+Token.prototype.burnTokens = function (balance) {
     $("#burn_result").html("");
 
     var that = this;
@@ -170,9 +249,19 @@ Token.prototype.burnTokens = function () {
         return;
     }
 
+    var allowance = $("#allowance").val();
+    if (amount > allowance * 1e9) {
+        $("#burn_result").html("Approve first");
+        return;
+    }
+
     amount = amount * getBaseByName(gCostBase);
     address = "0x" + address;
     // console.log("burn001:", address, amount)
+    if(amount > balance){
+        $("#burn_result").html("not enough balance. have:"+balance/1e9);
+        return;
+    }
 
     // burn wgovm, swap to govm
     this.instance.burn(
@@ -181,8 +270,8 @@ Token.prototype.burnTokens = function () {
         {
             from: window.web3.eth.accounts[0],
             gas: 1000000,
-            gasPrice: 0,
-            gasLimit: 200000
+            gasPrice: 1e11,
+            gasLimit: 1000000
         },
         function (error, txHash) {
             if (error) {
@@ -219,39 +308,17 @@ Token.prototype.waitForReceipt = function (hash, cb) {
     });
 };
 Token.prototype.showTotal = function () {
+    var that = this;
     this.instance.totalSupply(function (error, total) {
         if (error) {
             console.log(error);
         } else {
-            console.log("wgovm total:", total / 1E9);
+            console.log("wgovm total:", total / 1E9, that.Contract.address);
             $("#wgovm_total").html(total.toNumber() / 1E9);
         }
     });
 }
 
-// Binds functions to the buttons defined in app.html
-Token.prototype.bindButtons = function () {
-    var that = this;
-
-    $(document).on("click", "#relayMint", function () {
-        that.mintTokens();
-    });
-
-    $(document).on("click", "#button-check", function () {
-        that.showAddressBalance();
-    });
-
-    $(document).on("click", "#button_burn", function () {
-        that.burnTokens();
-    });
-};
-
-// Removes the welcome content, and display the main content.
-// Called once a contract has been deployed
-Token.prototype.updateDisplayContent = function () {
-    this.hideWelcomeContent();
-    this.showMainContent();
-};
 
 // Checks if the contract has been deployed.
 // A contract will not have its address set until it has been deployed
@@ -260,22 +327,9 @@ Token.prototype.hasContractDeployed = function () {
     // return true
 };
 
-Token.prototype.hideWelcomeContent = function () {
-    $("#welcome-container").addClass("hidden");
-};
-
-Token.prototype.showMainContent = function () {
-    $("#main-container").removeClass("hidden");
-};
-
 // Creates the instance of the `Token` object
 Token.prototype.onReady = function () {
     this.init();
-    if (this.hasContractDeployed()) {
-        this.updateDisplayContent();
-        this.bindButtons();
-        this.showTotal();
-    }
 };
 
 // Checks if it has the basic requirements of an address
@@ -290,7 +344,43 @@ function isValidAmount(amount) {
 
 if (typeof Contracts === "undefined") var Contracts = { Token: { abi: [] } };
 var token = new Token(Contracts["wgovm"]);
+var manager = new Token(Contracts["manager"]);
 
 $(document).ready(function () {
     token.onReady();
+    manager.onReady();
+    token.showTotal();
+    
+    var account = "";
+    var haveBalance = 0;
+    setInterval(function () {
+        if (web3.eth.accounts[0] !== account) {
+            account = web3.eth.accounts[0];
+            token.allowance(manager.Contract.address);
+            $("#burn_result").html("");
+            token.getBalance(account,
+                function (error, balance) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        haveBalance = balance.toNumber();
+                    }
+                });
+        }
+    }, 200);
+
+    $(document).on("click", "#relayMint", function () {
+        manager.mintTokens();
+    });
+
+    $(document).on("click", "#mint", function () {
+        manager.adminMintTokens();
+    });
+
+    $(document).on("click", "#button_burn", function () {
+        manager.burnTokens(haveBalance);
+    });
+    $(document).on("click", "#btn_approve", function () {
+        token.approve(manager.Contract.address);
+    });
 });
