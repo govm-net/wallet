@@ -25,8 +25,8 @@ const (
 	AppFlagRun = uint8(1 << iota)
 	// AppFlagImport the app code can be included
 	AppFlagImport
-	// AppFlagPlublc App funds address uses the plublc address, except for app, others have no right to operate the address.
-	AppFlagPlublc
+	// AppFlagPublic App funds address uses the plublc address, except for app, others have no right to operate the address.
+	AppFlagPublic
 	// AppFlagGzipCompress gzip compress
 	AppFlagGzipCompress
 	// AppFlagEnd end of flag
@@ -66,6 +66,11 @@ func (h *Hash) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// String string
+func (h Hash) String() string {
+	return hex.EncodeToString(h[:])
+}
+
 // Empty Check where Address is empty
 func (a Address) Empty() bool {
 	return a == (Address{})
@@ -91,6 +96,11 @@ func (a *Address) UnmarshalJSON(b []byte) error {
 	}
 	copy(a[:], v)
 	return nil
+}
+
+// String string
+func (a Address) String() string {
+	return hex.EncodeToString(a[:])
 }
 
 // TransactionHead transaction = sign + head + data

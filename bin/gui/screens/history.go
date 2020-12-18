@@ -37,8 +37,8 @@ type dataInfo struct {
 	Life       uint64 `json:"life,omitempty"`
 }
 
-func getIntOfDB(chain, structName, address string) uint64 {
-	value := getStringOfDB(chain, structName, address)
+func getIntOfDB(chain, appName, structName, address string) uint64 {
+	value, _ := getStringOfDB(chain, appName, structName, address)
 	if value == "" {
 		return 0
 	}
@@ -49,30 +49,33 @@ func getIntOfDB(chain, structName, address string) uint64 {
 
 	return out
 }
-func getStringOfDB(chain, structName, address string) string {
+func getStringOfDB(chain, appName, structName, address string) (string, uint64) {
+	if appName == "" {
+		appName = coreName
+	}
 	urlStr := conf.Get().APIServer
-	urlStr += "/api/v1/" + chain + "/data?app_name=" + coreName
+	urlStr += "/api/v1/" + chain + "/data?app_name=" + appName
 	urlStr += "&is_db_data=true&struct_name=" + structName
 	urlStr += "&key=" + address
 	resp, err := http.Get(urlStr)
 	if err != nil {
 		log.Println("fail to get db.", urlStr, err)
-		return ""
+		return "", 0
 	}
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK || len(data) == 0 {
 		log.Println("fail to get db.", urlStr, resp.Status, string(data))
-		return ""
+		return "", 0
 	}
 	info := dataInfo{}
 	err = json.Unmarshal(data, &info)
 	if err != nil || info.Value == "" {
 		log.Println("not value.", urlStr)
-		return ""
+		return "", 0
 	}
 	// log.Println("success to get:", urlStr, info.Value)
-	return info.Value
+	return info.Value, info.Life
 }
 
 func makeTransferOutList(w fyne.Window) fyne.Widget {
@@ -92,7 +95,7 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 		address := conf.GetWallet().AddressStr
 		// address := "01853433fb23a8e55663bc2b3cba0db2a8530acd60540fd9"
 		// newCount := getIntOfDB(chain.Selected, "statTransferOut", address)
-		newCount := getIntOfDB(chain.Selected, "statTransList", address)
+		newCount := getIntOfDB(chain.Selected, "", "statTransList", address)
 		log.Println("update:", "statTransferOut", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
 
@@ -106,7 +109,7 @@ func makeTransferOutList(w fyne.Window) fyne.Widget {
 				break
 			}
 			// transKey := getStringOfDB(chain.Selected, "statTransferOut", key)
-			transKey := getStringOfDB(chain.Selected, "statTransList", key)
+			transKey, _ := getStringOfDB(chain.Selected, "", "statTransList", key)
 			if transKey != "" {
 				his[key] = transKey
 			}
@@ -151,7 +154,7 @@ func makeTransferInList(w fyne.Window) fyne.Widget {
 	btn := widget.NewButton(res.GetLocalString("Update"), func() {
 		address := conf.GetWallet().AddressStr
 		// address := "01853433fb23a8e55663bc2b3cba0db2a8530acd60540fd9"
-		newCount := getIntOfDB(chain.Selected, "statTransferIn", address)
+		newCount := getIntOfDB(chain.Selected, "", "statTransferIn", address)
 		log.Println("update:", "statTransferIn", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
 
@@ -164,7 +167,7 @@ func makeTransferInList(w fyne.Window) fyne.Widget {
 			if ok {
 				break
 			}
-			transKey := getStringOfDB(chain.Selected, "statTransferIn", key)
+			transKey, _ := getStringOfDB(chain.Selected, "", "statTransferIn", key)
 			if transKey != "" {
 				his[key] = transKey
 			}
@@ -212,7 +215,7 @@ func makeMoveList(w fyne.Window) fyne.Widget {
 	btn := widget.NewButton(res.GetLocalString("Update"), func() {
 		address := conf.GetWallet().AddressStr
 		// address := addr.Text
-		newCount := getIntOfDB(chain.Selected, "statMove", address)
+		newCount := getIntOfDB(chain.Selected, "", "statMove", address)
 		log.Println("update:", "statMove", address, newCount)
 		updateTime.SetText(time.Now().Local().String())
 
@@ -225,7 +228,7 @@ func makeMoveList(w fyne.Window) fyne.Widget {
 			if ok {
 				break
 			}
-			transKey := getStringOfDB(chain.Selected, "statMove", key)
+			transKey, _ := getStringOfDB(chain.Selected, "", "statMove", key)
 			if transKey != "" {
 				his[key] = transKey
 			}

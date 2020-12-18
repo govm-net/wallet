@@ -92,6 +92,9 @@ func SettingScreen(win fyne.Window) fyne.CanvasObject {
 
 			dialog.ShowCustomConfirm(res.GetLocalString("Password"), "", "",
 				widget.NewVBox(logo, content), func(rst bool) {
+					if !rst {
+						return
+					}
 					pwd := content.Text
 					if pwd == "" {
 						return

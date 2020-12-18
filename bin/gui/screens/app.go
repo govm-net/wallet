@@ -11,9 +11,9 @@ import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
+	"fyne.io/fyne/storage"
 	"fyne.io/fyne/widget"
 	core "github.com/govm-net/govm/core"
-	"github.com/govm-net/govm/runtime"
 	"github.com/lengzhao/wallet/bin/gui/conf"
 	"github.com/lengzhao/wallet/bin/gui/event"
 	"github.com/lengzhao/wallet/bin/gui/res"
@@ -230,7 +230,7 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 	codeEntry := widget.NewEntry()
 	codeEntry.SetText("./app.go")
 	btnOpen := widget.NewButton("Open", func() {
-		dialog.ShowFileOpen(func(in fyne.URIReadCloser, err error) {
+		fd := dialog.NewFileOpen(func(in fyne.URIReadCloser, err error) {
 			if err != nil {
 				log.Println("fail to open file.", err)
 				return
@@ -259,10 +259,19 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 			fmt.Println("URI:", in.URI().String())
 			fmt.Println("file name:", fn)
 		}, w)
+		fd.SetFilter(storage.NewExtensionFileFilter([]string{".go", ".govm"}))
+		fd.Show()
 	})
 	energy := widget.NewEntry()
 	energy.SetText("1")
 	unit := widget.NewLabel(c.CoinUnit)
+
+	eRun := widget.NewCheck(res.GetLocalString("FlagRun"), nil)
+	eRun.SetChecked(true)
+	eImport := widget.NewCheck(res.GetLocalString("FlagImport"), nil)
+	eImport.SetChecked(true)
+	ePublic := widget.NewCheck(res.GetLocalString("FlagPublic"), nil)
+	ePublic.SetChecked(true)
 
 	form := &widget.Form{
 		OnCancel: func() {
@@ -274,7 +283,7 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 			defer func() {
 				err := recover()
 				if err != nil {
-					dialog.ShowError(fmt.Errorf("%s", err), w)
+					dialog.ShowError(fmt.Errorf("recover:%s", err), w)
 				}
 			}()
 			engF, err := strconv.ParseFloat(energy.Text, 10)
@@ -287,26 +296,35 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 				dialog.ShowError(fmt.Errorf("require code file name"), w)
 				return
 			}
-			flag := runtime.AppFlagGzipCompress | runtime.AppFlagRun
-			flag |= runtime.AppFlagPlublc
+			flag := trans.AppFlagGzipCompress
+			if eRun.Checked {
+				flag |= trans.AppFlagRun
+			}
+			if eImport.Checked {
+				flag |= trans.AppFlagImport
+			}
+			if ePublic.Checked {
+				flag |= trans.AppFlagPublic
+			}
 
-			code, _ := core.CreateAppFromSourceCode(fn, 0)
+			code, _ := core.CreateAppFromSourceCode(fn, flag)
 			base := res.GetBaseOfUnit(c.CoinUnit)
 
 			myWlt := conf.GetWallet()
-			trans := trans.NewTransaction(1, myWlt.Address, 0)
-			trans.Energy = uint64(engF * float64(base))
-			trans.Data = code
+			ts := trans.NewTransaction(1, myWlt.Address, 0)
+			ts.Energy = uint64(engF * float64(base))
+			ts.Ops = trans.OpsNewApp
+			ts.Data = code
 
-			td := trans.GetSignData()
+			td := ts.GetSignData()
 			sign := myWlt.Sign(td)
-			trans.SetTheSign(sign)
-			td = trans.Output()
-			key := trans.Key[:]
+			ts.SetTheSign(sign)
+			td = ts.Output()
+			key := ts.Key[:]
 
 			err = postTrans(1, td)
 			if err != nil {
-				log.Println("fail to new app:", trans.Energy, err)
+				log.Println("fail to new app:", ts.Energy, err)
 				dialog.ShowError(err, w)
 				return
 			}
@@ -320,6 +338,8 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 	form.Append(res.GetLocalString("Code"), fyne.NewContainerWithLayout(borderLayout, btnOpen, codeEntry))
 	borderLayout2 := layout.NewBorderLayout(nil, nil, nil, unit)
 	form.Append(res.GetLocalString("Energy"), fyne.NewContainerWithLayout(borderLayout2, unit, energy))
+	form.Append(res.GetLocalString("Flag"),
+		widget.NewHBox(eRun, ePublic, eImport))
 
 	return widget.NewVBox(form, result)
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/dialog"
@@ -36,9 +37,9 @@ func postTrans(chain uint64, data []byte) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		log.Println("error status:", resp.Status)
 		data, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("error,status:%s,msg:%s", resp.Status, data)
+		log.Printf("error status:%s,%s\n", resp.Status, data)
+		return fmt.Errorf("%s:%s", resp.Status, data)
 	}
 	return nil
 }
@@ -111,7 +112,8 @@ func makeTransferTab(w fyne.Window) fyne.Widget {
 	form.Append(res.GetLocalString("Chain"), chain)
 	form.Append(res.GetLocalString("transfer.peer"), peer)
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, unit)
-	form.Append(res.GetLocalString("Amount"), fyne.NewContainerWithLayout(borderLayout, unit, amount))
+	form.Append(res.GetLocalString("Amount"),
+		fyne.NewContainerWithLayout(borderLayout, unit, amount))
 
 	form.Append(res.GetLocalString("Message"), tx)
 
@@ -208,12 +210,6 @@ func makeVoteTab(w fyne.Window) fyne.Widget {
 	result := widget.NewEntry()
 	result.Disable()
 
-	event.RegisterConsumer(event.EAdminOfVote, func(e string, param ...interface{}) error {
-		peer.SetText(adminOfVote)
-		peer.Refresh()
-		return nil
-	})
-
 	form := &widget.Form{
 		OnCancel: func() {
 			votes.SetText("")
@@ -231,6 +227,17 @@ func makeVoteTab(w fyne.Window) fyne.Widget {
 			if err != nil {
 				dialog.ShowError(fmt.Errorf("error chain id"), w)
 				return
+			}
+			if v == 0 {
+				data := getDataFromServer(cid, c.APIServer, "", "dbVote", conf.GetWallet().AddressStr)
+				var vInfo1 VoteInfo
+				if len(data) > 0 {
+					Decode(data, &vInfo1)
+				}
+				if vInfo1.StartDay == 0 || vInfo1.StartDay > uint64(time.Now().Unix()/24/3600) {
+					dialog.ShowError(fmt.Errorf("not reward"), w)
+					return
+				}
 			}
 			base := res.GetBaseOfUnit("govm")
 			cost := uint64(v * base)
