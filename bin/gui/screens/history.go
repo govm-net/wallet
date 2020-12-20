@@ -1,12 +1,8 @@
 package screens
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"strconv"
 	"time"
 
 	"fyne.io/fyne"
@@ -15,68 +11,6 @@ import (
 	"github.com/lengzhao/wallet/bin/gui/conf"
 	"github.com/lengzhao/wallet/bin/gui/res"
 )
-
-//statCoinLock
-//statCoinUnlock
-//statMiningCount
-//statMinerHit
-//statMinerReg
-//statTransferIn
-//statTransferOut
-//statMove
-//statAPPRun
-
-const coreName = "ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
-
-type dataInfo struct {
-	AppName    string `json:"app_name,omitempty"`
-	StructName string `json:"struct_name,omitempty"`
-	IsDBData   bool   `json:"is_db_data,omitempty"`
-	Key        string `json:"key,omitempty"`
-	Value      string `json:"value,omitempty"`
-	Life       uint64 `json:"life,omitempty"`
-}
-
-func getIntOfDB(chain, appName, structName, address string) uint64 {
-	value, _ := getStringOfDB(chain, appName, structName, address)
-	if value == "" {
-		return 0
-	}
-	out, err := strconv.ParseUint(value, 16, 64)
-	if err != nil {
-		log.Println("parse error.", value, err)
-	}
-
-	return out
-}
-func getStringOfDB(chain, appName, structName, address string) (string, uint64) {
-	if appName == "" {
-		appName = coreName
-	}
-	urlStr := conf.Get().APIServer
-	urlStr += "/api/v1/" + chain + "/data?app_name=" + appName
-	urlStr += "&is_db_data=true&struct_name=" + structName
-	urlStr += "&key=" + address
-	resp, err := http.Get(urlStr)
-	if err != nil {
-		log.Println("fail to get db.", urlStr, err)
-		return "", 0
-	}
-	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusOK || len(data) == 0 {
-		log.Println("fail to get db.", urlStr, resp.Status, string(data))
-		return "", 0
-	}
-	info := dataInfo{}
-	err = json.Unmarshal(data, &info)
-	if err != nil || info.Value == "" {
-		log.Println("not value.", urlStr)
-		return "", 0
-	}
-	// log.Println("success to get:", urlStr, info.Value)
-	return info.Value, info.Life
-}
 
 func makeTransferOutList(w fyne.Window) fyne.Widget {
 	var his = make(map[string]string)

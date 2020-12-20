@@ -75,40 +75,6 @@ func statusToString(in int) string {
 	}
 }
 
-func runApp(chain, cost, energy uint64, app, prefix string, param []byte) (string, error) {
-	myWlt := conf.GetWallet()
-	trans := trans.NewTransaction(chain, myWlt.Address, cost)
-	var body []byte
-	var err error
-	if prefix != "" {
-		body, err = hex.DecodeString(prefix)
-		if err != nil {
-			return "", err
-		}
-	}
-	if len(param) > 0 {
-		body = append(body, param...)
-	}
-	trans.Energy = energy
-	err = trans.RunApp(app, body)
-	if err != nil {
-		return "", err
-	}
-	td := trans.GetSignData()
-	sign := myWlt.Sign(td)
-	trans.SetTheSign(sign)
-	td = trans.Output()
-	key := trans.Key[:]
-
-	err = postTrans(chain, td)
-	if err != nil {
-		// result.SetText(fmt.Sprintf("%s", err))
-		log.Println("fail to run app:", err)
-		return "", err
-	}
-	return hex.EncodeToString(key), nil
-}
-
 func makeTaskInfoTab(w fyne.Window) fyne.Widget {
 	c := conf.Get()
 	chain := widget.NewSelect(c.Chains, nil)
@@ -390,7 +356,13 @@ func makeActionTab(w fyne.Window) fyne.Widget {
 
 	clickEvent := func() {
 		result.SetText("")
-		showForm.Hide()
+		// showForm.Hide()
+		actionID.SetText("")
+		actionUser.SetText("")
+		actionStatus.SetText("")
+		actionReward.SetText("")
+		actionMsg.SetText("")
+
 		id, err := strconv.ParseUint(taskIndex.Text, 10, 64)
 		if err != nil || id == 0 {
 			result.SetText("error task id")
@@ -520,7 +492,7 @@ func makeActionTab(w fyne.Window) fyne.Widget {
 				}
 			}
 		}
-		showForm.Show()
+		// showForm.Show()
 		showForm.Refresh()
 	}
 	NextEvent := func() {
@@ -539,7 +511,11 @@ func makeActionTab(w fyne.Window) fyne.Widget {
 	form := &widget.Form{}
 	form.Append(res.GetLocalString("Task ID"), taskIndex)
 	form.Append(res.GetLocalString("Offset"), searchItem)
-	go clickEvent()
+	go func() {
+		num := getIntOfDB(chain.Selected, taskApp, "tApp", "0000")
+		taskIndex.SetText(fmt.Sprintf("%d", num))
+		clickEvent()
+	}()
 
 	return widget.NewVBox(form,
 		widget.NewGroup(res.GetLocalString("Action Info"), showForm), result)

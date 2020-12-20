@@ -24,6 +24,7 @@ func Master(a fyne.App) fyne.Window {
 		widget.NewTabItemWithIcon(res.GetLocalString("Transaction"), theme.MailSendIcon(), TransactionScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("dAPP"), theme.ComputerIcon(), AppScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("Task"), theme.FileTextIcon(), TaskScreen(w)),
+		widget.NewTabItemWithIcon(res.GetLocalString("Customize"), theme.FileAudioIcon(), CustomizeScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("Search"), theme.SearchIcon(), SearchScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("History"), theme.ContentPasteIcon(), HistoryScreen(w)),
 		widget.NewTabItemWithIcon(res.GetLocalString("Setting"), theme.SettingsIcon(), SettingScreen(w)))
