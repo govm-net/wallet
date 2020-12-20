@@ -13,7 +13,7 @@ import (
 )
 
 // Vserion version of wallet
-const Vserion = "v0.5.5"
+const Vserion = "v0.5.6"
 
 // Config config
 type Config struct {
@@ -62,6 +62,7 @@ func init() {
 		data, _ = json.MarshalIndent(conf, "", "  ")
 		ioutil.WriteFile(confFile, data, 666)
 	}
+	Load("govm_pwd@2019")
 }
 
 func getLangure() string {
