@@ -262,6 +262,11 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 		fd.SetFilter(storage.NewExtensionFileFilter([]string{".go", ".govm"}))
 		fd.Show()
 	})
+	var chainID uint64 = 1
+	chain := widget.NewSelect(c.Chains, func(s string) {
+		chainID, _ = strconv.ParseUint(s, 10, 64)
+	})
+	chain.SetSelected(c.DefaultChain)
 	energy := widget.NewEntry()
 	energy.SetText("1")
 	unit := widget.NewLabel(c.CoinUnit)
@@ -311,7 +316,7 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 			base := res.GetBaseOfUnit(c.CoinUnit)
 
 			myWlt := conf.GetWallet()
-			ts := trans.NewTransaction(1, myWlt.Address, 0)
+			ts := trans.NewTransaction(chainID, myWlt.Address, 0)
 			ts.Energy = uint64(engF * float64(base))
 			ts.Ops = trans.OpsNewApp
 			ts.Data = code
@@ -332,7 +337,7 @@ func makeNewAPPTab(w fyne.Window) fyne.Widget {
 			result.SetText(fmt.Sprintf("%x", key))
 		},
 	}
-
+	form.Append(res.GetLocalString("Chain"), chain)
 	form.Append(res.GetLocalString("Description"), desc)
 	borderLayout := layout.NewBorderLayout(nil, nil, nil, btnOpen)
 	form.Append(res.GetLocalString("Code"), fyne.NewContainerWithLayout(borderLayout, btnOpen, codeEntry))

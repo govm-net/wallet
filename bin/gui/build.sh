@@ -8,6 +8,8 @@ mkdir $folder
 mv govm.exe $folder
 cp assets $folder -rf
 cp conf.json $folder -rf
+cp dynamic_ui.json $folder -rf
+cp usage.txt $folder -rf
 zip -r govm_windows_wallet_$(date +'%Y%m%d_%H%M%S').zip $folder
 echo Enter to exit
 read k

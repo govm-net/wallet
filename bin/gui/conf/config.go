@@ -17,13 +17,14 @@ const Vserion = "v0.5.6"
 
 // Config config
 type Config struct {
-	APIServer    string   `json:"api_server,omitempty"`
-	WalletFile   string   `json:"wallet_file,omitempty"`
-	Langure      string   `json:"langure,omitempty"`
-	LangureList  []string `json:"langure_list,omitempty"`
-	CoinUnit     string   `json:"coin_unit,omitempty"`
-	DefaultChain string   `json:"default_chain,omitempty"`
-	Chains       []string `json:"chains,omitempty"`
+	APIServer     string   `json:"api_server,omitempty"`
+	WalletFile    string   `json:"wallet_file,omitempty"`
+	Langure       string   `json:"langure,omitempty"`
+	LangureList   []string `json:"langure_list,omitempty"`
+	CoinUnit      string   `json:"coin_unit,omitempty"`
+	DefaultChain  string   `json:"default_chain,omitempty"`
+	Chains        []string `json:"chains,omitempty"`
+	DynamicUIFile string   `json:"dynamic_ui_file,omitempty"`
 }
 
 // Public key of config

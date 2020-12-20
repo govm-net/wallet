@@ -1,0 +1,124 @@
+1. webset: https://govm.net/
+2. default password: govm_pwd@2019
+3. Important: Please back up the private key file wallet.key
+4. How to copy content: select content -> right click -> Copy
+5. How to create a dApp:
+    1. Sample code: https://github.com/lengzhao/dapp
+    2. Open the GUI wallet: govm.exe
+    3. dApp->New APP->Select chain->Code: Open->Select the app code->Submit
+    4. Copy the transaction ID, you can go to "Search" -> Transaction -> Paste that transaction ID -> Submit, you can query the specific information of the transaction
+    5. Wait a few minutes until the transaction is packaged
+6. How to customize the UI of a dApp
+    1. You can edit the custom ui file:dynamic_ui.json
+    2. All custom UIs are in the "Customize" page
+        1. Tab tabs beginning with V indicate the query UI
+        2. The tabs beginning with R represent the UI to run App
+        3. Code reference: screens/dynamic_ui.go
+    3. Next, we will introduce the configuration of custom UI "dynamic_ui.json"
+    4. View UI: view_ui, only query data, no cost
+        1. name: the name of the label
+        2. app: the name of the dAPP
+        3. description: introduction information, will be displayed on the tab page
+        4. struct: Each data is stored in the struct of the app, and the name of the struct is required for query
+        5. chain: The chain where the data is stored
+        6. show_expiration: Whether to display the expiration time of the data
+        7. hide: Whether to hide the tab, if set to true, the tab will not be displayed
+        8. input: Query parameter information list
+            1. mode: data entry mode
+                1. hex: The input is a hex string, such as "a101"
+                2. address: The input is a address, which will automatically fill in the user's wallet address
+                3. string: The input is a string
+                4. uint64/uint32/uint16/uint8: The input is a number
+                5. float: The input is a float
+                6. hash: Hash of the previous input data
+                7. map: The input is map[string]interface{}, which can include sub
+            2. title: The title of the data, which will be displayed on the left side of the input box
+            3. value: default value, can be empty
+            4. hide: Whether to hide the input, if it is a fixed input, it can be hidden
+            5. multi_line: whether the input box needs multiple lines
+            6. empty_enable: whether the input can be empty
+            7. sub: the sub-parameter of the loop, used when mode=map, the sample can check the input in run_ui
+        9. view: how to display the results of the query
+            1. mode: data display mode
+                1. hex: convert data to hex string. E.g. address
+                2. string: directly output data in string format
+                3. number: Data is parsed into digital
+                4. map: The data is parsed into map[string]interface{} data, which can carry sub to display specific information
+            2. title: The title of the data, which will be displayed on the left side of the input box
+            3. length: The length of the data, it is optional, if configured, the specified length data will be intercepted and processed
+            4. key: the key of the data, used when the data is in json format
+            5. multi_line: Whether to display in multiple lines
+            6. sub: cycle sub-parameter, used when mode=map
+    3. Run UI: run_ui, execution of dApp need energy
+        1. name: The name of the label
+        2. app: the name of the dAPP
+        3. description: Introduction information, will be displayed on the tab
+        4. chains: List of supported chains
+        5. hide: Whether to hide the label, if set to true, the label will not be displayed
+        6. cost：The cost required by the dAPP, the dAPP is free without setting
+        7. energy: The energy for executing the dAPP (to the miner), if not set, the default energy will be used
+        8. input: List of parameter information for executing the contract
+            Specific configuration refer to view_ui->input
+
+Simplified Chinese, zh: 中文
+1. 官网：https://govm.net/
+2. 默认密码：govm_pwd@2019
+3. 重要：请备份好私钥文件wallet.key
+4. 如何复制内容：选择内容->右键->Copy
+5. 如何创建dApp：
+    1. 样例代码：https://github.com/lengzhao/dapp
+    2. 打开GUI钱包：govm.exe
+    3. dApp->New APP->Select chain->Code: Open->Select the app code->Submit
+    4. 复制交易ID，可以在“查询”->交易->粘贴那个交易ID->Submit，可以查询交易的具体信息
+    5. 等几分钟，直到交易被打包
+6. 如何自定义dApp的UI
+    1. 请编辑自定义ui的文件：dynamic_ui.json
+    2. 所有的自定义UI在“自定义”页面中
+        1. 以V开头的标签页表示查询UI
+        2. 以R开头的标签页表示运行App的UI
+        3. 代码参考：screens/dynamic_ui.go
+    3. 接下来将介绍自定义UI的配置dynamic_ui.json
+    4. 查询UI：view_ui，只查询数据，不需要费用
+        1. name：标签的名字
+        2. app：dAPP的名字
+        3. description：介绍信息，将显示在标签页上
+        4. struct：每个数据都是存储在app的struct中，查询时需要struct的名字
+        5. chain：数据所在的chain
+        6. show_expiration：是否显示数据的过期时间
+        7. hide：是否隐藏标签，如果设置为true，该标签将不显示
+        8. input：查询的参数信息列表
+            1. mode：数据的入参模式
+                1. hex：输入的为hex字符串，如“a101”
+                2. address：入参为地址，将自动填充用户的钱包地址
+                3. string：输入的就是字符串
+                4. uint64/uint32/uint16/uint8：输入的为数字
+                5. float：输入的为浮点数
+                6. hash：对前面的输入的数据进行哈希计算
+                7. map：输入的是map[string]interface{},需要携带sub
+            2. title：数据的标题，将显示在输入框的左侧
+            3. value：默认值，可以为空
+            4. hide：是否隐藏该配置，如果是固定的输入，可以隐藏
+            5. multi_line：输入框是否需要多行
+            6. empty_enable：输入是否可以为空
+            7. sub：循环的子参数，mode=map时使用，样例可以查看run_ui中的input
+        9. view：查询得到的结果的显示方式
+            1. mode：数据的显示模式
+                1. hex：将数据转为hex string
+                2. string：直接将数据以string格式输出
+                3. number：数据直接解析为数字显示
+                4. map：数据解析为map[string]interface{}数据，可以携带sub进一步显示具体信息
+            2. title：数据的标题，将显示在输入框的左侧
+            3. length：数据的长度，可以不配置，如果配置，将截取指定长度，进行处理
+            4. key：数据的key，当数据为json格式时使用
+            5. multi_line：是否多行显示
+            6. sub：循环的子参数，mode=map时使用
+    3. 执行UI：run_ui，执行dApp需要费用
+        1. name：标签的名字
+        2. app：dAPP的名字
+        3. description：介绍信息，将显示在标签页上
+        4. chains：支持的chain列表
+        5. hide：是否隐藏标签，如果设置为true，该标签将不显示
+        6. cost：合约要求的费用，没有设置表示合约免费
+        7. energy：执行合约的手续费（给矿工的），不设置将使用默认手续费
+        8. input：执行合约的参数信息列表
+            具体的配置参考view_ui->input

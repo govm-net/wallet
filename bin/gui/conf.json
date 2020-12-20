@@ -11,5 +11,6 @@
   "chains": [
     "1",
     "2"
-  ]
+  ],
+  "dynamic_ui_file": "dynamic_ui.json"
 }

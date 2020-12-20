@@ -1,0 +1,246 @@
+{
+    "view_ui": [
+        {
+            "name": "Category",
+            "app": "cdc09c276df3af32f8f60c33d57710374fe126f482fa50db61271bac0886e348",
+            "description": "category of flag",
+            "struct": "tCategory",
+            "chain": 1,
+            "show_expiration": true,
+            "hide": false,
+            "input": [
+                {
+                    "mode": "string",
+                    "title": "key"
+                }
+            ],
+            "view": [
+                {
+                    "mode": "map",
+                    "title": "",
+                    "sub": [
+                        {
+                            "mode": "string",
+                            "title": "ID",
+                            "key": "id"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "Description",
+                            "key": "desc"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Flag",
+            "app": "cdc09c276df3af32f8f60c33d57710374fe126f482fa50db61271bac0886e348",
+            "description": "flag of address",
+            "struct": "tUser",
+            "chain": 1,
+            "show_key": true,
+            "show_expiration": true,
+            "input": [
+                {
+                    "mode": "address",
+                    "title": "Address",
+                    "value": "01ccaf415a3a6dc8964bf935a1f40e55654a4243ae99c709"
+                },
+                {
+                    "mode": "string",
+                    "title": "Category",
+                    "value": "discord"
+                },
+                {
+                    "mode": "hash",
+                    "hide": true
+                }
+            ],
+            "view": [
+                {
+                    "mode": "map",
+                    "title": "",
+                    "sub": [
+                        {
+                            "mode": "hex",
+                            "title": "Address",
+                            "key": "addr"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "Category",
+                            "key": "category"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "ID",
+                            "key": "id"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "Desc",
+                            "key": "desc"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "LastAction",
+            "app": "c11b3b8aa630a7fbfccec9e023c363749e9c60db43d7678f43c96075e5c2ddc0",
+            "description": "accept one task to new one action",
+            "struct": "tActionStatus",
+            "chain": 1,
+            "show_key": true,
+            "show_expiration": true,
+            "input": [
+                {
+                    "mode": "address",
+                    "title": "Address"
+                }
+            ],
+            "view": [
+                {
+                    "mode": "number",
+                    "title": "Action ID"
+                }
+            ]
+        }
+    ],
+    "run_ui": [
+        {
+            "name": "Flag",
+            "app": "cdc09c276df3af32f8f60c33d57710374fe126f482fa50db61271bac0886e348",
+            "description": "Tag yourself and let others know you",
+            "chains": [
+                1
+            ],
+            "energy": 0.1,
+            "hide": false,
+            "input": [
+                {
+                    "mode": "hex",
+                    "title": "Prefix",
+                    "value": "02",
+                    "hide": true
+                },
+                {
+                    "mode": "map",
+                    "sub": [
+                        {
+                            "mode": "string",
+                            "title": "Category",
+                            "key": "category",
+                            "value":"discord"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "ID",
+                            "key": "id",
+                            "value":""
+                        },
+                        {
+                            "mode": "string",
+                            "title": "Description",
+                            "key": "desc",
+                            "value": "",
+                            "empty_enable": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Category",
+            "app": "cdc09c276df3af32f8f60c33d57710374fe126f482fa50db61271bac0886e348",
+            "description": "add new category of flag",
+            "chains": [
+                1
+            ],
+            "energy": 0.1,
+            "hide": false,
+            "input": [
+                {
+                    "mode": "hex",
+                    "title": "Prefix",
+                    "value": "00",
+                    "hide": true
+                },
+                {
+                    "mode": "map",
+                    "sub": [
+                        {
+                            "mode": "string",
+                            "title": "Category",
+                            "key": "id"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "Desc",
+                            "key": "desc",
+                            "empty_enable": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "AcceptTask",
+            "app": "c11b3b8aa630a7fbfccec9e023c363749e9c60db43d7678f43c96075e5c2ddc0",
+            "description": "accept task",
+            "chains": [
+                1
+            ],
+            "energy": 0.1,
+            "hide": false,
+            "input": [
+                {
+                    "mode": "hex",
+                    "title": "Option",
+                    "value": "02",
+                    "hide":true
+                },
+                {
+                    "mode": "uint64",
+                    "title": "TaskID",
+                    "value": "1"
+                }
+            ]
+        },
+        {
+            "name": "CommitAction",
+            "app": "c11b3b8aa630a7fbfccec9e023c363749e9c60db43d7678f43c96075e5c2ddc0",
+            "description": "add new category of flag",
+            "chains": [
+                1
+            ],
+            "energy": 0.1,
+            "hide": false,
+            "input": [
+                {
+                    "mode": "hex",
+                    "title": "Prefix",
+                    "value": "03",
+                    "hide": true
+                },
+                {
+                    "mode": "map",
+                    "sub": [
+                        {
+                            "mode": "string",
+                            "title": "ActionID",
+                            "key": "id"
+                        },
+                        {
+                            "mode": "string",
+                            "title": "Proof",
+                            "key": "msg",
+                            "empty_enable": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
