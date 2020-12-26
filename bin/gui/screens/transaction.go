@@ -210,6 +210,12 @@ func makeVoteTab(w fyne.Window) fyne.Widget {
 	result := widget.NewEntry()
 	result.Disable()
 
+	event.RegisterConsumer(event.EAdminOfVote, func(e string, param ...interface{}) error {
+		peer.SetText(adminOfVote)
+		peer.Refresh()
+		return nil
+	})
+
 	form := &widget.Form{
 		OnCancel: func() {
 			votes.SetText("")
